@@ -2,3 +2,4 @@
 export * from './lobby';
 export * from './game-session';
 export * from './events';
+export * from './game';
