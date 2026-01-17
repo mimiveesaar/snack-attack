@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: Snack Attack Lobby API
+  version: 0.1.0
+  description: Minimal HTTP surface for lobby lifecycle; real-time sync handled via sockets.
+servers:
+  - url: https://api.snack-attack.example
+paths:
+  /lobbies:
+    post:
+      summary: Create a new lobby
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  minLength: 1
+                  maxLength: 31
+                  pattern: "^[A-Za-z0-9]+$"
+                color:
+                  type: string
+              required: [nickname, color]
+      responses:
+        '201':
+          description: Lobby created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyState'
+        '400':
+          description: Validation error
+  /lobbies/{lobbyId}/join:
+    post:
+      summary: Join an existing lobby
+      parameters:
+        - in: path
+          name: lobbyId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  minLength: 1
+                  maxLength: 31
+                  pattern: "^[A-Za-z0-9]+$"
+                color:
+                  type: string
+              required: [nickname, color]
+      responses:
+        '200':
+          description: Joined lobby or placed in waiting state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyState'
+        '404':
+          description: Lobby not found
+        '409':
+          description: Lobby full or locked (singleplayer)
+  /lobbies/{lobbyId}/settings:
+    post:
+      summary: Update lobby settings (leader only)
+      parameters:
+        - in: path
+          name: lobbyId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gamemode:
+                  type: string
+                  enum: [singleplayer, multiplayer]
+                difficulty:
+                  type: string
+                  enum: [easy, medium, hard]
+              additionalProperties: false
+      responses:
+        '200':
+          description: Settings applied and broadcast
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyState'
+        '403':
+          description: Not leader
+        '404':
+          description: Lobby not found
+  /lobbies/{lobbyId}/start:
+    post:
+      summary: Start game (leader only)
+      parameters:
+        - in: path
+          name: lobbyId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Game session started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+        '403':
+          description: Not leader
+        '409':
+          description: Lobby invalid for start (capacity violation)
+  /lobbies/{lobbyId}:
+    get:
+      summary: Fetch lobby snapshot
+      parameters:
+        - in: path
+          name: lobbyId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lobby snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LobbyState'
+        '404':
+          description: Lobby not found
+components:
+  schemas:
+    Player:
+      type: object
+      properties:
+        id: { type: string }
+        nicknameBase: { type: string }
+        nicknameDisplay: { type: string }
+        color: { type: string }
+        isLeader: { type: boolean }
+      required: [id, nicknameBase, nicknameDisplay, color, isLeader]
+    LobbyState:
+      type: object
+      properties:
+        lobbyId: { type: string }
+        players:
+          type: array
+          items: { $ref: '#/components/schemas/Player' }
+        gamemode:
+          type: string
+          enum: [singleplayer, multiplayer]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        maxPlayers: { type: integer }
+        status:
+          type: string
+          enum: [waiting, active]
+        shareUrl: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [lobbyId, players, gamemode, difficulty, maxPlayers, status, shareUrl, createdAt]
+    GameSession:
+      type: object
+      properties:
+        sessionId: { type: string }
+        lobbyId: { type: string }
+        status:
+          type: string
+          enum: [active, ended]
+        timerRemainingMs: { type: integer }
+        leaderboard:
+          type: array
+          items:
+            type: object
+            properties:
+              playerId: { type: string }
+              nicknameDisplay: { type: string }
+              score: { type: integer }
+            required: [playerId, nicknameDisplay, score]
+        seatsAvailable: { type: integer }
+      required: [sessionId, lobbyId, status, leaderboard]

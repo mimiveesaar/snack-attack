@@ -1,0 +1,21 @@
+# Node/TypeScript
+node_modules/
+dist/
+build/
+coverage/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+
+# Editors/OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# pnpm store cache
+.pnpm-store/

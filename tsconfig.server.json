@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist/server",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "moduleResolution": "Node"
+  },
+  "include": ["src/server/**/*", "shared/**/*"],
+  "exclude": ["src/client/**/*"]
+}
