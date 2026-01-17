@@ -1,20 +1,82 @@
 import type { Player, Gamemode, Difficulty } from './lobby';
 import type { GameSession, LeaderboardEntry } from './game-session';
 
+export interface Vec2D {
+  x: number;
+  y: number;
+}
+
 /**
- * Game State: Represents the runtime state of an active game session.
- * This is what players see and interact with during gameplay.
+ * Game-specific player state during active gameplay
+ */
+export interface GamePlayer {
+  id: string;
+  nicknameDisplay: string;
+  color: string;
+  isLeader: boolean;
+  position: Vec2D;
+  velocity: Vec2D;
+  xp: number;
+  growthPhase: 1 | 2 | 3;
+  collisionRadius: number;
+  visualSize: number;
+  status: 'alive' | 'respawning' | 'spectating';
+  respawnTimeMs: number | null;
+  graceEndTimeMs: number | null;
+  powerups: ('speed-boost' | 'double-xp')[];
+  powerupEndTimes: Map<'speed-boost' | 'double-xp', number>;
+  lastInputTick: number;
+  inputQueue: GameInput[];
+}
+
+export interface GameNPC {
+  id: string;
+  type: 'pink' | 'grey' | 'brown';
+  xp: number;
+  position: Vec2D;
+  velocity: Vec2D;
+  collisionRadius: number;
+  visualSize: number;
+  status: 'spawning' | 'alive' | 'despawning';
+  spawnTimeMs: number;
+}
+
+export interface GamePowerUp {
+  id: string;
+  type: 'speed-boost' | 'double-xp';
+  position: Vec2D;
+  collisionRadius: number;
+  spawnTimeMs: number;
+  status: 'spawning' | 'available' | 'collected' | 'despawning';
+}
+
+export interface GameLeaderboardEntry {
+  id: string;
+  nicknameDisplay: string;
+  xp: number;
+  isLeader: boolean;
+  status: 'alive' | 'respawning' | 'spectating' | 'quit';
+}
+
+/**
+ * Game State: Complete runtime state of an active game session.
+ * This is the server authoritative state.
  */
 export interface GameState {
   sessionId: string;
   lobbyId: string;
-  players: Player[];
-  gamemode: Gamemode;
-  difficulty: Difficulty;
-  status: 'active' | 'ended';
-  timerRemainingMs: number;
-  leaderboard: LeaderboardEntry[];
-  seatsAvailable?: number;
+  createdAt: number;
+  startedAt: number;
+  status: 'active' | 'paused' | 'ended';
+  timerStartMs: number;
+  gameTimerDurationMs: number;
+  isPaused: boolean;
+  pausedByLeaderId: string | null;
+  serverTick: number;
+  players: GamePlayer[];
+  npcs: GameNPC[];
+  powerups: GamePowerUp[];
+  leaderboard: GameLeaderboardEntry[];
 }
 
 /**
@@ -33,14 +95,13 @@ export interface PlayerGameState {
 }
 
 /**
- * Game Input: Events sent by players during gameplay
- * (movement, actions, etc.)
+ * Game Input: Movement input sent by players during gameplay
  */
 export interface GameInput {
   playerId: string;
-  direction?: 'up' | 'down' | 'left' | 'right' | null;
-  action?: 'fire' | 'special' | null;
+  direction: { x: -1 | 0 | 1; y: -1 | 0 | 1 };
   timestamp: number;
+  tick: number;
 }
 
 /**
@@ -58,7 +119,7 @@ export interface GameUpdate {
 
 /**
  * Game Event: In-game events that occur
- * (collision, point awarded, player eliminated, etc.)
+ * (collision, point awarded, elimination, etc.)
  */
 export interface GameEvent {
   type: 'collision' | 'point' | 'elimination' | 'powerup' | 'custom';
