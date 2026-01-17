@@ -17,13 +17,13 @@ description: "Tasks for Snack Attack Active Game Mechanics"
 
 ## Phase 1: Setup & Infrastructure (Shared Foundation)
 
-- [ ] T001 Wire `/game` namespace and game controller in server socket bootstrap in [src/server/index.ts](src/server/index.ts)
-- [ ] T002 [P] Create game session state management layer with in-memory storage in [src/server/game/state.ts](src/server/game/state.ts)
-- [ ] T003 [P] Implement clock synchronization handshake (ping/pong + offset calculation) in [src/server/game/clock.ts](src/server/game/clock.ts)
-- [ ] T004 [P] Create shared game event types and Socket.IO event schemas in [src/shared/game-events.ts](src/shared/game-events.ts) (extend contracts)
-- [ ] T005 Setup game scene component scaffold with fixed 500×500 canvas layout in [src/client/game/components/game-scene.ts](src/client/game/components/game-scene.ts)
-- [ ] T006 [P] Create scene controller to route between lobby and game views in [src/client/game/scene-controller.ts](src/client/game/scene-controller.ts)
-- [ ] T007 [P] Implement game HUD overlay template (timer, pause button, end screen) in [src/client/game/components/game-hud.ts](src/client/game/components/game-hud.ts)
+- [x] T001 Wire `/game` namespace and game controller in server socket bootstrap in [src/server/index.ts](src/server/index.ts)
+- [x] T002 [P] Create game session state management layer with in-memory storage in [src/server/game/state.ts](src/server/game/state.ts)
+- [x] T003 [P] Implement clock synchronization handshake (ping/pong + offset calculation) in [src/server/game/clock.ts](src/server/game/clock.ts)
+- [x] T004 [P] Create shared game event types and Socket.IO event schemas in [src/shared/game-events.ts](src/shared/game-events.ts) (extend contracts)
+- [x] T005 Setup game scene component scaffold with fixed 500×500 canvas layout in [src/client/game/components/game-scene.ts](src/client/game/components/game-scene.ts)
+- [x] T006 [P] Create scene controller to route between lobby and game views in [src/client/game/scene-controller.ts](src/client/game/scene-controller.ts)
+- [x] T007 [P] Implement game HUD overlay template (timer, pause button, end screen) in [src/client/game/components/game-hud.ts](src/client/game/components/game-hud.ts)
 
 ## Phase 2: Foundation - Core Game Loop & Physics
 
