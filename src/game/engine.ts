@@ -68,9 +68,6 @@ export class GameEngine {
     if (input.direction) {
       this.movePlayer(playerState, input.direction);
     }
-    if (input.action) {
-      this.executeAction(playerState, input.action);
-    }
   }
 
   /**
@@ -83,33 +80,10 @@ export class GameEngine {
     this.gameEvents = []; // Clear events after processing
   }
 
-  private movePlayer(state: PlayerGameState, direction: string): void {
+  private movePlayer(state: PlayerGameState, direction: { x: -1 | 0 | 1; y: -1 | 0 | 1 }): void {
     const SPEED = 5;
-    switch (direction) {
-      case 'up':
-        state.positionY = Math.max(0, state.positionY - SPEED);
-        break;
-      case 'down':
-        state.positionY = Math.min(500, state.positionY + SPEED);
-        break;
-      case 'left':
-        state.positionX = Math.max(0, state.positionX - SPEED);
-        break;
-      case 'right':
-        state.positionX = Math.min(500, state.positionX + SPEED);
-        break;
-    }
-  }
-
-  private executeAction(state: PlayerGameState, action: string): void {
-    if (action === 'fire') {
-      this.gameEvents.push({
-        type: 'custom',
-        playerId: state.playerId,
-        timestamp: Date.now(),
-        data: { actionType: 'fire' },
-      });
-    }
+    state.positionX = Math.max(0, Math.min(500, state.positionX + direction.x * SPEED));
+    state.positionY = Math.max(0, Math.min(500, state.positionY + direction.y * SPEED));
   }
 
   private updatePhysics(): void {
@@ -121,13 +95,15 @@ export class GameEngine {
   }
 
   private updateLeaderboard(): void {
-    const leaderboard: LeaderboardEntry[] = Array.from(this.playerStates.values())
+    const leaderboard = Array.from(this.playerStates.values())
       .filter((p) => p.isAlive)
       .sort((a, b) => b.score - a.score)
-      .map((p) => ({
-        playerId: p.playerId,
+      .map((p, idx) => ({
+        id: p.playerId,
         nicknameDisplay: p.nicknameDisplay,
-        score: p.score,
+        xp: p.score,
+        isLeader: idx === 0,
+        status: p.isAlive ? ('active' as const) : ('quit' as const),
       }));
 
     this.gameState.leaderboard = leaderboard;
@@ -137,11 +113,17 @@ export class GameEngine {
    * Get current game update to broadcast to clients
    */
   public getGameUpdate(): GameUpdate {
+    const leaderboard = this.gameState.leaderboard.map((entry) => ({
+      playerId: entry.id,
+      nicknameDisplay: entry.nicknameDisplay,
+      score: entry.xp,
+    }));
+
     return {
       sessionId: this.sessionId,
       timestamp: Date.now(),
       players: Array.from(this.playerStates.values()),
-      leaderboard: this.gameState.leaderboard,
+      leaderboard: leaderboard,
       timerRemainingMs: this.gameState.timerRemainingMs,
       events: [...this.gameEvents],
     };
@@ -154,7 +136,7 @@ export class GameEngine {
     this.stop();
     const durationMs = Date.now() - this.startTimeMs;
 
-    const leaderboard: LeaderboardEntry[] = Array.from(this.playerStates.values())
+    const leaderboard = Array.from(this.playerStates.values())
       .sort((a, b) => b.score - a.score)
       .map((p) => ({
         playerId: p.playerId,
