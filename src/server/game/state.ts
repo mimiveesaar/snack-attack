@@ -1,9 +1,16 @@
 import type { GameState, GamePlayer, GameNPC, GamePowerUp, GameLeaderboardEntry, GameInput } from '@shared/game';
-import type { Player, LeaderboardEntry } from '@shared/types';
+import type { LeaderboardEntry } from '@shared/types';
 
 export interface Vec2D {
   x: number;
   y: number;
+}
+
+export interface GamePlayerInit {
+  id: string;
+  nicknameDisplay: string;
+  color: string;
+  isLeader?: boolean;
 }
 
 /**
@@ -13,12 +20,12 @@ export interface Vec2D {
 export class GameSessionState {
   private state: GameState;
 
-  constructor(sessionId: string, lobbyId: string, players: Player[]) {
+  constructor(sessionId: string, lobbyId: string, players: GamePlayerInit[]) {
     const gamePlayers: GamePlayer[] = players.map((p, idx) => ({
       id: p.id,
       nicknameDisplay: p.nicknameDisplay,
       color: p.color,
-      isLeader: p.isLeader,
+      isLeader: p.isLeader || idx === 0,
       position: { x: 250 + (idx % 2) * 50, y: 250 + Math.floor(idx / 2) * 50 },
       velocity: { x: 0, y: 0 },
       xp: 0,
@@ -278,7 +285,7 @@ export class GameSessionState {
  */
 const sessionStore = new Map<string, GameSessionState>();
 
-export function createGameSession(sessionId: string, lobbyId: string, players: Player[]): GameSessionState {
+export function createGameSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): GameSessionState {
   const session = new GameSessionState(sessionId, lobbyId, players);
   sessionStore.set(sessionId, session);
   return session;

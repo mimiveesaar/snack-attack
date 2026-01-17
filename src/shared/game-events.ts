@@ -3,10 +3,7 @@
  * Extends the shared types with game-specific events
  */
 
-export interface Vec2D {
-  x: number;
-  y: number;
-}
+import type { Vec2D, GameLeaderboardEntry } from './game';
 
 /**
  * Client → Server Events
@@ -70,7 +67,7 @@ export interface GamePowerUpStateUpdate {
   position: Vec2D;
 }
 
-export interface GameLeaderboardEntry {
+export interface GameLeaderboardEntryPayload {
   playerId: string;
   nicknameDisplay: string;
   rank: number;
@@ -106,7 +103,7 @@ export interface GameStateUpdatePayload {
   pausedByLeaderNickname: string | null;
   timerRemainingMs: number;
   events: CollisionEventData[];
-  leaderboard: GameLeaderboardEntry[];
+  leaderboard: GameLeaderboardEntryPayload[];
 }
 
 export interface GameCollisionPayload {

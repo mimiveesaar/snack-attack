@@ -42,17 +42,17 @@ description: "Tasks for Snack Attack Active Game Mechanics"
 
 ### Implementation
 
-- [ ] T015 [P] [US1] Create visual entity base class with position, state, lifecycle in [src/client/game/entities/visual-entity.ts](src/client/game/entities/visual-entity.ts)
-- [ ] T016 [P] [US1] Implement Fish entity with size, color, animation states in [src/client/game/entities/fish.ts](src/client/game/entities/fish.ts)
-- [ ] T017 [US1] Build player renderer manager to render self-controlled player fish with predicted position in [src/client/game/managers/player-renderer.ts](src/client/game/managers/player-renderer.ts)
-- [ ] T018 [US1] Initialize game session on server when lobby starts with `/game` room and player state setup in [src/server/game/orchestrator.ts](src/server/game/orchestrator.ts) (extend T010)
-- [ ] T019 [US1] Implement `game:state-update` broadcast at 10 Hz with player positions, velocities, leaderboard in [src/server/game/loop.ts](src/server/game/loop.ts) (extend T008)
+- [x] T015 [P] [US1] Create visual entity base class with position, state, lifecycle in [src/client/game/entities/visual-entity.ts](src/client/game/entities/visual-entity.ts)
+- [x] T016 [P] [US1] Implement Fish entity with size, color, animation states in [src/client/game/entities/fish.ts](src/client/game/entities/fish.ts)
+- [x] T017 [US1] Build player renderer manager to render self-controlled player fish with predicted position in [src/client/game/managers/player-renderer.ts](src/client/game/managers/player-renderer.ts)
+- [x] T018 [US1] Initialize game session on server when lobby starts with `/game` room and player state setup in [src/server/game/orchestrator.ts](src/server/game/orchestrator.ts) (extend T010)
+- [x] T019 [US1] Implement `game:state-update` broadcast at 10 Hz with player positions, velocities, leaderboard in [src/server/game/loop.ts](src/server/game/loop.ts) (extend T008)
 - [ ] T020 [US1] Wire client state subscription to render player position + velocity on state update in [src/client/game/scene-controller.ts](src/client/game/scene-controller.ts) (extend T006)
 - [ ] T021 [US1] Implement 2-minute countdown timer with 1s tick broadcast in [src/server/game/loop.ts](src/server/game/loop.ts) (extend T008); render in HUD in [src/client/game/components/game-hud.ts](src/client/game/components/game-hud.ts) (extend T007)
-- [ ] T022 [US1] Create NPC entity and hostile renderer manager to spawn and render all NPCs in [src/client/game/managers/hostile-renderer.ts](src/client/game/managers/hostile-renderer.ts)
-- [ ] T023 [P] [US1] Implement server-side NPC spawning logic (Pink/Grey/Brown with frequency/cap limits) in [src/server/game/npc-spawner.ts](src/server/game/npc-spawner.ts)
-- [ ] T024 [US1] Implement eating collision logic: resolve in joinOrder, transfer XP, despawn NPC, update leaderboard in [src/server/game/collision.ts](src/server/game/collision.ts) (extend T011)
-- [ ] T025 [P] [US1] Build leaderboard display component updating in real-time in [src/client/game/components/leaderboard.ts](src/client/game/components/leaderboard.ts)
+- [x] T022 [US1] Create NPC entity and hostile renderer manager to spawn and render all NPCs in [src/client/game/managers/hostile-renderer.ts](src/client/game/managers/hostile-renderer.ts)
+- [x] T023 [P] [US1] Implement server-side NPC spawning logic (Pink/Grey/Brown with frequency/cap limits) in [src/server/game/npc-spawner.ts](src/server/game/npc-spawner.ts)
+- [x] T024 [US1] Implement eating collision logic: resolve in joinOrder, transfer XP, despawn NPC, update leaderboard in [src/server/game/collision.ts](src/server/game/collision.ts) (extend T011)
+- [x] T025 [P] [US1] Build leaderboard display component updating in real-time in [src/client/game/components/leaderboard.ts](src/client/game/components/leaderboard.ts)
 - [ ] T026 [US1] Implement game end at 0:00 with results screen (winner, final leaderboard, navigation buttons) in [src/client/game/components/game-hud.ts](src/client/game/components/game-hud.ts) (extend T007)
 - [ ] T027 [US1] Handle graceful game end on server, broadcast `game:ended` event with final leaderboard in [src/server/game/loop.ts](src/server/game/loop.ts) (extend T008)
 

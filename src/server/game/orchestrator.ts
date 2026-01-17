@@ -9,11 +9,16 @@
  */
 
 import type { Namespace } from 'socket.io';
-import type { Player } from '@shared/types';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '@shared/game-events';
 import { createGameSession, getGameSession, deleteGameSession } from './state';
 import { createGameLoop, deleteGameLoop } from './loop';
 import { createPlayerClockSync } from './clock';
+
+export interface GamePlayerInit {
+  id: string;
+  nicknameDisplay: string;
+  color: string;
+}
 
 export class GameOrchestrator {
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>;
@@ -26,7 +31,7 @@ export class GameOrchestrator {
   /**
    * Create and start a new game session
    */
-  startSession(sessionId: string, lobbyId: string, players: Player[]): boolean {
+  startSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): boolean {
     if (this.activeSessions.has(sessionId)) {
       console.warn(`GameOrchestrator: Session ${sessionId} already active`);
       return false;
@@ -121,3 +126,13 @@ export function createGameOrchestrator(
 export function getGameOrchestrator(): GameOrchestrator | null {
   return orchestrator;
 }
+
+// Singleton instance - initialized on first use
+export const gameOrchestrator = new Proxy({} as GameOrchestrator, {
+  get(_target, prop) {
+    if (!orchestrator) {
+      throw new Error('GameOrchestrator not initialized. Call createGameOrchestrator first.');
+    }
+    return (orchestrator as any)[prop];
+  },
+});

@@ -1,9 +1,10 @@
 import { createServer } from 'node:http';
-import { Server } from 'socket.io';
+import { Server, Namespace } from 'socket.io';
 
 import { lobbyStore, type LobbyRecord } from './lobby-store';
 import { gameSessionManager } from './game-session';
-import { ClientToServerEvents, ServerToClientEvents } from '../shared/types';
+import { ClientToServerEvents, ServerToClientEvents, GameClientToServerEvents, GameServerToClientEvents } from '../shared/types';
+import { GameController } from './game/controller';
 
 const PORT = Number(process.env.SOCKET_PORT || 3001);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
@@ -26,6 +27,19 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 lobbyStore.startCleanup();
 
 const lobbyNs = io.of('/lobby');
+
+// Create game namespace for game session management
+const gameNs = io.of('/game') as Namespace<GameClientToServerEvents, GameServerToClientEvents>;
+
+// Initialize game orchestrator
+import { createGameOrchestrator } from './game/orchestrator';
+createGameOrchestrator(gameNs);
+
+// Initialize game controller
+const gameController = new GameController(gameNs);
+
+// Wire game namespace to session manager
+gameSessionManager.setGameNamespace(gameNs);
 
 lobbyNs.on('connection', (socket) => {
   socket.data.playerId = socket.id;

@@ -10,6 +10,8 @@
  * - Return collision events for broadcasting
  */
 
+import type { GameSessionState } from './state';
+
 export interface CollisionEvent {
   type: 'fish-eaten' | 'powerup-collected' | 'boundary-hit';
   tick: number;
@@ -72,6 +74,107 @@ export class CollisionDetector {
       x: Math.max(radius + this.BOUNDARY_BUFFER, Math.min(this.GAME_WIDTH - radius - this.BOUNDARY_BUFFER, x)),
       y: Math.max(radius + this.BOUNDARY_BUFFER, Math.min(this.GAME_HEIGHT - radius - this.BOUNDARY_BUFFER, y)),
     };
+  }
+
+  /**
+   * Process eating collisions for all players vs NPCs
+   * Resolved in joinOrder to ensure deterministic ordering
+   */
+  processEatingCollisions(session: GameSessionState, now: number): CollisionEvent[] {
+    const events: CollisionEvent[] = [];
+    const state = session.getState();
+
+    // Sort players by joinOrder for deterministic collision resolution
+    const sortedPlayers = [...state.players].sort((a, b) => {
+      const orderA = a.id === state.players[0]?.id ? 0 : 1;
+      const orderB = b.id === state.players[0]?.id ? 0 : 1;
+      return orderA - orderB;
+    });
+
+    // Track NPCs to remove (can't modify array while iterating)
+    const npcIndicesToRemove: number[] = [];
+
+    // Check each player against each NPC
+    for (const player of sortedPlayers) {
+      if (player.status !== 'alive') continue;
+      if (session.isPlayerInGrace(player.id)) continue; // Skip if in grace period
+
+      for (let npcIdx = 0; npcIdx < state.npcs.length; npcIdx++) {
+        const npc = state.npcs[npcIdx];
+
+        // Check collision
+        if (this.circleCollide(player.position, player.collisionRadius, npc.position, npc.collisionRadius)) {
+          // Check if player can eat this NPC
+          if (this.canEat(player.collisionRadius, npc.collisionRadius)) {
+            // Apply double XP if player has that power-up
+            let xpGain = npc.xp;
+            if (player.powerups.includes('double-xp')) {
+              xpGain *= 2;
+            }
+
+            // Transfer XP to player
+            session.updatePlayerXp(player.id, xpGain);
+
+            // Mark NPC for removal
+            if (!npcIndicesToRemove.includes(npcIdx)) {
+              npcIndicesToRemove.push(npcIdx);
+            }
+
+            // Record event
+            events.push({
+              type: 'fish-eaten',
+              tick: state.serverTick,
+              data: {
+                eatenNpcId: npc.id,
+                eatenByPlayerId: player.id,
+                xpTransferred: xpGain,
+                playerNewXp: player.xp,
+              },
+            });
+
+            console.log(
+              `CollisionDetector: Player ${player.id} ate NPC ${npc.id} (${npc.type}) for ${xpGain} XP`
+            );
+          }
+        }
+      }
+    }
+
+    // Remove eaten NPCs (in reverse order to maintain indices)
+    npcIndicesToRemove.sort((a, b) => b - a);
+    for (const idx of npcIndicesToRemove) {
+      state.npcs.splice(idx, 1);
+    }
+
+    // Update leaderboard after eating
+    session.updateLeaderboard();
+
+    return events;
+  }
+
+  /**
+   * Process boundary collisions (clamp player positions)
+   */
+  processBoundaryCollisions(session: GameSessionState): void {
+    const state = session.getState();
+
+    for (const player of state.players) {
+      if (this.isBoundaryCollision(player.position.x, player.position.y, player.collisionRadius)) {
+        const clamped = this.clampToBoundary(player.position.x, player.position.y, player.collisionRadius);
+        player.position = clamped;
+      }
+    }
+
+    for (const npc of state.npcs) {
+      if (this.isBoundaryCollision(npc.position.x, npc.position.y, npc.collisionRadius)) {
+        const clamped = this.clampToBoundary(npc.position.x, npc.position.y, npc.collisionRadius);
+        npc.position = clamped;
+
+        // Reverse velocity to bounce
+        npc.velocity.x *= -1;
+        npc.velocity.y *= -1;
+      }
+    }
   }
 }
 

@@ -12,6 +12,8 @@
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '@shared/game-events';
 import { getGameSession } from './state';
+import { collisionDetector } from './collision';
+import { npcSpawner } from './npc-spawner';
 
 const TICK_RATE_HZ = 60;
 const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
@@ -82,24 +84,26 @@ export class GameLoop {
     // Update timer
     session.updateTimer();
 
+    // Check if game has ended (time limit reached)
+    const timeRemaining = session.getTimeRemainingMs();
+    if (timeRemaining <= 0 && state.status !== 'ended') {
+      state.status = 'ended';
+      this.broadcastGameEnded(session);
+      this.stop();
+      return;
+    }
+
     // Update player state (process inputs, physics, etc.)
     this.updatePlayers(session);
 
-    // Update NPCs
+    // Update NPCs (spawning, positioning)
     this.updateNPCs(session);
 
     // Update power-ups
     this.updatePowerUps(session);
 
-    // Process collisions
+    // Process collisions (eating, boundary)
     this.processCollisions(session);
-
-    // Check if game ended
-    if (state.status === 'ended') {
-      this.broadcastGameEnded(session);
-      this.stop();
-      return;
-    }
 
     // Broadcast state update every BROADCAST_INTERVAL_TICKS
     if (this.tickCount % BROADCAST_INTERVAL_TICKS === 0) {
@@ -122,10 +126,31 @@ export class GameLoop {
   }
 
   /**
-   * Update NPC states
+   * Update NPC states (spawning, position updates)
    */
   private updateNPCs(session: any): void {
-    // TODO: Update NPC positions, spawning logic
+    const state = session.getState();
+    
+    // Spawn new NPCs via spawner tick
+    npcSpawner.tick(session);
+
+    // Update NPC positions (simple wandering behavior)
+    for (const npc of state.npcs) {
+      // Move in current direction
+      npc.position.x += npc.velocity.x * TICK_INTERVAL_MS;
+      npc.position.y += npc.velocity.y * TICK_INTERVAL_MS;
+
+      // Occasionally change direction (10% chance per tick)
+      if (Math.random() < 0.1) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 50; // pixels per second
+        npc.velocity.x = Math.cos(angle) * (speed / 1000) * TICK_INTERVAL_MS;
+        npc.velocity.y = Math.sin(angle) * (speed / 1000) * TICK_INTERVAL_MS;
+      }
+    }
+
+    // Clean up old despawned NPCs
+    state.npcs = state.npcs.filter((npc: any) => npc.status !== 'destroyed');
   }
 
   /**
@@ -136,10 +161,21 @@ export class GameLoop {
   }
 
   /**
-   * Process collisions
+   * Process collisions (eating, boundary)
    */
   private processCollisions(session: any): void {
-    // TODO: Check eating collisions, power-up pickups, boundary checks
+    const now = Date.now();
+
+    // Process eating collisions
+    const eatingEvents = collisionDetector.processEatingCollisions(session, now);
+
+    // Process boundary collisions
+    collisionDetector.processBoundaryCollisions(session);
+
+    // Log collision events
+    for (const event of eatingEvents) {
+      console.log(`GameLoop: Collision event - ${event.type}`, event.data);
+    }
   }
 
   /**
