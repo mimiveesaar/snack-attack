@@ -9,8 +9,9 @@
  */
 
 import type { Socket, Namespace } from 'socket.io';
-import type { GameClientToServerEvents, GameServerToClientEvents } from '@shared/game-events';
+
 import { getGameSession } from './state';
+import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 
 export class GameController {
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>;
@@ -133,7 +134,7 @@ export class GameController {
     }
 
     const state = session.getState();
-    const player = state.players.find((p) => p.id === playerId);
+    const player = state.players.find((p: { id: string; }) => p.id === playerId);
 
     if (!player) {
       socket.emit('game:error', {
@@ -202,7 +203,7 @@ export class GameController {
     }
 
     const state = session.getState();
-    const player = state.players.find((p) => p.id === playerId);
+    const player = state.players.find((p: { id: string; }) => p.id === playerId);
 
     if (!player) {
       socket.emit('game:error', {

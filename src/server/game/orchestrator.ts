@@ -9,7 +9,7 @@
  */
 
 import type { Namespace } from 'socket.io';
-import type { GameClientToServerEvents, GameServerToClientEvents } from '@shared/game-events';
+import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { createGameSession, getGameSession, deleteGameSession } from './state';
 import { createGameLoop, deleteGameLoop } from './loop';
 import { createPlayerClockSync } from './clock';
@@ -82,7 +82,7 @@ export class GameOrchestrator {
       const session = getGameSession(sessionId);
       if (session) {
         const state = session.getState();
-        state.players.forEach((p) => {
+        state.players.forEach((p: any) => {
           // Clean up player clock sync
           // deletePlayerClockSync(p.id); // TODO: implement if needed
         });

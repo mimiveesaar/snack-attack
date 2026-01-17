@@ -10,7 +10,7 @@
  */
 
 import type { Namespace } from 'socket.io';
-import type { GameClientToServerEvents, GameServerToClientEvents } from '@shared/game-events';
+import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { getGameSession } from './state';
 import { collisionDetector } from './collision';
 import { npcSpawner } from './npc-spawner';

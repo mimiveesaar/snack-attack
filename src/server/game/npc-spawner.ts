@@ -60,7 +60,7 @@ export class NPCSpawner {
     const state = session.getState();
 
     // Check current count
-    const currentCount = state.npcs.filter((n) => n.type === type).length;
+    const currentCount = state.npcs.filter((n: { type: string; }) => n.type === type).length;
     if (currentCount >= MAX_CONCURRENT[type]) {
       return; // At capacity
     }

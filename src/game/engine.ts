@@ -3,8 +3,10 @@
  * Handles game loop, collision detection, scoring, and game lifecycle.
  */
 
-import type { GameState, PlayerGameState, GameInput, GameUpdate, GameEvent, GameResult } from '@shared/types';
-import type { LeaderboardEntry } from '@shared/types';
+import { GameState, PlayerGameState, GameEvent, GameInput, GameUpdate, GameResult } from "../shared/game";
+import { LeaderboardEntry } from "../shared/game-session";
+
+
 
 export class GameEngine {
   private sessionId: string;
@@ -25,7 +27,7 @@ export class GameEngine {
   }
 
   private initializePlayerStates(): void {
-    this.gameState.players.forEach((player, index) => {
+    this.gameState.players.forEach((player: { id: string; nicknameDisplay: any; color: any; }, index: number) => {
       this.playerStates.set(player.id, {
         playerId: player.id,
         nicknameDisplay: player.nicknameDisplay,

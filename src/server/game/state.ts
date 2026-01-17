@@ -1,5 +1,5 @@
-import type { GameState, GamePlayer, GameNPC, GamePowerUp, GameLeaderboardEntry, GameInput } from '@shared/game';
-import type { LeaderboardEntry } from '@shared/types';
+import { GameState, GamePlayer, GameLeaderboardEntry } from "../../shared/game";
+
 
 export interface Vec2D {
   x: number;
