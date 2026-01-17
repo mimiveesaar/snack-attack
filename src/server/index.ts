@@ -22,6 +22,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: CLIENT_ORIGIN,
   },
+  transports: ['websocket', 'polling'],
 });
 
 lobbyStore.startCleanup();

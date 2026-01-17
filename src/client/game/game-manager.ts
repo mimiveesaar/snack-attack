@@ -42,15 +42,25 @@ export class GameManager {
     // Connect to game namespace
     this.socket = io(`${SOCKET_SERVER}/game`, {
       auth: { playerId },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
     });
 
     // Wait for connection
     await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Connection timeout after 10 seconds'));
+      }, 10000);
+
       this.socket!.on('connect', () => {
+        clearTimeout(timeout);
         console.log('GameManager: Connected to /game namespace');
         resolve();
       });
       this.socket!.on('connect_error', (error) => {
+        clearTimeout(timeout);
         console.error('GameManager: Connection error:', error);
         reject(error);
       });
