@@ -100,9 +100,10 @@ export class VisualEntity {
   /**
    * Render the entity
    */
-  render(container: SVGElement | HTMLElement): void {
+  render(container: SVGElement | HTMLElement): Promise<void> {
     // To be overridden by subclasses
     console.warn(`VisualEntity.render() not implemented for ${this.constructor.name}`);
+    return Promise.resolve();
   }
 
   /**

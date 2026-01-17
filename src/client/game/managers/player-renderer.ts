@@ -49,7 +49,10 @@ export class PlayerRenderer {
       // Create new player fish
       const fishType: FishType = 'player';
       fish = new Fish(state.playerId, fishType, state.position, state.color, state.visualSize);
-      fish.render(this.container);
+      // Render asynchronously
+      fish.render(this.container).catch((error) => {
+        console.error(`Failed to render fish ${state.playerId}:`, error);
+      });
       this.players.set(state.playerId, fish);
     }
 

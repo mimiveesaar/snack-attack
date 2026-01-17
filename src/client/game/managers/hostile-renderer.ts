@@ -40,7 +40,10 @@ export class HostileRenderer {
 
     if (!npc) {
       npc = new NPC(state.id, state.type, state.position);
-      npc.render(this.container);
+      // Render asynchronously
+      npc.render(this.container).catch((error) => {
+        console.error(`Failed to render NPC ${state.id}:`, error);
+      });
       this.npcs.set(state.id, npc);
     }
 
