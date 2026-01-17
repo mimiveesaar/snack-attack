@@ -199,10 +199,16 @@ export class GameManager {
       );
     }
 
-    // Update timer
+    // Update HUD with timer and pause state
     if (this.hud) {
       this.hud.updateTimer(payload.timerRemainingMs);
       this.hud.updatePauseState(payload.isPaused, payload.pausedByLeaderNickname);
+      
+      // Check if current player is the leader
+      const selfEntry = payload.leaderboard.find((entry) => entry.playerId === this.selfPlayerId);
+      if (selfEntry) {
+        this.hud.setIsLeader(selfEntry.isLeader);
+      }
     }
   }
 
