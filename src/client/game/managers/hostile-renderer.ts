@@ -28,23 +28,31 @@ export class HostileRenderer {
   initialize(container: SVGElement): void {
     this.container = container;
     console.log('HostileRenderer: Initialized');
+    console.log('HostileRenderer: Container is SVGElement?', container instanceof SVGElement);
+    console.log('HostileRenderer: Container tag:', container.tagName);
+    console.log('HostileRenderer: Container in DOM?', document.body.contains(container));
   }
 
   /**
    * Update or create NPC
    */
   updateNPC(state: NPCRenderState): void {
-    if (!this.container) return;
+    if (!this.container) {
+      console.warn('HostileRenderer.updateNPC: Container is null');
+      return;
+    }
 
     let npc = this.npcs.get(state.id);
 
     if (!npc) {
+      console.log(`HostileRenderer: Creating new NPC ${state.id} (type: ${state.type})`);
       npc = new NPC(state.id, state.type, state.position);
       // Render asynchronously
       npc.render(this.container).catch((error) => {
         console.error(`Failed to render NPC ${state.id}:`, error);
       });
       this.npcs.set(state.id, npc);
+      console.log(`HostileRenderer: NPC created and render called for ${state.id}`);
     }
 
     npc.setPosition(state.position);

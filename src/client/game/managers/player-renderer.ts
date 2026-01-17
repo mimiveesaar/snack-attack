@@ -35,18 +35,25 @@ export class PlayerRenderer {
     this.container = container;
     this.selfPlayerId = selfPlayerId;
     console.log(`PlayerRenderer: Initialized for player ${selfPlayerId}`);
+    console.log(`PlayerRenderer: Container is SVGElement?`, container instanceof SVGElement);
+    console.log(`PlayerRenderer: Container tag:`, container.tagName);
+    console.log(`PlayerRenderer: Container in DOM?`, document.body.contains(container));
   }
 
   /**
    * Update or create player
    */
   updatePlayer(state: PlayerRenderState): void {
-    if (!this.container) return;
+    if (!this.container) {
+      console.warn('PlayerRenderer.updatePlayer: Container is null');
+      return;
+    }
 
     let fish = this.players.get(state.playerId);
 
     if (!fish) {
       // Create new player fish
+      console.log(`PlayerRenderer: Creating new fish for ${state.playerId}`);
       const fishType: FishType = 'player';
       fish = new Fish(state.playerId, fishType, state.position, state.color, state.visualSize);
       // Render asynchronously
@@ -54,6 +61,7 @@ export class PlayerRenderer {
         console.error(`Failed to render fish ${state.playerId}:`, error);
       });
       this.players.set(state.playerId, fish);
+      console.log(`PlayerRenderer: Fish created and render called for ${state.playerId}`);
     }
 
     // Update fish state

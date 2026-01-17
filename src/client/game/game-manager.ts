@@ -129,13 +129,21 @@ export class GameManager {
 
     this.running = true;
     console.log('GameManager: Initialization complete');
+    console.log('GameManager: Canvas element exists?', !!gameCanvas);
+    console.log('GameManager: PlayerRenderer container:', this.playerRenderer?.['container']);
+    console.log('GameManager: HostileRenderer container:', this.hostileRenderer?.['container']);
   }
 
   /**
    * Setup Socket.IO event listeners
    */
   private setupEventListeners(): void {
-    if (!this.socket) return;
+    if (!this.socket) {
+      console.error('GameManager: setupEventListeners called but socket is null');
+      return;
+    }
+
+    console.log('GameManager: Setting up event listeners');
 
     // State updates from server
     this.socket.on('game:state-update', (payload) => {
@@ -192,16 +200,32 @@ export class GameManager {
    * Handle state update from server
    */
   private onStateUpdate(payload: GameStateUpdatePayload): void {
-    if (!this.running) return;
+    if (!this.running) {
+      console.warn('GameManager.onStateUpdate: Not running');
+      return;
+    }
+
+    console.log('GameManager.onStateUpdate: Processing state', {
+      playerCount: payload.players.length,
+      npcCount: payload.npcs.length,
+      playerRenderer: !!this.playerRenderer,
+      hostileRenderer: !!this.hostileRenderer,
+    });
 
     // Update player renderer
     if (this.playerRenderer) {
+      console.log('GameManager: Calling playerRenderer.updateAll');
       this.playerRenderer.updateAll(payload.players);
+    } else {
+      console.error('GameManager: playerRenderer is null');
     }
 
     // Update hostile renderer
     if (this.hostileRenderer) {
+      console.log('GameManager: Calling hostileRenderer.updateAll');
       this.hostileRenderer.updateAll(payload.npcs);
+    } else {
+      console.error('GameManager: hostileRenderer is null');
     }
 
     // Update leaderboard
