@@ -88,7 +88,12 @@ export class PlayerRenderer {
    * Update all players
    */
   updateAll(states: PlayerRenderState[]): void {
-    if (!this.container) return;
+    if (!this.container) {
+      console.warn('PlayerRenderer: Container not found');
+      return;
+    }
+
+    console.log(`PlayerRenderer: Updating ${states.length} players`);
 
     // Update existing players
     states.forEach((state) => {

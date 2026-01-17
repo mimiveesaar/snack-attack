@@ -131,6 +131,8 @@ export class Fish extends VisualEntity {
     const assetName = getfishAssetName(this.color);
     const assetPath = `/assets/Vector/${assetName}.svg`;
 
+    console.log(`Fish.render(): Loading ${assetName} from ${assetPath}`);
+
     try {
       // Fetch the SVG
       const response = await fetch(assetPath);
@@ -138,6 +140,7 @@ export class Fish extends VisualEntity {
         throw new Error(`Failed to fetch ${assetPath}: ${response.status}`);
       }
       const svgText = await response.text();
+      console.log(`Fish.render(): Loaded ${assetName}, text length: ${svgText.length}`);
       
       // Parse SVG
       const parser = new DOMParser();
@@ -154,9 +157,13 @@ export class Fish extends VisualEntity {
       if (content) {
         const clone = content.cloneNode(true) as SVGGElement;
         g.appendChild(clone);
+        console.log(`Fish.render(): Cloned SVG content for ${this.id}`);
+      } else {
+        console.warn(`Fish.render(): No <g> element found in ${assetName}`);
       }
 
       container.appendChild(g);
+      console.log(`Fish.render(): Appended fish ${this.id} to container`);
       this.element = g;
       this.svgAsset = svgElement;
     } catch (error) {

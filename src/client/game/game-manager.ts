@@ -139,11 +139,17 @@ export class GameManager {
 
     // State updates from server
     this.socket.on('game:state-update', (payload) => {
+      console.log('GameManager: Received state update', {
+        playerCount: payload.players.length,
+        npcCount: payload.npcs.length,
+        leaderboardCount: payload.leaderboard.length,
+      });
       this.onStateUpdate(payload);
     });
 
     // Timer ticks
     this.socket.on('game:timer-tick', (payload) => {
+      console.log('GameManager: Timer tick', payload.timerRemainingMs);
       if (this.hud) {
         this.hud.updateTimer(payload.timerRemainingMs);
       }
@@ -151,6 +157,7 @@ export class GameManager {
 
     // Game paused
     this.socket.on('game:paused', (payload) => {
+      console.log('GameManager: Game paused');
       if (this.hud) {
         this.hud.updatePauseState(true, payload.pausedByLeaderNickname);
       }
@@ -158,6 +165,7 @@ export class GameManager {
 
     // Game resumed
     this.socket.on('game:resumed', (payload) => {
+      console.log('GameManager: Game resumed');
       if (this.hud) {
         this.hud.updatePauseState(false, null);
       }
@@ -165,6 +173,7 @@ export class GameManager {
 
     // Game ended
     this.socket.on('game:ended', (payload) => {
+      console.log('GameManager: Game ended');
       this.onGameEnded(payload);
     });
 

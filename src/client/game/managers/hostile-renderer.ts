@@ -67,7 +67,12 @@ export class HostileRenderer {
    * Update all NPCs
    */
   updateAll(states: NPCRenderState[]): void {
-    if (!this.container) return;
+    if (!this.container) {
+      console.warn('HostileRenderer: Container not found');
+      return;
+    }
+
+    console.log(`HostileRenderer: Updating ${states.length} NPCs`);
 
     states.forEach((state) => {
       this.updateNPC(state);
