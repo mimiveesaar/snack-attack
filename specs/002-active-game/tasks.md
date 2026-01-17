@@ -27,13 +27,13 @@ description: "Tasks for Snack Attack Active Game Mechanics"
 
 ## Phase 2: Foundation - Core Game Loop & Physics
 
-- [ ] T008 Implement server-side 60 Hz fixed timestep game loop in [src/server/game/loop.ts](src/server/game/loop.ts)
-- [ ] T009 [P] Build server game controller to route `player-ready`, `player-input`, `pause-toggle`, `player-quit` events in [src/server/game/controller.ts](src/server/game/controller.ts)
-- [ ] T010 [P] Create game orchestrator to manage active sessions in [src/server/game/orchestrator.ts](src/server/game/orchestrator.ts)
-- [ ] T011 [P] Implement collision detection module (XP-based eating, boundary checks, grace period) in [src/server/game/collision.ts](src/server/game/collision.ts)
-- [ ] T012 Implement client-side input controller to capture keyboard movement in [src/client/game/input-controller.ts](src/client/game/input-controller.ts)
-- [ ] T013 [P] Create client engine with requestAnimationFrame tick loop in [src/client/game/engine.ts](src/client/game/engine.ts)
-- [ ] T014 [P] Build client physics module for prediction + entity interpolation in [src/client/game/physics.ts](src/client/game/physics.ts)
+- [x] T008 Implement server-side 60 Hz fixed timestep game loop in [src/server/game/loop.ts](src/server/game/loop.ts)
+- [x] T009 [P] Build server game controller to route `player-ready`, `player-input`, `pause-toggle`, `player-quit` events in [src/server/game/controller.ts](src/server/game/controller.ts)
+- [x] T010 [P] Create game orchestrator to manage active sessions in [src/server/game/orchestrator.ts](src/server/game/orchestrator.ts)
+- [x] T011 [P] Implement collision detection module (XP-based eating, boundary checks, grace period) in [src/server/game/collision.ts](src/server/game/collision.ts)
+- [x] T012 Implement client-side input controller to capture keyboard movement in [src/client/game/input-controller.ts](src/client/game/input-controller.ts)
+- [x] T013 [P] Create client engine with requestAnimationFrame tick loop in [src/client/game/engine.ts](src/client/game/engine.ts)
+- [x] T014 [P] Build client physics module for prediction + entity interpolation in [src/client/game/physics.ts](src/client/game/physics.ts)
 
 ## Phase 3: User Story 1 - Core Gameplay Loop (Priority: P1) 🎯 MVP
 
