@@ -7,6 +7,7 @@ import type {
   WaitingPayload,
 } from '@shared/types';
 import { getLobbyIdFromUrl, resetLobbyUrl, setLobbyUrl } from './router';
+import { getSceneController } from '@client/game/scene-controller';
 
 export type ViewMode = 'entry' | 'lobby' | 'waiting';
 
@@ -131,7 +132,21 @@ class LobbyClient {
     });
 
     this.socket.on('game:started', (session) => {
+      console.log('LobbyClient: Game started, transitioning to game scene', session);
       this.setState({ activeSession: session, waiting: null, view: 'lobby' });
+      
+      // Transition to game scene
+      try {
+        const sceneController = getSceneController();
+        const selfId = this.state.selfId;
+        if (selfId && session.sessionId) {
+          sceneController.toGame(session.sessionId, selfId);
+        } else {
+          console.error('LobbyClient: Missing selfId or sessionId for game start');
+        }
+      } catch (error) {
+        console.error('LobbyClient: Failed to transition to game scene:', error);
+      }
     });
 
     this.socket.on('game:ended', (session) => {
