@@ -1,8 +1,9 @@
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import type { ClientToServerEvents, ServerToClientEvents } from '@shared/types';
+
 import { lobbyStore, type LobbyRecord } from './lobby-store';
 import { gameSessionManager } from './game-session';
+import { ClientToServerEvents, ServerToClientEvents } from '../shared/types';
 
 const PORT = Number(process.env.SOCKET_PORT || 3001);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';

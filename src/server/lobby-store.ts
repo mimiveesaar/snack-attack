@@ -1,11 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type {
-  Difficulty,
-  GameSession,
-  Gamemode,
-  LobbyState,
-  Player,
-} from '@shared/types';
+import { Player, LobbyState, GameSession, Gamemode, Difficulty } from '../shared/types';
+
+
 
 const MULTIPLAYER_CAP = 4;
 const SINGLEPLAYER_CAP = 1;

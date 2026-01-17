@@ -7,6 +7,6 @@
     "types": ["node"],
     "moduleResolution": "Node"
   },
-  "include": ["src/server/**/*", "shared/**/*"],
+  "include": ["src/server/**/*", "src/shared/**/*"],
   "exclude": ["src/client/**/*"]
 }
