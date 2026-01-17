@@ -103,7 +103,7 @@ export class GameEngine {
         nicknameDisplay: p.nicknameDisplay,
         xp: p.score,
         isLeader: idx === 0,
-        status: p.isAlive ? ('active' as const) : ('quit' as const),
+        status: p.isAlive ? ('alive' as const) : ('quit' as const),
       }));
 
     this.gameState.leaderboard = leaderboard;
@@ -119,12 +119,15 @@ export class GameEngine {
       score: entry.xp,
     }));
 
+    const elapsedMs = Date.now() - this.gameState.timerStartMs;
+    const timerRemainingMs = Math.max(0, this.gameState.gameTimerDurationMs - elapsedMs);
+
     return {
       sessionId: this.sessionId,
       timestamp: Date.now(),
       players: Array.from(this.playerStates.values()),
       leaderboard: leaderboard,
-      timerRemainingMs: this.gameState.timerRemainingMs,
+      timerRemainingMs: timerRemainingMs,
       events: [...this.gameEvents],
     };
   }
