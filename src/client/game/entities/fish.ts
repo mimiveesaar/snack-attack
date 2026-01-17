@@ -129,11 +129,14 @@ export class Fish extends VisualEntity {
     }
 
     const assetName = getfishAssetName(this.color);
-    const assetPath = `/src/client/assets/Vector/${assetName}.svg`;
+    const assetPath = `/assets/Vector/${assetName}.svg`;
 
     try {
       // Fetch the SVG
       const response = await fetch(assetPath);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${assetPath}: ${response.status}`);
+      }
       const svgText = await response.text();
       
       // Parse SVG
@@ -157,7 +160,7 @@ export class Fish extends VisualEntity {
       this.element = g;
       this.svgAsset = svgElement;
     } catch (error) {
-      console.error(`Failed to load fish asset ${assetName}:`, error);
+      console.error(`Failed to load fish asset ${assetName} from ${assetPath}:`, error);
       // Fallback to simple rendering
       this.renderFallback(container);
     }
