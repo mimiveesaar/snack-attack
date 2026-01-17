@@ -25,6 +25,13 @@ export class GameController {
    * Register event handlers for a socket
    */
   registerHandlers(socket: Socket<GameClientToServerEvents, GameServerToClientEvents>): void {
+    // Store session ID from auth
+    const sessionId = (socket.handshake.auth as any)?.sessionId;
+    if (sessionId) {
+      socket.data.sessionId = sessionId;
+      console.log(`GameController: Socket connected for session ${sessionId}`);
+    }
+
     socket.on('game:player-ready', (payload) => {
       this.handlePlayerReady(socket, payload);
     });
@@ -58,11 +65,19 @@ export class GameController {
     payload: { playerId: string; timestamp: number }
   ): void {
     const { playerId } = payload;
+    const sessionId = socket.data.sessionId;
 
     this.socketToPlayerId.set(socket.id, playerId);
     socket.data.playerId = playerId;
 
     console.log(`GameController: Player ${playerId} ready (socket ${socket.id})`);
+    
+    if (sessionId) {
+      socket.join(sessionId);
+      console.log(`GameController: Player ${playerId} joined session room ${sessionId}`);
+    } else {
+      console.warn(`GameController: No sessionId for player ${playerId}`);
+    }
   }
 
   /**

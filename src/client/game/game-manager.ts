@@ -41,7 +41,7 @@ export class GameManager {
 
     // Connect to game namespace
     this.socket = io(`${SOCKET_SERVER}/game`, {
-      auth: { playerId },
+      auth: { playerId, sessionId },
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,

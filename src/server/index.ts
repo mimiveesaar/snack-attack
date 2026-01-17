@@ -39,6 +39,12 @@ createGameOrchestrator(gameNs);
 // Initialize game controller
 const gameController = new GameController(gameNs);
 
+// Wire game namespace connections
+gameNs.on('connection', (socket) => {
+  console.log(`GameNamespace: Player connected (socket ${socket.id})`);
+  gameController.registerHandlers(socket);
+});
+
 // Wire game namespace to session manager
 gameSessionManager.setGameNamespace(gameNs);
 
