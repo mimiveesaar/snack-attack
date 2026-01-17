@@ -8,6 +8,8 @@
  * - Wire state subscriptions for rendered scene
  */
 
+import { createGameManager, getGameManager, destroyGameManager } from './game-manager';
+
 export type SceneType = 'lobby' | 'game' | 'waiting';
 
 export interface SceneControllerConfig {
@@ -33,22 +35,9 @@ export class SceneController {
   }
 
   /**
-   * Route to lobby scene
-   */
-  toLobby(): void {
-    if (this.currentScene === 'lobby') return;
-
-    console.log('SceneController: transitioning to lobby');
-    this.hideAllScenes();
-    this.showScene(this.config.lobbySceneId);
-    this.currentScene = 'lobby';
-    this.notifyListeners();
-  }
-
-  /**
    * Route to game scene
    */
-  toGame(): void {
+  async toGame(sessionId?: string, playerId?: string): Promise<void> {
     if (this.currentScene === 'game') return;
 
     console.log('SceneController: transitioning to game');
@@ -56,6 +45,17 @@ export class SceneController {
     this.showScene(this.config.gameSceneId);
     this.currentScene = 'game';
     this.notifyListeners();
+
+    // Initialize game manager if sessionId and playerId are provided
+    if (sessionId && playerId) {
+      try {
+        const gameManager = createGameManager();
+        await gameManager.initialize(sessionId, playerId);
+        console.log('SceneController: GameManager initialized');
+      } catch (error) {
+        console.error('SceneController: Failed to initialize GameManager:', error);
+      }
+    }
   }
 
   /**
@@ -68,6 +68,25 @@ export class SceneController {
     this.hideAllScenes();
     this.showScene(this.config.waitingSceneId);
     this.currentScene = 'waiting';
+    this.notifyListeners();
+  }
+
+  /**
+   * Route to lobby scene
+   */
+  toLobby(): void {
+    if (this.currentScene === 'lobby') return;
+
+    console.log('SceneController: transitioning to lobby');
+
+    // Clean up game manager if transitioning from game
+    if (this.currentScene === 'game') {
+      destroyGameManager();
+    }
+
+    this.hideAllScenes();
+    this.showScene(this.config.lobbySceneId);
+    this.currentScene = 'lobby';
     this.notifyListeners();
   }
 
