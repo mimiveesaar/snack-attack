@@ -17,6 +17,7 @@ import { PlayerRenderer } from './managers/player-renderer';
 import { HostileRenderer } from './managers/hostile-renderer';
 import { GameHUD } from './components/game-hud';
 import { GameLeaderboard } from './components/leaderboard';
+import { getSceneController } from './scene-controller';
 
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
 
@@ -81,12 +82,17 @@ export class GameManager {
       throw new Error('GameManager: Required DOM elements not found');
     }
 
+    // Verify game canvas is SVG
+    if (!(gameCanvas instanceof SVGElement)) {
+      throw new Error('GameManager: game-canvas must be an SVG element');
+    }
+
     // Initialize renderers
     this.playerRenderer = new PlayerRenderer();
-    this.playerRenderer.initialize(gameCanvas as any, playerId);
+    this.playerRenderer.initialize(gameCanvas, playerId);
 
     this.hostileRenderer = new HostileRenderer();
-    this.hostileRenderer.initialize(gameCanvas as any);
+    this.hostileRenderer.initialize(gameCanvas);
 
     // Initialize HUD
     this.hud = new GameHUD();
@@ -212,18 +218,36 @@ export class GameManager {
       hostileRenderer: !!this.hostileRenderer,
     });
 
-    // Update player renderer
+    // Update player renderer with type conversion
     if (this.playerRenderer) {
       console.log('GameManager: Calling playerRenderer.updateAll');
-      this.playerRenderer.updateAll(payload.players);
+      const playerRenderStates = payload.players.map((p) => ({
+        playerId: p.playerId,
+        position: p.position,
+        velocity: p.velocity,
+        color: p.color,
+        nicknameDisplay: p.nicknameDisplay,
+        xp: p.xp,
+        growthPhase: p.growthPhase,
+        visualSize: p.visualSize,
+        status: p.status,
+      }));
+      this.playerRenderer.updateAll(playerRenderStates);
     } else {
       console.error('GameManager: playerRenderer is null');
     }
 
-    // Update hostile renderer
+    // Update hostile renderer with type conversion
     if (this.hostileRenderer) {
       console.log('GameManager: Calling hostileRenderer.updateAll');
-      this.hostileRenderer.updateAll(payload.npcs);
+      const npcRenderStates = payload.npcs.map((n) => ({
+        id: n.id,
+        type: n.type,
+        position: n.position,
+        velocity: n.velocity,
+        visualSize: n.visualSize,
+      }));
+      this.hostileRenderer.updateAll(npcRenderStates);
     } else {
       console.error('GameManager: hostileRenderer is null');
     }
@@ -231,10 +255,10 @@ export class GameManager {
     // Update leaderboard
     if (this.leaderboard) {
       this.leaderboard.setEntries(
-        payload.leaderboard.map((entry, idx) => ({
+        payload.leaderboard.map((entry) => ({
           playerId: entry.playerId,
           nicknameDisplay: entry.nicknameDisplay,
-          rank: idx + 1,
+          rank: entry.rank,
           xp: entry.xp,
           isLeader: entry.isLeader,
           status: entry.status,
@@ -323,12 +347,8 @@ export class GameManager {
    */
   private onReturnToLobby(): void {
     console.log('GameManager: Returning to lobby');
-    
-    // Import and use scene controller
-    import('./scene-controller').then(({ getSceneController }) => {
-      const sceneController = getSceneController();
-      sceneController.toLobby();
-    });
+    const sceneController = getSceneController();
+    sceneController.toLobby();
   }
 
   /**

@@ -26,13 +26,13 @@ export class GameSessionManager {
     const lobby = lobbyStore.getState(lobbyId);
     if (!lobby || !lobby.activeSession) return;
 
-    // Create session ID (using lobbyId as sessionId for now)
-    const sessionId = lobbyId;
+    // Use the session ID created by lobby-store
+    const sessionId = lobby.activeSession.sessionId;
 
     // Convert lobby players to game player format
     const gameOrchestrationPlayers = lobby.players.map((player: any, idx: number) => ({
       id: player.id,
-      nicknameDisplay: player.nickname,
+      nicknameDisplay: player.nicknameDisplay,
       color: player.color || '#ff0000',
       isLeader: player.isLeader || idx === 0,
     }));
