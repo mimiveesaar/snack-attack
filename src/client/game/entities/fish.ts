@@ -22,12 +22,14 @@ function getfishAssetName(color: string): string {
     '#FFA500': 'fish_orange',    // Orange/Yellow
     '#4169E1': 'fish_blue',      // Royal blue
     '#FF6347': 'fish_red',       // Tomato red
-    // NPC colors
-    '#FF69B4': 'fish_pink',      // Hot pink
+    // NPC colors (lowercase for consistency)
+    '#ff69b4': 'fish_pink',      // Hot pink
+    '#FF69B4': 'fish_pink',      // Hot pink (uppercase)
     '#C985D0': 'fish_pink',      // Light purple/pink
     '#808080': 'fish_grey',      // Grey
     '#A9A9A9': 'fish_grey',      // Dark grey
-    '#8B4513': 'fish_brown',     // Brown
+    '#8b4513': 'fish_brown',     // Brown (lowercase)
+    '#8B4513': 'fish_brown',     // Brown (uppercase)
   };
 
   // Check for exact match first
@@ -61,7 +63,7 @@ export class Fish extends VisualEntity {
   // Smooth movement properties
   private targetPosition: Vec2D;
   private startPosition: Vec2D;
-  private animationDuration: number = 100; // milliseconds for smooth movement
+  private animationDuration: number = 150; // milliseconds for smooth movement (1.5x server update rate)
   private animationProgress: number = 1; // 0 to 1, where 1 means arrived
 
   constructor(
@@ -140,6 +142,13 @@ export class Fish extends VisualEntity {
   }
 
   /**
+   * Ease out cubic function for smoother movement
+   */
+  private easeOutCubic(t: number): number {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  /**
    * Update entity each frame
    */
   update(deltaMs: number): void {
@@ -150,9 +159,12 @@ export class Fish extends VisualEntity {
     if (this.animationProgress < 1) {
       this.animationProgress = Math.min(1, this.animationProgress + deltaMs / this.animationDuration);
 
-      // Linear interpolation from start to target
-      this.position.x = this.startPosition.x + (this.targetPosition.x - this.startPosition.x) * this.animationProgress;
-      this.position.y = this.startPosition.y + (this.targetPosition.y - this.startPosition.y) * this.animationProgress;
+      // Apply easing for smoother motion
+      const easedProgress = this.easeOutCubic(this.animationProgress);
+
+      // Interpolate from start to target with easing
+      this.position.x = this.startPosition.x + (this.targetPosition.x - this.startPosition.x) * easedProgress;
+      this.position.y = this.startPosition.y + (this.targetPosition.y - this.startPosition.y) * easedProgress;
 
       this.updateRender();
     }

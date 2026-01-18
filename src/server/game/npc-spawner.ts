@@ -11,16 +11,19 @@
 import type { GameSessionState } from './state';
 
 const SPAWN_INTERVALS: Record<'pink' | 'grey' | 'brown', number> = {
-  pink: 1500, // 1.5s
-  grey: 4000, // 4s
-  brown: 8000, // 8s
+  pink: 2500, // 2.5s - spawns as swarms
+  grey: 2000, // 2s
+  brown: 3000, // 3s
 };
 
 const MAX_CONCURRENT: Record<'pink' | 'grey' | 'brown', number> = {
-  pink: 5,
-  grey: 3,
-  brown: 1,
+  pink: 15,  // Most common (spawns in groups)
+  grey: 5,   // Medium frequency
+  brown: 3,  // Rare but visible
 };
+
+const SWARM_SIZE = 3; // Number of pink fish to spawn together
+const SWARM_RADIUS = 40; // How spread out the swarm is
 
 const SPAWN_DISTANCE = 50; // pixels from any player
 const BOUNDARY_BUFFER = 20;
@@ -65,6 +68,62 @@ export class NPCSpawner {
       return; // At capacity
     }
 
+    // For pink fish, spawn as a swarm
+    if (type === 'pink') {
+      this.spawnSwarm(session, now);
+    } else {
+      this.spawnSingleNPC(session, type, now);
+    }
+
+    this.lastSpawnTime[type] = now;
+  }
+
+  /**
+   * Spawn a swarm of pink fish
+   */
+  private spawnSwarm(session: GameSessionState, now: number): void {
+    const state = session.getState();
+    
+    // Find safe spawn location for swarm center
+    const centerPos = this.findSafeSpawnLocation(session);
+    if (!centerPos) {
+      return; // Can't find safe location
+    }
+
+    const currentCount = state.npcs.filter((n: { type: string; }) => n.type === 'pink').length;
+    const spawnCount = Math.min(SWARM_SIZE, MAX_CONCURRENT['pink'] - currentCount);
+
+    // Spawn multiple pink fish around the center position
+    for (let i = 0; i < spawnCount; i++) {
+      const angle = (Math.PI * 2 * i) / spawnCount;
+      const distance = Math.random() * SWARM_RADIUS;
+      const x = Math.max(BOUNDARY_BUFFER, Math.min(GAME_WIDTH - BOUNDARY_BUFFER, 
+        centerPos.x + Math.cos(angle) * distance));
+      const y = Math.max(BOUNDARY_BUFFER, Math.min(GAME_HEIGHT - BOUNDARY_BUFFER, 
+        centerPos.y + Math.sin(angle) * distance));
+
+      const npcId = `npc-${this.spawnCounter++}-${Date.now()}-${i}`;
+      
+      state.npcs.push({
+        id: npcId,
+        type: 'pink',
+        xp: 10,
+        position: { x, y },
+        velocity: { x: 0, y: 0 },
+        collisionRadius: 8,
+        visualSize: 0.6,
+        status: 'alive',
+        spawnTimeMs: now,
+      });
+    }
+  }
+
+  /**
+   * Spawn a single NPC (grey or brown)
+   */
+  private spawnSingleNPC(session: GameSessionState, type: 'grey' | 'brown', now: number): void {
+    const state = session.getState();
+    
     // Find safe spawn location
     const spawnPos = this.findSafeSpawnLocation(session);
     if (!spawnPos) {
@@ -73,9 +132,9 @@ export class NPCSpawner {
 
     // Create NPC
     const npcId = `npc-${this.spawnCounter++}-${Date.now()}`;
-    const xpMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 10, grey: 25, brown: 50 };
-    const sizeMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 0.7, grey: 0.85, brown: 1.0 };
-    const radiusMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 10, grey: 14, brown: 18 };
+    const xpMap: Record<'grey' | 'brown', number> = { grey: 25, brown: 50 };
+    const sizeMap: Record<'grey' | 'brown', number> = { grey: 1.2, brown: 1.2 };
+    const radiusMap: Record<'grey' | 'brown', number> = { grey: 15, brown: 15 };
 
     state.npcs.push({
       id: npcId,
@@ -88,8 +147,6 @@ export class NPCSpawner {
       status: 'alive',
       spawnTimeMs: now,
     });
-
-    this.lastSpawnTime[type] = now;
   }
 
   /**
