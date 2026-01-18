@@ -125,8 +125,19 @@ export class GameLoop {
     const state = session.getState();
     const GAME_WIDTH = 800;
     const GAME_HEIGHT = 800;
+    const now = Date.now();
 
     for (const player of state.players) {
+      // Handle respawning players
+      if (player.status === 'respawning' && player.respawnTimeMs && now >= player.respawnTimeMs) {
+        // Find safe respawn position
+        const spawnPos = this.findSafeRespawnLocation(session);
+        if (spawnPos) {
+          session.completePlayerRespawn(player.id, spawnPos);
+        }
+        continue;
+      }
+
       if (player.status !== 'alive') continue;
 
       // Update position based on velocity
@@ -143,6 +154,60 @@ export class GameLoop {
   }
 
   /**
+   * Find a safe respawn location for a player
+   */
+  private findSafeRespawnLocation(session: any): { x: number; y: number } | null {
+    const state = session.getState();
+    const GAME_WIDTH = 800;
+    const GAME_HEIGHT = 800;
+    const BOUNDARY_BUFFER = 50;
+    const SAFE_DISTANCE = 100; // pixels from any other fish
+    const attempts = 20;
+
+    for (let i = 0; i < attempts; i++) {
+      const x = BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER);
+      const y = BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER);
+
+      let safe = true;
+
+      // Check distance to all other alive players
+      for (const player of state.players) {
+        if (player.status !== 'alive') continue;
+        const dx = x - player.position.x;
+        const dy = y - player.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < SAFE_DISTANCE) {
+          safe = false;
+          break;
+        }
+      }
+
+      // Check distance to all NPCs
+      if (safe) {
+        for (const npc of state.npcs) {
+          const dx = x - npc.position.x;
+          const dy = y - npc.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < SAFE_DISTANCE) {
+            safe = false;
+            break;
+          }
+        }
+      }
+
+      if (safe) {
+        return { x, y };
+      }
+    }
+
+    // If no safe location found, return a random position anyway
+    return {
+      x: BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER),
+      y: BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER),
+    };
+  }
+
+  /**
    * Update NPC states (spawning, position updates)
    */
   private updateNPCs(session: any): void {
@@ -151,18 +216,36 @@ export class GameLoop {
     // Spawn new NPCs via spawner tick
     npcSpawner.tick(session);
 
-    // Update NPC positions (simple wandering behavior)
+    // Update NPC positions (horizontal swimming behavior)
     for (const npc of state.npcs) {
+      // Initialize velocity if not set
+      if (npc.velocity.x === 0 && npc.velocity.y === 0) {
+        const direction = Math.random() < 0.5 ? 1 : -1; // Random left or right
+        const speed = 5 + Math.random() * 3; // 5-8 pixels per second
+        npc.velocity.x = direction * (speed / 1000) * TICK_INTERVAL_MS;
+        npc.velocity.y = (Math.random() - 0.5) * 2 * (speed / 1000) * TICK_INTERVAL_MS * 0.3; // Small vertical drift
+      }
+
       // Move in current direction
       npc.position.x += npc.velocity.x * TICK_INTERVAL_MS;
       npc.position.y += npc.velocity.y * TICK_INTERVAL_MS;
 
-      // Occasionally change direction (10% chance per tick)
-      if (Math.random() < 0.1) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 5; // pixels per second (very slow wandering)
-        npc.velocity.x = Math.cos(angle) * (speed / 1000) * TICK_INTERVAL_MS;
-        npc.velocity.y = Math.sin(angle) * (speed / 1000) * TICK_INTERVAL_MS;
+      // Occasionally change direction (2% chance per tick for smooth movement)
+      if (Math.random() < 0.02) {
+        // Prefer horizontal movement (80% horizontal, 20% more varied)
+        if (Math.random() < 0.8) {
+          // Mostly horizontal swimming
+          const direction = Math.random() < 0.5 ? 1 : -1;
+          const speed = 5 + Math.random() * 3; // 5-8 pixels per second
+          npc.velocity.x = direction * (speed / 1000) * TICK_INTERVAL_MS;
+          npc.velocity.y = (Math.random() - 0.5) * 2 * (speed / 1000) * TICK_INTERVAL_MS * 0.3;
+        } else {
+          // Occasionally swim in other directions
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 5 + Math.random() * 3;
+          npc.velocity.x = Math.cos(angle) * (speed / 1000) * TICK_INTERVAL_MS;
+          npc.velocity.y = Math.sin(angle) * (speed / 1000) * TICK_INTERVAL_MS;
+        }
       }
     }
 
@@ -183,8 +266,11 @@ export class GameLoop {
   private processCollisions(session: any): void {
     const now = Date.now();
 
-    // Process eating collisions
+    // Process eating collisions - players eating NPCs
     const eatingEvents = collisionDetector.processEatingCollisions(session, now);
+
+    // Process NPCs eating players
+    const npcEatingEvents = collisionDetector.processNPCsEatingPlayers(session, now);
 
     // Process boundary collisions
     collisionDetector.processBoundaryCollisions(session);

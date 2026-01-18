@@ -35,6 +35,7 @@ export class GameSidebar extends LitElement {
       display: block;
       width: 100%;
       height: 100%;
+      background: #ADC8AF;
     }
 
     .sidebar-container {
@@ -109,7 +110,7 @@ export class GameSidebar extends LitElement {
     }
 
     .score-section {
-      background: rgba(255, 255, 255, 0.9);
+      background: #ADC8AF;
       border: 2px solid black;
       border-radius: 4px;
       padding: 0.75rem;
@@ -129,7 +130,7 @@ export class GameSidebar extends LitElement {
     }
 
     .fish-o-meter {
-      background: rgba(255, 255, 255, 0.9);
+      background: #ADC8AF;
       border: 2px solid black;
       border-radius: 4px;
       padding: 0.75rem;
@@ -158,7 +159,7 @@ export class GameSidebar extends LitElement {
     .fish-icon {
       width: 40px;
       height: 40px;
-      border: 1px solid #ccc;
+      border: 1px solid #ADC8AF;
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -181,7 +182,7 @@ export class GameSidebar extends LitElement {
 
     .progress-bar-container {
       height: 120px;
-      background: #ddd;
+      background: #78a75d;
       border: 2px solid black;
       border-radius: 4px;
       position: relative;
@@ -230,7 +231,7 @@ export class GameSidebar extends LitElement {
 
     .leaderboard-section {
       flex: 1;
-      background: rgba(255, 255, 255, 0.9);
+      background: #ADC8AF;
       border: 2px solid black;
       border-radius: 4px;
       padding: 0.75rem;

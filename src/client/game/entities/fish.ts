@@ -59,6 +59,7 @@ export class Fish extends VisualEntity {
   private xp: number = 0;
   private growthPhase: 1 | 2 | 3 = 1;
   private svgAsset: SVGSVGElement | null = null;
+  private lastFacingDirection: number = 1; // 1 for right, -1 for left
   
   // Smooth movement properties
   private targetPosition: Vec2D;
@@ -214,8 +215,20 @@ export class Fish extends VisualEntity {
 
       console.log('Created group element:', g);
       
+      // Add collision radius visualization circle (drawn first, so it appears behind the fish)
+      const collisionCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      collisionCircle.setAttribute('cx', '0');
+      collisionCircle.setAttribute('cy', '0');
+      collisionCircle.setAttribute('r', String(this.collisionRadius / this.size)); // Adjust for scale
+      collisionCircle.setAttribute('fill', 'none');
+      collisionCircle.setAttribute('stroke', 'rgba(255, 0, 0, 0.3)');
+      collisionCircle.setAttribute('stroke-width', String(2 / this.size)); // Adjust stroke width for scale
+      collisionCircle.setAttribute('class', 'collision-radius');
+      collisionCircle.setAttribute('vector-effect', 'non-scaling-stroke'); // Keep stroke consistent
+      g.appendChild(collisionCircle);
+      
 
-      // Clone the SVG content into the group
+      // Clone the SVG content into the group (drawn after circle, appears on top)
       const content = svgElement.querySelector('g');
       console.log('Found content <g>?', content);
 
@@ -226,15 +239,30 @@ export class Fish extends VisualEntity {
       } else {
         console.warn(`Fish.render(): No <g> element found in ${assetName}`);
         Array.from(svgElement.children).forEach(child => {
-        g.appendChild(child.cloneNode(true));
-      });
-      console.log(`Fish.render(): Cloned ${svgElement.children.length} direct children`);
+          g.appendChild(child.cloneNode(true));
+        });
+        console.log(`Fish.render(): Cloned ${svgElement.children.length} direct children`);
       }
 
       console.log('About to append to container, g has children?', g.childNodes.length);
-    container.appendChild(g);
-    console.log(`Fish.render(): SUCCESS - Appended fish ${this.id} to container`);
-    console.log('Element now in DOM?', document.body.contains(g));
+      container.appendChild(g);
+      console.log(`Fish.render(): SUCCESS - Appended fish ${this.id} to container`);
+      console.log('Element now in DOM?', document.body.contains(g));
+      
+      // Now that it's in the DOM, center the SVG content
+      const svgContent = content ? g.querySelector('g:not(.collision-radius)') : g;
+      if (svgContent && svgContent !== g) {
+        try {
+          const bbox = (svgContent as SVGGraphicsElement).getBBox();
+          // Translate the content so its center is at (0, 0)
+          const centerX = bbox.x + bbox.width / 2;
+          const centerY = bbox.y + bbox.height / 2;
+          (svgContent as SVGGElement).setAttribute('transform', `translate(${-centerX}, ${-centerY})`);
+          console.log(`Fish.render(): Centered SVG content at (${-centerX}, ${-centerY}), bbox:`, bbox);
+        } catch (e) {
+          console.warn('Could not get bbox for centering:', e);
+        }
+      }
     
       this.element = g;
       this.svgAsset = svgElement;
@@ -289,13 +317,31 @@ export class Fish extends VisualEntity {
   }
 
   /**
-   * Update render position
+   * Update render position and orientation
    */
   protected updateRender(): void {
     if (!this.element) return;
+    
+    // Update last facing direction only when actually moving horizontally
+    if (Math.abs(this.velocity.x) > 0.01) {
+      this.lastFacingDirection = this.velocity.x < 0 ? -1 : 1;
+    }
+    
+    // Use lastFacingDirection which persists even when velocity is 0
+    const facingLeft = this.lastFacingDirection === -1;
+    const scaleX = facingLeft ? -1 : 1;
+    
+    // Calculate rotation angle for vertical movement (limited to avoid extreme angles)
+    let rotationAngle = 0;
+    if (Math.abs(this.velocity.x) > 0.01 || Math.abs(this.velocity.y) > 0.01) {
+      // Calculate angle but limit it to reasonable swimming angles
+      const rawAngle = Math.atan2(this.velocity.y, Math.abs(this.velocity.x));
+      rotationAngle = Math.max(-30, Math.min(30, (rawAngle * 180) / Math.PI)); // Limit to ±30 degrees
+    }
+    
     this.element.setAttribute(
       'transform',
-      `translate(${this.position.x}, ${this.position.y}) rotate(${(this.direction * 180) / Math.PI}) scale(${this.size})`
+      `translate(${this.position.x}, ${this.position.y}) scale(${scaleX * this.size}, ${this.size}) rotate(${rotationAngle})`
     );
   }
 }

@@ -149,6 +149,59 @@ export class CollisionDetector {
   }
 
   /**
+   * Process NPCs eating players (when NPC is bigger)
+   */
+  processNPCsEatingPlayers(session: GameSessionState, now: number): CollisionEvent[] {
+    const events: CollisionEvent[] = [];
+    const state = session.getState();
+
+    // Track players to respawn
+    const playersToRespawn: string[] = [];
+
+    // Check each NPC against each player
+    for (const npc of state.npcs) {
+      for (const player of state.players) {
+        if (player.status !== 'alive') continue;
+        if (session.isPlayerInGrace(player.id)) continue; // Skip if in grace period
+
+        // Check collision
+        if (this.circleCollide(npc.position, npc.collisionRadius, player.position, player.collisionRadius)) {
+          // Check if NPC can eat this player (NPC radius >= player radius)
+          if (this.canEat(npc.collisionRadius, player.collisionRadius)) {
+            // Mark player for respawn
+            if (!playersToRespawn.includes(player.id)) {
+              playersToRespawn.push(player.id);
+
+              // Record event
+              events.push({
+                type: 'fish-eaten',
+                tick: state.serverTick,
+                data: {
+                  eatenPlayerId: player.id,
+                  eatenByNpcId: npc.id,
+                  playerLostXp: player.xp,
+                },
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Trigger respawn for eaten players
+    for (const playerId of playersToRespawn) {
+      session.setPlayerRespawning(playerId, 2000); // 2 second respawn delay
+    }
+
+    // Update leaderboard after players were eaten
+    if (playersToRespawn.length > 0) {
+      session.updateLeaderboard();
+    }
+
+    return events;
+  }
+
+  /**
    * Process boundary collisions (clamp player positions)
    */
   processBoundaryCollisions(session: GameSessionState): void {

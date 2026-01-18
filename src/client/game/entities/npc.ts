@@ -16,9 +16,9 @@ const NPC_COLORS: Record<NPCType, string> = {
 };
 
 const NPC_SIZES: Record<NPCType, number> = {
-  pink: 0.6,  // Small (smaller than phase 1 players)
-  grey: 1.2,  // Medium
-  brown: 1.6, // Large
+  pink: 0.45,  // Small (same size)
+  grey: 0.7,   // Medium (reduced)
+  brown: 0.95, // Large (reduced)
 };
 
 export class NPC extends Fish {

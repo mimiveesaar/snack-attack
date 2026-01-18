@@ -110,8 +110,8 @@ export class NPCSpawner {
         xp: 10,
         position: { x, y },
         velocity: { x: 0, y: 0 },
-        collisionRadius: 8,
-        visualSize: 0.6,
+        collisionRadius: 6,
+        visualSize: 0.45,
         status: 'alive',
         spawnTimeMs: now,
       });
@@ -133,8 +133,8 @@ export class NPCSpawner {
     // Create NPC
     const npcId = `npc-${this.spawnCounter++}-${Date.now()}`;
     const xpMap: Record<'grey' | 'brown', number> = { grey: 25, brown: 50 };
-    const sizeMap: Record<'grey' | 'brown', number> = { grey: 1.2, brown: 1.2 };
-    const radiusMap: Record<'grey' | 'brown', number> = { grey: 15, brown: 15 };
+    const sizeMap: Record<'grey' | 'brown', number> = { grey: 0.7, brown: 0.95 };
+    const radiusMap: Record<'grey' | 'brown', number> = { grey: 9, brown: 12 };
 
     state.npcs.push({
       id: npcId,
