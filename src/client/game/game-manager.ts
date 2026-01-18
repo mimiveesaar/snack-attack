@@ -18,6 +18,8 @@ import { HostileRenderer } from './managers/hostile-renderer';
 import { GameHUD } from './components/game-hud';
 import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
+import { resetLobbyUrl } from '@client/state/router';
+import { lobbyClient } from '@client/state/lobby-state';
 
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
 
@@ -380,7 +382,9 @@ export class GameManager {
    * Handle leave game button - returns to lobby
    */
   private onLeaveGame(): void {
-    console.log('GameManager: Leaving game - returning to lobby');
+    console.log('GameManager: Leaving game - returning to lobby entry');
+    lobbyClient.leaveLobby();
+    resetLobbyUrl();
     const sceneController = getSceneController();
     sceneController.toLobby();
   }
