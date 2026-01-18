@@ -80,8 +80,6 @@ export class HostileRenderer {
       return;
     }
 
-    console.log(`HostileRenderer: Updating ${states.length} NPCs`);
-
     states.forEach((state) => {
       this.updateNPC(state);
     });

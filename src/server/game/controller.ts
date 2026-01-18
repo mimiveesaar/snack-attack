@@ -27,9 +27,25 @@ export class GameController {
   registerHandlers(socket: Socket<GameClientToServerEvents, GameServerToClientEvents>): void {
     // Store session ID from auth
     const sessionId = (socket.handshake.auth as any)?.sessionId;
+    const playerId = (socket.handshake.auth as any)?.playerId;
+    console.log(`GameController: Socket ${socket.id} connecting with auth:`, { sessionId, playerId });
+    
     if (sessionId) {
       socket.data.sessionId = sessionId;
-      console.log(`GameController: Socket connected for session ${sessionId}`);
+      console.log(`GameController: Socket ${socket.id} stored sessionId: ${sessionId}`);
+      
+      // Check if session exists at connection time
+      const session = getGameSession(sessionId);
+      if (session) {
+        console.log(`GameController: Session ${sessionId} exists at connection time`);
+      } else {
+        console.error(`GameController: Session ${sessionId} NOT FOUND at connection time!`);
+        const { getAllGameSessions } = require('./state');
+        const allSessions = getAllGameSessions();
+        console.error(`GameController: Available sessions at connection:`, Array.from(allSessions.keys()));
+      }
+    } else {
+      console.warn(`GameController: Socket ${socket.id} connected without sessionId in auth`);
     }
 
     socket.on('game:player-ready', (payload) => {
@@ -75,6 +91,18 @@ export class GameController {
     if (sessionId) {
       socket.join(sessionId);
       console.log(`GameController: Player ${playerId} joined session room ${sessionId}`);
+      console.log(`GameController: Socket rooms after join:`, Array.from(socket.rooms));
+      
+      // Verify session exists
+      const session = getGameSession(sessionId);
+      if (session) {
+        console.log(`GameController: Session ${sessionId} found with ${session.getState().players.length} players`);
+      } else {
+        console.error(`GameController: Session ${sessionId} NOT FOUND after player ready!`);
+        const { getAllGameSessions } = require('./state');
+        const allSessions = getAllGameSessions();
+        console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
+      }
     } else {
       console.warn(`GameController: No sessionId for player ${playerId}`);
     }
@@ -93,9 +121,10 @@ export class GameController {
     }
   ): void {
     const { playerId, direction } = payload;
-    const sessionId = socket.rooms.values().next().value;
+    const sessionId = socket.data.sessionId;
 
     if (!sessionId) {
+      console.error(`GameController: handlePlayerInput - No sessionId in socket.data for player ${playerId}`);
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Not in a game session',
@@ -106,6 +135,11 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
+      const { getAllGameSessions } = require('./state');
+      const allSessions = getAllGameSessions();
+      console.error(`GameController: handlePlayerInput - Session '${sessionId}' not found for player ${playerId}`);
+      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
+      console.error(`GameController: Socket rooms:`, Array.from(socket.rooms));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',
@@ -116,10 +150,6 @@ export class GameController {
 
     // Apply player input to game state
     session.applyPlayerInput(playerId, direction);
-
-    if (direction.x !== 0 || direction.y !== 0) {
-      console.log(`GameController: Input from ${playerId}: (${direction.x}, ${direction.y})`);
-    }
   }
 
   /**
@@ -130,9 +160,10 @@ export class GameController {
     payload: { playerId: string; isPaused: boolean; timestamp: number }
   ): void {
     const { playerId, isPaused } = payload;
-    const sessionId = socket.rooms.values().next().value;
+    const sessionId = socket.data.sessionId;
 
     if (!sessionId) {
+      console.error(`GameController: handlePauseToggle - No sessionId in socket.data for player ${playerId}`);
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Not in a game session',
@@ -143,6 +174,10 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
+      const { getAllGameSessions } = require('./state');
+      const allSessions = getAllGameSessions();
+      console.error(`GameController: handlePauseToggle - Session '${sessionId}' not found for player ${playerId}`);
+      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',
@@ -199,9 +234,10 @@ export class GameController {
     payload: { playerId: string; timestamp: number }
   ): void {
     const { playerId } = payload;
-    const sessionId = socket.rooms.values().next().value;
+    const sessionId = socket.data.sessionId;
 
     if (!sessionId) {
+      console.error(`GameController: handlePlayerQuit - No sessionId in socket.data for player ${playerId}`);
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Not in a game session',
@@ -212,6 +248,10 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
+      const { getAllGameSessions } = require('./state');
+      const allSessions = getAllGameSessions();
+      console.error(`GameController: handlePlayerQuit - Session '${sessionId}' not found for player ${playerId}`);
+      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',

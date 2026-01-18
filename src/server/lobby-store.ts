@@ -187,6 +187,9 @@ export class LobbyStore {
       leaderboard: [],
     };
 
+    console.log(`LobbyStore: Created game session ${session.sessionId} for lobby ${lobbyId}`);
+    console.log(`LobbyStore: Session has ${lobby.players.length} players:`, lobby.players.map(p => ({ id: p.id, nickname: p.nicknameDisplay })));
+
     lobby.status = 'active';
     lobby.activeSession = session;
     return { session };

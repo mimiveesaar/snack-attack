@@ -16,7 +16,7 @@ import { getInputController } from './input-controller';
 import { PlayerRenderer } from './managers/player-renderer';
 import { HostileRenderer } from './managers/hostile-renderer';
 import { GameHUD } from './components/game-hud';
-import { GameLeaderboard } from './components/leaderboard';
+import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
 
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
@@ -26,16 +26,18 @@ export class GameManager {
   private playerRenderer: PlayerRenderer | null = null;
   private hostileRenderer: HostileRenderer | null = null;
   private hud: GameHUD | null = null;
-  private leaderboard: GameLeaderboard | null = null;
+  private sidebar: GameSidebar | null = null;
   private sessionId: string | null = null;
   private selfPlayerId: string | null = null;
   private running: boolean = false;
+  leaderboard: any;
 
   /**
    * Initialize the game session
    */
   async initialize(sessionId: string, playerId: string): Promise<void> {
     console.log(`GameManager: Initializing session ${sessionId} for player ${playerId}`);
+    console.log(`GameManager: Socket server URL: ${SOCKET_SERVER}/game`);
 
     this.sessionId = sessionId;
     this.selfPlayerId = playerId;
@@ -48,6 +50,8 @@ export class GameManager {
       reconnectionDelayMax: 5000,
       reconnectionAttempts: 5,
     });
+
+    console.log('GameManager: Socket created with auth:', { playerId, sessionId });
 
     // Wait for connection
     await new Promise<void>((resolve, reject) => {
@@ -68,6 +72,7 @@ export class GameManager {
     });
 
     // Join game room
+    console.log('GameManager: Emitting game:player-ready with playerId:', playerId);
     this.socket.emit('game:player-ready', {
       playerId,
       timestamp: Date.now(),
@@ -111,9 +116,18 @@ export class GameManager {
       this.onNewGame();
     });
 
-    // Initialize leaderboard
-    this.leaderboard = new GameLeaderboard();
-    sidebarContainer.appendChild(this.leaderboard);
+    // Initialize sidebar
+    this.sidebar = new GameSidebar();
+    sidebarContainer.appendChild(this.sidebar);
+
+    // Wire sidebar events
+    this.sidebar.addEventListener('pause-toggle', () => {
+      this.onPauseToggle();
+    });
+
+    this.sidebar.addEventListener('quit-game', () => {
+      this.onReturnToLobby();
+    });
 
     // Subscribe to server events
     this.setupEventListeners();
@@ -170,17 +184,11 @@ export class GameManager {
 
     // State updates from server
     this.socket.on('game:state-update', (payload) => {
-      console.log('GameManager: Received state update', {
-        playerCount: payload.players.length,
-        npcCount: payload.npcs.length,
-        leaderboardCount: payload.leaderboard.length,
-      });
       this.onStateUpdate(payload);
     });
 
     // Timer ticks
     this.socket.on('game:timer-tick', (payload) => {
-      console.log('GameManager: Timer tick', payload.timerRemainingMs);
       if (this.hud) {
         this.hud.updateTimer(payload.timerRemainingMs);
       }
@@ -228,16 +236,8 @@ export class GameManager {
       return;
     }
 
-    console.log('GameManager.onStateUpdate: Processing state', {
-      playerCount: payload.players.length,
-      npcCount: payload.npcs.length,
-      playerRenderer: !!this.playerRenderer,
-      hostileRenderer: !!this.hostileRenderer,
-    });
-
     // Update player renderer with type conversion
     if (this.playerRenderer) {
-      console.log('GameManager: Calling playerRenderer.updateAll');
       const playerRenderStates = payload.players.map((p) => ({
         playerId: p.playerId,
         position: p.position,
@@ -256,7 +256,6 @@ export class GameManager {
 
     // Update hostile renderer with type conversion
     if (this.hostileRenderer) {
-      console.log('GameManager: Calling hostileRenderer.updateAll');
       const npcRenderStates = payload.npcs.map((n) => ({
         id: n.id,
         type: n.type,
@@ -269,9 +268,16 @@ export class GameManager {
       console.error('GameManager: hostileRenderer is null');
     }
 
-    // Update leaderboard
-    if (this.leaderboard) {
-      this.leaderboard.setEntries(
+    // Update sidebar with player score and leaderboard
+    if (this.sidebar) {
+      // Find self player data
+      const selfPlayer = payload.players.find((p) => p.playerId === this.selfPlayerId);
+      if (selfPlayer) {
+        this.sidebar.updatePlayerScore(selfPlayer.xp, selfPlayer.growthPhase);
+      }
+
+      // Update leaderboard in sidebar
+      this.sidebar.updateLeaderboard(
         payload.leaderboard.map((entry) => ({
           playerId: entry.playerId,
           nicknameDisplay: entry.nicknameDisplay,
@@ -281,6 +287,12 @@ export class GameManager {
           status: entry.status,
         }))
       );
+
+      // Check if current player is the leader
+      const selfEntry = payload.leaderboard.find((entry) => entry.playerId === this.selfPlayerId);
+      if (selfEntry) {
+        this.sidebar.setIsLeader(selfEntry.isLeader);
+      }
     }
 
     // Update HUD with timer and pause state

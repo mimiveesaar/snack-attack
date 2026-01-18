@@ -101,8 +101,6 @@ export class PlayerRenderer {
       return;
     }
 
-    console.log(`PlayerRenderer: Updating ${states.length} players`);
-
     // Update existing players
     states.forEach((state) => {
       this.updatePlayer(state);

@@ -132,7 +132,12 @@ class LobbyClient {
     });
 
     this.socket.on('game:started', (session) => {
-      console.log('LobbyClient: Game started, transitioning to game scene', session);
+      console.log('LobbyClient: Game started event received:', {
+        sessionId: session.sessionId,
+        lobbyId: session.lobbyId,
+        status: session.status,
+        selfId: this.state.selfId
+      });
       this.setState({ activeSession: session, waiting: null, view: 'lobby' });
       
       // Transition to game scene
@@ -140,9 +145,10 @@ class LobbyClient {
         const sceneController = getSceneController();
         const selfId = this.state.selfId;
         if (selfId && session.sessionId) {
+          console.log(`LobbyClient: Calling sceneController.toGame with sessionId=${session.sessionId}, playerId=${selfId}`);
           sceneController.toGame(session.sessionId, selfId);
         } else {
-          console.error('LobbyClient: Missing selfId or sessionId for game start');
+          console.error('LobbyClient: Missing selfId or sessionId for game start', { selfId, sessionId: session.sessionId });
         }
       } catch (error) {
         console.error('LobbyClient: Failed to transition to game scene:', error);

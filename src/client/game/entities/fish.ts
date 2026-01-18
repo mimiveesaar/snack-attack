@@ -17,15 +17,17 @@ export type FishType = 'player' | 'npc-pink' | 'npc-grey' | 'npc-brown';
  */
 function getfishAssetName(color: string): string {
   const colorMap: Record<string, string> = {
+    // Player colors
+    '#228B22': 'fish_green',     // Forest green
+    '#FFA500': 'fish_orange',    // Orange/Yellow
+    '#4169E1': 'fish_blue',      // Royal blue
+    '#FF6347': 'fish_red',       // Tomato red
+    // NPC colors
     '#FF69B4': 'fish_pink',      // Hot pink
     '#C985D0': 'fish_pink',      // Light purple/pink
     '#808080': 'fish_grey',      // Grey
     '#A9A9A9': 'fish_grey',      // Dark grey
     '#8B4513': 'fish_brown',     // Brown
-    '#FF6347': 'fish_red',       // Tomato red
-    '#FFA500': 'fish_orange',    // Orange
-    '#4169E1': 'fish_blue',      // Royal blue
-    '#228B22': 'fish_green',     // Forest green
   };
 
   // Check for exact match first

@@ -37,11 +37,13 @@ export class GameOrchestrator {
       return false;
     }
 
-    console.log(`GameOrchestrator: Starting session ${sessionId} with ${players.length} players`);
+    console.log(`GameOrchestrator: Starting session ${sessionId} for lobby ${lobbyId} with ${players.length} players`);
+    console.log(`GameOrchestrator: Players:`, players.map(p => ({ id: p.id, nickname: p.nicknameDisplay })));
 
     try {
       // Create game state
       const session = createGameSession(sessionId, lobbyId, players);
+      console.log(`GameOrchestrator: Game session created and stored with sessionId: ${sessionId}`);
 
       // Create player clock sync records
       players.forEach((p) => {
@@ -51,12 +53,14 @@ export class GameOrchestrator {
       // Create and start game loop
       const loop = createGameLoop(sessionId, this.gameNamespace);
       loop.start();
+      console.log(`GameOrchestrator: Game loop started for session ${sessionId}`);
 
       // Track session
       this.activeSessions.set(sessionId, {
         createdAt: Date.now(),
       });
 
+      console.log(`GameOrchestrator: Session ${sessionId} successfully started and tracked`);
       return true;
     } catch (error) {
       console.error(`GameOrchestrator: Failed to start session ${sessionId}:`, error);

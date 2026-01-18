@@ -145,10 +145,14 @@ lobbyNs.on('connection', (socket) => {
       return;
     }
 
+    console.log(`Server: Game starting for lobby ${payload.lobbyId}, session ${result.session.sessionId}`);
+
     const lobby = lobbyStore.getState(payload.lobbyId);
     if (lobby) {
+      console.log(`Server: Emitting game:started to lobby ${payload.lobbyId} with session:`, result.session);
       lobbyNs.to(payload.lobbyId).emit('game:started', result.session);
       lobbyNs.to(payload.lobbyId).emit('lobby:state', toLobbyState(lobby));
+      console.log(`Server: Calling gameSessionManager.start for lobby ${payload.lobbyId}`);
       gameSessionManager.start(payload.lobbyId, lobbyNs);
     }
 
