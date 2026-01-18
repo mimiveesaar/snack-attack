@@ -24,8 +24,8 @@ const MAX_CONCURRENT: Record<'pink' | 'grey' | 'brown', number> = {
 
 const SPAWN_DISTANCE = 50; // pixels from any player
 const BOUNDARY_BUFFER = 20;
-const GAME_WIDTH = 500;
-const GAME_HEIGHT = 500;
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 800;
 
 export class NPCSpawner {
   private lastSpawnTime: Record<'pink' | 'grey' | 'brown', number> = {

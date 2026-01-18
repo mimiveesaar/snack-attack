@@ -122,7 +122,24 @@ export class GameLoop {
    * Update player states (movement, respawn, etc.)
    */
   private updatePlayers(session: any): void {
-    // TODO: Process pending player inputs, update positions, handle respawns
+    const state = session.getState();
+    const GAME_WIDTH = 800;
+    const GAME_HEIGHT = 800;
+
+    for (const player of state.players) {
+      if (player.status !== 'alive') continue;
+
+      // Update position based on velocity
+      player.position.x += player.velocity.x * TICK_INTERVAL_MS;
+      player.position.y += player.velocity.y * TICK_INTERVAL_MS;
+
+      // Boundary collision (keep player in bounds)
+      const radius = player.collisionRadius;
+      if (player.position.x - radius < 0) player.position.x = radius;
+      if (player.position.x + radius > GAME_WIDTH) player.position.x = GAME_WIDTH - radius;
+      if (player.position.y - radius < 0) player.position.y = radius;
+      if (player.position.y + radius > GAME_HEIGHT) player.position.y = GAME_HEIGHT - radius;
+    }
   }
 
   /**
@@ -143,7 +160,7 @@ export class GameLoop {
       // Occasionally change direction (10% chance per tick)
       if (Math.random() < 0.1) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 50; // pixels per second
+        const speed = 5; // pixels per second (very slow wandering)
         npc.velocity.x = Math.cos(angle) * (speed / 1000) * TICK_INTERVAL_MS;
         npc.velocity.y = Math.sin(angle) * (speed / 1000) * TICK_INTERVAL_MS;
       }

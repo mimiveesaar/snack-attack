@@ -122,22 +122,39 @@ export class GameManager {
     const engine = getGameEngine();
     engine.onTick({
       onTick: (deltaMs: number, tickNumber: number) => {
-        this.onEngineTick(deltaMs);
+        this.onEngineTick(deltaMs, tickNumber);
       },
     });
     engine.start();
 
     // Initialize input controller
     const inputController = getInputController();
-    inputController.onDirectionChange((direction) => {
-      this.onInputChange(direction);
-    });
+    // Note: direction change listener is still registered but not used for sending input
+    // Input is now sent every engine tick for continuous movement
 
     this.running = true;
     console.log('GameManager: Initialization complete');
     console.log('GameManager: Canvas element exists?', !!gameCanvas);
     console.log('GameManager: PlayerRenderer container:', this.playerRenderer?.['container']);
     console.log('GameManager: HostileRenderer container:', this.hostileRenderer?.['container']);
+
+    // Handle window resize for responsive gameplay
+    window.addEventListener('resize', () => this.onWindowResize());
+  }
+
+  /**
+   * Handle window resize - triggers renderer updates if needed
+   */
+  private onWindowResize(): void {
+    const gameCanvas = document.getElementById('game-canvas');
+    if (gameCanvas instanceof SVGElement) {
+      // Force renderer redraw on next tick
+      // The SVG viewBox stays at 800x800, but physical size changes
+      console.log('GameManager: Window resized, canvas size:', {
+        width: gameCanvas.clientWidth,
+        height: gameCanvas.clientHeight,
+      });
+    }
   }
 
   /**
@@ -282,8 +299,21 @@ export class GameManager {
   /**
    * Handle engine tick (requestAnimationFrame)
    */
-  private onEngineTick(deltaMs: number): void {
+  private onEngineTick(deltaMs: number, tickNumber: number): void {
     if (!this.running) return;
+
+    // Send current input state every tick for continuous movement
+    const inputController = getInputController();
+    const direction = inputController.getDirection();
+    
+    if (this.socket && this.selfPlayerId) {
+      this.socket.emit('game:player-input', {
+        playerId: this.selfPlayerId,
+        direction,
+        timestamp: Date.now(),
+        tick: tickNumber,
+      });
+    }
 
     // Update visual animations
     if (this.playerRenderer) {
@@ -293,22 +323,6 @@ export class GameManager {
     if (this.hostileRenderer) {
       this.hostileRenderer.updateFrame(deltaMs);
     }
-  }
-
-  /**
-   * Handle input change from keyboard
-   */
-  private onInputChange(direction: { x: -1 | 0 | 1; y: -1 | 0 | 1 }): void {
-    if (!this.socket || !this.running) return;
-
-    // Send input to server
-    const engine = getGameEngine();
-    this.socket.emit('game:player-input', {
-      playerId: this.selfPlayerId!,
-      direction,
-      timestamp: Date.now(),
-      tick: engine.getCurrentTick(),
-    });
   }
 
   /**
@@ -368,6 +382,9 @@ export class GameManager {
     console.log('GameManager: Cleaning up');
 
     this.running = false;
+
+    // Remove resize listener
+    window.removeEventListener('resize', () => this.onWindowResize());
 
     // Disconnect socket
     if (this.socket) {

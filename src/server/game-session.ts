@@ -5,7 +5,7 @@ import { gameOrchestrator } from './game/orchestrator';
 import { ClientToServerEvents, ServerToClientEvents } from '../shared/events';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../shared/game-events';
 
-const SESSION_DURATION_MS = 30_000; // 30 seconds total game time (NOTE: Should be 120_000 for 2 minutes, but using 30s for testing)
+const SESSION_DURATION_MS = 120_000; // 2 minutes total game time
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();

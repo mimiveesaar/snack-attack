@@ -55,6 +55,12 @@ export class Fish extends VisualEntity {
   private xp: number = 0;
   private growthPhase: 1 | 2 | 3 = 1;
   private svgAsset: SVGSVGElement | null = null;
+  
+  // Smooth movement properties
+  private targetPosition: Vec2D;
+  private startPosition: Vec2D;
+  private animationDuration: number = 100; // milliseconds for smooth movement
+  private animationProgress: number = 1; // 0 to 1, where 1 means arrived
 
   constructor(
     id: string,
@@ -67,6 +73,8 @@ export class Fish extends VisualEntity {
     this.type = type;
     this.color = color;
     this.size = size;
+    this.targetPosition = { ...position };
+    this.startPosition = { ...position };
     this.updateCollisionRadius();
   }
 
@@ -104,6 +112,23 @@ export class Fish extends VisualEntity {
   }
 
   /**
+   * Set target position for smooth animation
+   * Override parent setPosition to enable smooth movement
+   */
+  setPosition(pos: Vec2D): void {
+    this.startPosition = { ...this.position };
+    this.targetPosition = { ...pos };
+    this.animationProgress = 0; // Start animation
+  }
+
+  /**
+   * Get current interpolated position
+   */
+  getPosition(): Vec2D {
+    return this.position;
+  }
+
+  /**
    * Update direction based on velocity
    */
   updateDirection(): void {
@@ -118,6 +143,17 @@ export class Fish extends VisualEntity {
   update(deltaMs: number): void {
     this.updateDirection();
     this.wigglePhase = (this.wigglePhase + deltaMs / 100) % (Math.PI * 2);
+
+    // Smooth animation towards target position
+    if (this.animationProgress < 1) {
+      this.animationProgress = Math.min(1, this.animationProgress + deltaMs / this.animationDuration);
+
+      // Linear interpolation from start to target
+      this.position.x = this.startPosition.x + (this.targetPosition.x - this.startPosition.x) * this.animationProgress;
+      this.position.y = this.startPosition.y + (this.targetPosition.y - this.startPosition.y) * this.animationProgress;
+
+      this.updateRender();
+    }
   }
 
   /**

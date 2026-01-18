@@ -19,8 +19,8 @@ export interface CollisionEvent {
 }
 
 export class CollisionDetector {
-  private readonly GAME_WIDTH = 500;
-  private readonly GAME_HEIGHT = 500;
+  private readonly GAME_WIDTH = 800;
+  private readonly GAME_HEIGHT = 800;
   private readonly BOUNDARY_BUFFER = 10;
 
   /**

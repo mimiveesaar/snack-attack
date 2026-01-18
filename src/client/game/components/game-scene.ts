@@ -39,8 +39,8 @@ export class GameScene extends LitElement {
 
         .game-container {
           position: relative;
-          width: 500px;
-          height: 500px;
+          width: 800px;
+          height: 800px;
           background: linear-gradient(180deg, #b4c3b5 0%, #49534a 100%);
           border: 3px solid black;
           overflow: hidden;

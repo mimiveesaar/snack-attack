@@ -92,7 +92,7 @@ export class GameController {
       tick: number;
     }
   ): void {
-    const { playerId } = payload;
+    const { playerId, direction } = payload;
     const sessionId = socket.rooms.values().next().value;
 
     if (!sessionId) {
@@ -114,8 +114,11 @@ export class GameController {
       return;
     }
 
-    if (payload.direction.x !== 0 || payload.direction.y !== 0) {
-      console.log(`GameController: Input from ${playerId}: (${payload.direction.x}, ${payload.direction.y})`);
+    // Apply player input to game state
+    session.applyPlayerInput(playerId, direction);
+
+    if (direction.x !== 0 || direction.y !== 0) {
+      console.log(`GameController: Input from ${playerId}: (${direction.x}, ${direction.y})`);
     }
   }
 

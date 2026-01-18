@@ -201,6 +201,32 @@ export class GameSessionState {
   }
 
   /**
+   * Apply player input direction
+   */
+  applyPlayerInput(playerId: string, direction: { x: -1 | 0 | 1; y: -1 | 0 | 1 }): boolean {
+    const player = this.state.players.find((p) => p.id === playerId);
+    if (!player || player.status !== 'alive') return false;
+
+    const PLAYER_SPEED = 200; // pixels per second
+    const speedMultiplier = player.powerups.includes('speed-boost') ? 1.5 : 1.0;
+    const speed = PLAYER_SPEED * speedMultiplier;
+
+    // Set velocity based on direction
+    if (direction.x !== 0 || direction.y !== 0) {
+      // Normalize diagonal movement
+      const magnitude = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+      player.velocity.x = (direction.x / magnitude) * (speed / 1000); // Convert to pixels per ms
+      player.velocity.y = (direction.y / magnitude) * (speed / 1000);
+    } else {
+      // Stop moving
+      player.velocity.x = 0;
+      player.velocity.y = 0;
+    }
+
+    return true;
+  }
+
+  /**
    * Recompute and update leaderboard
    */
   updateLeaderboard(): GameLeaderboardEntry[] {
@@ -241,10 +267,6 @@ export class GameSessionState {
    */
   getTimeRemainingMs(): number {
     if (this.state.status === 'ended') return 0;
-    if (this.state.isPaused) {
-      const elapsed = this.state.timerStartMs - Date.now();
-      return Math.max(0, this.state.gameTimerDurationMs - elapsed);
-    }
     const elapsed = Date.now() - this.state.timerStartMs;
     return Math.max(0, this.state.gameTimerDurationMs - elapsed);
   }
