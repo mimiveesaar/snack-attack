@@ -13,7 +13,7 @@ export class LobbyEntry extends LitElement {
   @property({ type: String }) error: string | null = null;
 
   @state() private nickname = "";
-  @state() private color = playerColors[0];
+  @state() private color: string | null = null;
   @state() private validationMessage: string | null = null;
   @state() private clickedColor: string | null = null;
 
@@ -26,7 +26,7 @@ export class LobbyEntry extends LitElement {
     }
 
     .fish-button {
-      background: #f5f5f5;
+      background: #ffffff;
       border: 3px solid #ddd;
       border-radius: 8px;
       padding: 1rem;
@@ -40,9 +40,13 @@ export class LobbyEntry extends LitElement {
       font: inherit;
     }
 
+    .fish-button:not(.selected) {
+      opacity: 0.6;
+    }
+
     .fish-button:hover {
       border-color: #999;
-      background: #fff;
+      background: #f0f0f0;
       transform: scale(1.05);
     }
 
@@ -56,7 +60,7 @@ export class LobbyEntry extends LitElement {
       }
       50% {
         transform: scale(0.95);
-        background: #a5d6a7;
+        background: #81c784;
       }
       100% {
         transform: scale(1);
@@ -66,7 +70,7 @@ export class LobbyEntry extends LitElement {
     .fish-button.selected {
       border: 4px solid #2e7d32;
       border-radius: 12px;
-      background: #c8e6c9;
+      background: #81c784;
       box-shadow:
         0 0 15px rgba(46, 125, 50, 0.4),
         inset 0 0 20px rgba(0, 0, 0, 0.05),
@@ -141,9 +145,11 @@ export class LobbyEntry extends LitElement {
       transition: all 0.3s ease;
       position: relative;
       z-index: 1;
+      display: none;
     }
 
     .fish-button.selected .fish-label {
+      display: block;
       color: #1b5e20;
       font-size: 14px;
       font-weight: 900;
@@ -152,12 +158,10 @@ export class LobbyEntry extends LitElement {
     }
 
     .selected-indicator {
-      display: none;
       font-size: 20px;
       font-weight: bold;
       margin-top: 0.25rem;
-      position: relative;
-      z-index: 1;
+      color: #1b5e20;
       animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -171,11 +175,6 @@ export class LobbyEntry extends LitElement {
         transform: scale(1);
       }
     }
-
-    .fish-button.selected .selected-indicator {
-      display: block;
-      color: #1b5e20;
-    }
   `;
 
   createRenderRoot() {
@@ -187,6 +186,10 @@ export class LobbyEntry extends LitElement {
     const validation = validateNickname(this.nickname.trim());
     if (!validation.valid) {
       this.validationMessage = validation.message ?? "Invalid nickname";
+      return;
+    }
+    if (!this.color) {
+      this.validationMessage = "Please choose a fish";
       return;
     }
     this.validationMessage = null;
@@ -261,6 +264,10 @@ export class LobbyEntry extends LitElement {
                         alt="${this.getFishLabel(c)} fish"
                       />
                     </div>
+                    <span class="fish-label">${this.getFishLabel(c)}</span>
+                    ${this.color === c
+                      ? html`<span class="selected-indicator">✓</span>`
+                      : null}
                   </button>
                 `,
               )}
