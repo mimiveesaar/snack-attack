@@ -20,6 +20,7 @@ import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
 import { resetLobbyUrl } from '@client/state/router';
 import { lobbyClient } from '@client/state/lobby-state';
+import { soundManager } from '@client/utils/sound-manager';
 
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
 
@@ -322,6 +323,19 @@ export class GameManager {
 
     // Track pause state locally
     this.isPaused = payload.isPaused;
+
+    // Process game events (collisions, powerups, respawns)
+    if (payload.events && payload.events.length > 0) {
+      payload.events.forEach((event) => {
+        if (event.type === 'fish-eaten') {
+          soundManager.playEatSound();
+        } else if (event.type === 'powerup-collected') {
+          soundManager.playPowerupSound();
+        } else if (event.type === 'respawn-complete') {
+          soundManager.playRespawnSound();
+        }
+      });
+    }
   }
 
   /**

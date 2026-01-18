@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import '../../components/sound-toggle';
 
 /**
  * GameHUD - Heads-up display for game timer and overlays
@@ -280,6 +281,11 @@ export class GameHUD extends LitElement {
     return html`
       <!-- Timer -->
       <div class="timer">${this.formatTime(this.timerRemainingMs)}</div>
+
+      <!-- Sound Toggle -->
+      <div style="position: absolute; top: 1rem; right: 1rem; z-index: 9999; pointer-events: auto;">
+        <sound-toggle></sound-toggle>
+      </div>
 
       <!-- Pause overlay -->
       ${this.isPaused

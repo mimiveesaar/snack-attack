@@ -3,11 +3,13 @@ import { customElement, state } from 'lit/decorators.js';
 import { lobbyClient, type ClientState } from '@client/state/lobby-state';
 import { getLobbyIdFromUrl, resetLobbyUrl } from '@client/state/router';
 import type { LobbyState } from '@shared/types';
+import { soundManager } from '@client/utils/sound-manager';
 import './lobby-entry';
 import './player-list';
 import './lobby-controls';
 import './share-url';
 import './waiting-view';
+import './sound-toggle';
 
 @customElement('app-root')
 export class AppRoot extends LitElement {
@@ -19,6 +21,7 @@ export class AppRoot extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    soundManager.initialize();
     lobbyClient.subscribe((state) => {
       this.clientState = state;
     });
@@ -50,6 +53,9 @@ export class AppRoot extends LitElement {
     const { view, lobby, waiting, error } = this.clientState;
     return html`
       <div class="lobby-shell">
+        <div style="position: absolute; top: 1rem; right: 1rem; z-index: 100;">
+          <sound-toggle></sound-toggle>
+        </div>
         ${view === 'entry'
           ? html`<lobby-entry
               .mode=${getLobbyIdFromUrl() ? 'join' : 'create'}

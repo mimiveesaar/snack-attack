@@ -11,11 +11,13 @@
     "typecheck": "tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.server.json --noEmit"
   },
   "dependencies": {
+    "howler": "^2.2.4",
     "lit": "^3.1.0",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.11",
     "@types/node": "^20.11.5",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.7.0",

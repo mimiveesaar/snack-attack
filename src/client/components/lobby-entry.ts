@@ -6,6 +6,7 @@ import {
   colorToFishAsset,
 } from "@client/utils/colors";
 import { validateNickname } from "@client/utils/validation";
+import { soundManager } from "@client/utils/sound-manager";
 
 @customElement("lobby-entry")
 export class LobbyEntry extends LitElement {
@@ -205,6 +206,7 @@ export class LobbyEntry extends LitElement {
   private onColorChange(color: string) {
     this.color = color;
     this.clickedColor = color;
+    soundManager.playFishSelectSound();
 
     // Remove clicked state after animation completes
     setTimeout(() => {
