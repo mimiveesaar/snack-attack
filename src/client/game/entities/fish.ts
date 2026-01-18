@@ -124,6 +124,12 @@ export class Fish extends VisualEntity {
    * Render fish using SVG asset
    */
   async render(container: SVGElement): Promise<void> {
+
+    console.log(`Fish.render() START for ${this.id}`);
+    console.log('Container:', container);
+    console.log('Container is SVGElement?', container instanceof SVGElement);
+    console.log('Container in DOM?', document.body.contains(container));
+
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
@@ -141,29 +147,45 @@ export class Fish extends VisualEntity {
       }
       const svgText = await response.text();
       console.log(`Fish.render(): Loaded ${assetName}, text length: ${svgText.length}`);
+      console.log(`Fish.render(): SVG text preview:`, svgText.substring(0, 200));
       
       // Parse SVG
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
       const svgElement = svgDoc.documentElement as unknown as SVGSVGElement;
 
+      console.log('Parsed SVG element:', svgElement);
+      console.log('SVG element tagName:', svgElement.tagName);
+
       // Create a group to hold the SVG and apply transformations
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       g.setAttribute('id', this.id);
       g.setAttribute('transform', `translate(${this.position.x}, ${this.position.y}) rotate(${(this.direction * 180) / Math.PI}) scale(${this.size})`);
 
+      console.log('Created group element:', g);
+      
+
       // Clone the SVG content into the group
       const content = svgElement.querySelector('g');
+      console.log('Found content <g>?', content);
+
       if (content) {
         const clone = content.cloneNode(true) as SVGGElement;
         g.appendChild(clone);
-        console.log(`Fish.render(): Cloned SVG content for ${this.id}`);
+        console.log(`Fish.render(): Cloned SVG content for ${this.id}, clone has ${clone.childNodes.length} children`);
       } else {
         console.warn(`Fish.render(): No <g> element found in ${assetName}`);
+        Array.from(svgElement.children).forEach(child => {
+        g.appendChild(child.cloneNode(true));
+      });
+      console.log(`Fish.render(): Cloned ${svgElement.children.length} direct children`);
       }
 
-      container.appendChild(g);
-      console.log(`Fish.render(): Appended fish ${this.id} to container`);
+      console.log('About to append to container, g has children?', g.childNodes.length);
+    container.appendChild(g);
+    console.log(`Fish.render(): SUCCESS - Appended fish ${this.id} to container`);
+    console.log('Element now in DOM?', document.body.contains(g));
+    
       this.element = g;
       this.svgAsset = svgElement;
     } catch (error) {
