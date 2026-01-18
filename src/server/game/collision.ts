@@ -131,10 +131,6 @@ export class CollisionDetector {
                 playerNewXp: player.xp,
               },
             });
-
-            console.log(
-              `CollisionDetector: Player ${player.id} ate NPC ${npc.id} (${npc.type}) for ${xpGain} XP`
-            );
           }
         }
       }

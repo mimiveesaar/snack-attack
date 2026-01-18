@@ -252,14 +252,9 @@ export class GameSessionState {
    * Update game timer (called every tick)
    */
   updateTimer(): void {
-    if (this.state.isPaused) return;
-
-    const elapsed = Date.now() - this.state.timerStartMs;
-    const remaining = Math.max(0, this.state.gameTimerDurationMs - elapsed);
-
-    if (remaining === 0) {
-      this.state.status = 'ended';
-    }
+    // Timer update logic is handled by the loop checking getTimeRemainingMs()
+    // This method is kept for compatibility but doesn't need to set status
+    // Status is set in the game loop to ensure proper game end handling
   }
 
   /**

@@ -81,10 +81,7 @@ export class GameLoop {
     const state = session.getState();
     session.incrementTick();
 
-    // Update timer
-    session.updateTimer();
-
-    // Check if game has ended (time limit reached)
+    // Check if game has ended (time limit reached) BEFORE updating timer
     const timeRemaining = session.getTimeRemainingMs();
     if (timeRemaining <= 0 && state.status !== 'ended') {
       state.status = 'ended';
@@ -92,6 +89,9 @@ export class GameLoop {
       this.stop();
       return;
     }
+
+    // Update timer (this won't affect game end check above)
+    session.updateTimer();
 
     // Update player state (process inputs, physics, etc.)
     this.updatePlayers(session);
@@ -188,11 +188,6 @@ export class GameLoop {
 
     // Process boundary collisions
     collisionDetector.processBoundaryCollisions(session);
-
-    // Log collision events
-    for (const event of eatingEvents) {
-      console.log(`GameLoop: Collision event - ${event.type}`, event.data);
-    }
   }
 
   /**

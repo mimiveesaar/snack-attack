@@ -43,6 +43,7 @@ export class GameSidebar extends LitElement {
       height: 100%;
       gap: 1rem;
       font-family: 'Courier New', monospace;
+      background:#ADC8AF
     }
 
     .sidebar-header {
@@ -185,6 +186,24 @@ export class GameSidebar extends LitElement {
       border-radius: 4px;
       position: relative;
       overflow: hidden;
+    }
+
+    .progress-bar-dividers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .phase-divider {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 2;
     }
 
     .progress-bar-fill {
@@ -349,17 +368,27 @@ export class GameSidebar extends LitElement {
 
   /**
    * Calculate progress percentage for Fish-o-meter
+   * Bar is divided into thirds:
+   * - Bottom third (0-33.33%): Phase 1 (0-50 XP)
+   * - Middle third (33.33-66.66%): Phase 2 (50-150 XP)
+   * - Top third (66.66-100%): Phase 3 (150+ XP)
    */
   private getFishOMeterProgress(): number {
-    // Phase 1: 0-50 XP
-    // Phase 2: 50-150 XP
-    // Phase 3: 150+ XP
-    if (this.growthPhase === 1) {
-      return Math.min((this.playerXP / 50) * 100, 100);
-    } else if (this.growthPhase === 2) {
-      return Math.min(((this.playerXP - 50) / 100) * 100, 100);
+    const PHASE_1_MAX = 50;    // 0-50 XP
+    const PHASE_2_MAX = 150;   // 50-150 XP
+    const PHASE_3_MAX = 300;   // 150-300 XP (visual max)
+
+    if (this.playerXP <= PHASE_1_MAX) {
+      // Phase 1: Fill 0% to 33.33%
+      return (this.playerXP / PHASE_1_MAX) * 33.33;
+    } else if (this.playerXP <= PHASE_2_MAX) {
+      // Phase 2: Fill 33.33% to 66.66%
+      const progressInPhase2 = (this.playerXP - PHASE_1_MAX) / (PHASE_2_MAX - PHASE_1_MAX);
+      return 33.33 + (progressInPhase2 * 33.33);
     } else {
-      return 100; // Max phase
+      // Phase 3: Fill 66.66% to 100%
+      const progressInPhase3 = Math.min((this.playerXP - PHASE_2_MAX) / (PHASE_3_MAX - PHASE_2_MAX), 1);
+      return 66.66 + (progressInPhase3 * 33.34);
     }
   }
 
@@ -433,11 +462,16 @@ export class GameSidebar extends LitElement {
             </div>
             <div class="progress-column">
               <div class="progress-bar-container">
-                <div class="progress-bar-fill" style="height: ${progress}%"></div>
-                <div class="progress-text">
-                  Phase ${this.growthPhase}
-                  ${this.growthPhase < 3 ? html`<br/>${Math.floor(progress)}%` : ''}
+                <!-- Phase dividers -->
+                <div class="progress-bar-dividers">
+                  <div class="phase-divider" style="bottom: 66.66%"></div>
+                  <div class="phase-divider" style="bottom: 33.33%"></div>
                 </div>
+                <!-- Progress fill -->
+                <div class="progress-bar-fill" style="height: ${progress}%"></div>
+                <!-- <div class="progress-text">
+                  Phase ${this.growthPhase}
+                </div> -->
               </div>
             </div>
           </div>

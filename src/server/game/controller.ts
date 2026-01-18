@@ -10,7 +10,7 @@
 
 import type { Socket, Namespace } from 'socket.io';
 
-import { getGameSession } from './state';
+import { getGameSession, getAllGameSessions } from './state';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 
 export class GameController {
@@ -40,9 +40,6 @@ export class GameController {
         console.log(`GameController: Session ${sessionId} exists at connection time`);
       } else {
         console.error(`GameController: Session ${sessionId} NOT FOUND at connection time!`);
-        const { getAllGameSessions } = require('./state');
-        const allSessions = getAllGameSessions();
-        console.error(`GameController: Available sessions at connection:`, Array.from(allSessions.keys()));
       }
     } else {
       console.warn(`GameController: Socket ${socket.id} connected without sessionId in auth`);
@@ -99,9 +96,6 @@ export class GameController {
         console.log(`GameController: Session ${sessionId} found with ${session.getState().players.length} players`);
       } else {
         console.error(`GameController: Session ${sessionId} NOT FOUND after player ready!`);
-        const { getAllGameSessions } = require('./state');
-        const allSessions = getAllGameSessions();
-        console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
       }
     } else {
       console.warn(`GameController: No sessionId for player ${playerId}`);
@@ -135,11 +129,6 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
-      const { getAllGameSessions } = require('./state');
-      const allSessions = getAllGameSessions();
-      console.error(`GameController: handlePlayerInput - Session '${sessionId}' not found for player ${playerId}`);
-      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
-      console.error(`GameController: Socket rooms:`, Array.from(socket.rooms));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',
@@ -174,10 +163,6 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
-      const { getAllGameSessions } = require('./state');
-      const allSessions = getAllGameSessions();
-      console.error(`GameController: handlePauseToggle - Session '${sessionId}' not found for player ${playerId}`);
-      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',
@@ -248,10 +233,6 @@ export class GameController {
 
     const session = getGameSession(sessionId);
     if (!session) {
-      const { getAllGameSessions } = require('./state');
-      const allSessions = getAllGameSessions();
-      console.error(`GameController: handlePlayerQuit - Session '${sessionId}' not found for player ${playerId}`);
-      console.error(`GameController: Available sessions:`, Array.from(allSessions.keys()));
       socket.emit('game:error', {
         code: 'SESSION_NOT_FOUND',
         message: 'Game session not found',

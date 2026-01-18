@@ -2,11 +2,10 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 /**
- * GameHUD - Heads-up display for game timer, pause button, and end screen overlay
+ * GameHUD - Heads-up display for game timer and overlays
  *
  * Responsibilities:
  * - Display countdown timer (MM:SS:ms format, upper-left corner)
- * - Pause button (leader only, center-top)
  * - Game end overlay with results screen
  * - Pause overlay indicating pause state
  */
@@ -37,32 +36,6 @@ export class GameHUD extends LitElement {
       padding: 4px 8px;
       border-radius: 4px;
       z-index: 101;
-    }
-
-    .pause-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 8px 16px;
-      font-family: 'Courier New', monospace;
-      background-color: #4a90e2;
-      color: white;
-      border: 2px solid black;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      z-index: 101;
-      transition: background-color 0.2s;
-    }
-
-    .pause-button:hover:not(:disabled) {
-      background-color: #357abd;
-    }
-
-    .pause-button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-      opacity: 0.5;
     }
 
     .pause-overlay {
@@ -122,6 +95,41 @@ export class GameHUD extends LitElement {
     .end-screen h1 {
       margin: 0 0 1rem 0;
       font-size: 28px;
+      color: #2c3e50;
+    }
+
+    .player-rank-section {
+      background: #3498db;
+      color: white;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .player-rank-section.rank-1 {
+      background: #ffd700;
+      color: #000;
+    }
+
+    .player-rank-section.rank-2 {
+      background: #c0c0c0;
+      color: #000;
+    }
+
+    .player-rank-section.rank-3 {
+      background: #cd7f32;
+      color: #fff;
+    }
+
+    .rank-text {
+      font-size: 20px;
+      margin-bottom: 0.5rem;
+    }
+
+    .rank-details {
+      font-size: 14px;
+      opacity: 0.9;
     }
 
     .winner-section {
@@ -225,9 +233,9 @@ export class GameHUD extends LitElement {
   /**
    * Show end screen
    */
-  showEndScreen(winner: any, leaderboard: any[]): void {
+  showEndScreen(winner: any, leaderboard: any[], selfPlayerId: string): void {
     this.isGameEnded = true;
-    this.gameEndResults = { winner, leaderboard };
+    this.gameEndResults = { winner, leaderboard, selfPlayerId };
   }
 
   /**
@@ -269,17 +277,6 @@ export class GameHUD extends LitElement {
       <!-- Timer -->
       <div class="timer">${this.formatTime(this.timerRemainingMs)}</div>
 
-      <!-- Pause button (leader only) -->
-      ${this.isLeader
-        ? html`<button
-            class="pause-button"
-            @click=${this.handlePauseToggle}
-            ?disabled=${this.isGameEnded}
-          >
-            ${this.isPaused ? 'RESUME' : 'PAUSE'}
-          </button>`
-        : ''}
-
       <!-- Pause overlay -->
       ${this.isPaused
         ? html`<div class="pause-overlay">
@@ -295,22 +292,35 @@ export class GameHUD extends LitElement {
       ${this.isGameEnded && this.gameEndResults
         ? html`<div class="end-screen-overlay">
             <div class="end-screen">
-              <h1>GAME OVER</h1>
+              <h1>🐟 GAME FINISHED! 🐟</h1>
 
-              ${this.gameEndResults.winner
-                ? html`<div class="winner-section">
-                    <div class="winner-name">🏆 ${this.gameEndResults.winner.nicknameDisplay}</div>
-                    <div class="winner-xp">${this.gameEndResults.winner.xp} XP</div>
-                  </div>`
-                : html`<div class="winner-section"><div class="winner-name">Draw</div></div>`}
+              ${(() => {
+                const selfEntry = this.gameEndResults.leaderboard.find(
+                  (entry: any) => entry.playerId === this.gameEndResults.selfPlayerId
+                );
+                return selfEntry
+                  ? html`<div class="player-rank-section rank-${selfEntry.rank}">
+                      <div class="rank-text">
+                        ${selfEntry.rank === 1 ? '🏆 YOU WON!' : `Your Rank: #${selfEntry.rank}`}
+                      </div>
+                      <div class="rank-details">
+                        ${selfEntry.nicknameDisplay} - ${selfEntry.xp} XP
+                      </div>
+                    </div>`
+                  : '';
+              })()}
 
               ${this.gameEndResults.leaderboard && this.gameEndResults.leaderboard.length > 0
                 ? html`<div class="leaderboard-section">
-                    <div class="leaderboard-title">Leaderboard</div>
+                    <div class="leaderboard-title">Final Leaderboard</div>
                     ${this.gameEndResults.leaderboard.map(
-                      (entry: any, idx: number) => html`
+                      (entry: any) => html`
                         <div class="leaderboard-entry">
-                          <span>#${idx + 1} ${entry.nicknameDisplay}</span>
+                          <span>
+                            ${entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
+                            ${entry.nicknameDisplay}
+                            ${entry.playerId === this.gameEndResults.selfPlayerId ? ' (You)' : ''}
+                          </span>
                           <span>${entry.xp} XP</span>
                         </div>
                       `

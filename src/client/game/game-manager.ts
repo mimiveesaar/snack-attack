@@ -104,10 +104,6 @@ export class GameManager {
     overlayContainer.appendChild(this.hud);
 
     // Wire HUD events
-    this.hud.addEventListener('pause-toggle', () => {
-      this.onPauseToggle();
-    });
-
     this.hud.addEventListener('return-to-lobby', () => {
       this.onReturnToLobby();
     });
@@ -318,7 +314,8 @@ export class GameManager {
     const inputController = getInputController();
     const direction = inputController.getDirection();
     
-    if (this.socket && this.selfPlayerId) {
+    // Only send input if game is still running and socket is connected
+    if (this.socket && this.socket.connected && this.selfPlayerId && this.running) {
       this.socket.emit('game:player-input', {
         playerId: this.selfPlayerId,
         direction,
@@ -343,16 +340,17 @@ export class GameManager {
   private onGameEnded(payload: any): void {
     console.log('GameManager: Game ended', payload);
 
+    // Immediately stop running to prevent any more input being sent
     this.running = false;
 
-    // Show end screen
-    if (this.hud) {
-      this.hud.showEndScreen(payload.winner, payload.leaderboard);
-    }
-
-    // Stop engine
+    // Stop engine first to halt all tick events
     const engine = getGameEngine();
     engine.stop();
+
+    // Show end screen
+    if (this.hud && this.selfPlayerId) {
+      this.hud.showEndScreen(payload.winner, payload.leaderboard, this.selfPlayerId);
+    }
   }
 
   /**

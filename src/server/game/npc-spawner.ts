@@ -90,7 +90,6 @@ export class NPCSpawner {
     });
 
     this.lastSpawnTime[type] = now;
-    console.log(`NPCSpawner: Spawned ${type} NPC at (${spawnPos.x}, ${spawnPos.y})`);
   }
 
   /**
