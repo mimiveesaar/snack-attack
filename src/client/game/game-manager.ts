@@ -112,7 +112,8 @@ export class GameManager {
       this.onLeaveGame();
     });
 
-    // Initialize sidebar
+    // Initialize sidebar - clear old sidebar first
+    sidebarContainer.innerHTML = '';
     this.sidebar = new GameSidebar();
     sidebarContainer.appendChild(this.sidebar);
 
