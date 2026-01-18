@@ -72,6 +72,8 @@ export interface GameState {
   gameTimerDurationMs: number;
   isPaused: boolean;
   pausedByLeaderId: string | null;
+  pausedAt: number | null;
+  pausedElapsedMs: number;
   serverTick: number;
   players: GamePlayer[];
   npcs: GameNPC[];

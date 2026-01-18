@@ -29,6 +29,7 @@ export class GameSidebar extends LitElement {
   @state() private leaderboard: LeaderboardEntry[] = [];
   @state() private isLeader: boolean = false;
   @state() private showHelp: boolean = false;
+  @state() private isPaused: boolean = false;
 
   static styles = css`
     :host {
@@ -368,6 +369,20 @@ export class GameSidebar extends LitElement {
   }
 
   /**
+   * Update pause state
+   */
+  updatePauseState(isPaused: boolean) {
+    this.isPaused = isPaused;
+  }
+
+  /**
+   * Get current pause state
+   */
+  getPauseState(): boolean {
+    return this.isPaused;
+  }
+
+  /**
    * Calculate progress percentage for Fish-o-meter
    * Bar is divided into thirds:
    * - Bottom third (0-33.33%): Phase 1 (0-50 XP)
@@ -430,9 +445,9 @@ export class GameSidebar extends LitElement {
               class="pause-button" 
               ?disabled=${!this.isLeader}
               @click=${this.handlePause}
-              title=${this.isLeader ? 'Pause Game' : 'Only leader can pause'}
+              title=${this.isLeader ? (this.isPaused ? 'Resume Game' : 'Pause Game') : 'Only leader can pause'}
             >
-              ${this.isLeader ? 'PAUSE' : 'PAUSE'}
+              ${this.isPaused ? 'RESUME' : 'PAUSE'}
             </button>
             <button class="quit-button" @click=${this.handleQuit}>
               QUIT

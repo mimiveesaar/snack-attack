@@ -51,6 +51,8 @@ export class GameSessionState {
       gameTimerDurationMs: 1 * 10 * 1000, // 2 minutes
       isPaused: false,
       pausedByLeaderId: null,
+      pausedAt: null,
+      pausedElapsedMs: 0,
       serverTick: 0,
       players: gamePlayers,
       npcs: [],
@@ -262,8 +264,19 @@ export class GameSessionState {
    */
   getTimeRemainingMs(): number {
     if (this.state.status === 'ended') return 0;
-    const elapsed = Date.now() - this.state.timerStartMs;
-    return Math.max(0, this.state.gameTimerDurationMs - elapsed);
+    
+    let elapsed: number;
+    if (this.state.isPaused && this.state.pausedAt) {
+      // If currently paused, freeze at the time when pause started
+      // Calculate elapsed time up to pause point, excluding all previous paused time
+      elapsed = (this.state.pausedAt - this.state.timerStartMs) - this.state.pausedElapsedMs;
+    } else {
+      // If not paused, use current time minus all paused time (including current session if any)
+      elapsed = (Date.now() - this.state.timerStartMs) - this.state.pausedElapsedMs;
+    }
+    
+    const remaining = Math.max(0, this.state.gameTimerDurationMs - elapsed);
+    return remaining;
   }
 
   /**
@@ -271,8 +284,10 @@ export class GameSessionState {
    */
   pauseGame(leaderId: string): boolean {
     if (this.state.isPaused) return false;
+    console.log(`[PAUSE] Game paused by leader ${leaderId} at ${Date.now()}, pausedElapsedMs: ${this.state.pausedElapsedMs}`);
     this.state.isPaused = true;
     this.state.pausedByLeaderId = leaderId;
+    this.state.pausedAt = Date.now();
     return true;
   }
 
@@ -281,8 +296,17 @@ export class GameSessionState {
    */
   resumeGame(): boolean {
     if (!this.state.isPaused) return false;
+    
+    // Add the duration of this pause to total paused time
+    if (this.state.pausedAt) {
+      const pauseDuration = Date.now() - this.state.pausedAt;
+      this.state.pausedElapsedMs += pauseDuration;
+      console.log(`[PAUSE] Game resumed. Pause duration: ${pauseDuration}ms, total paused: ${this.state.pausedElapsedMs}ms`);
+    }
+    
     this.state.isPaused = false;
     this.state.pausedByLeaderId = null;
+    this.state.pausedAt = null;
     return true;
   }
 

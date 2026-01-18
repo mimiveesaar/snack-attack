@@ -81,7 +81,17 @@ export class GameLoop {
     const state = session.getState();
     session.incrementTick();
 
-    // Check if game has ended (time limit reached) BEFORE updating timer
+    // If game is paused, skip all updates except broadcasting current state
+    if (state.isPaused) {
+      // Still broadcast state so clients can see pause state
+      if (this.tickCount % BROADCAST_INTERVAL_TICKS === 0) {
+        this.broadcastStateUpdate(session);
+      }
+      this.tickCount++;
+      return;
+    }
+
+    // Check if game has ended (time limit reached) AFTER pause check
     // Use a small threshold (100ms) to avoid race conditions with remaining time display
     const timeRemaining = session.getTimeRemainingMs();
     if (timeRemaining <= 100 && state.status !== 'ended') {

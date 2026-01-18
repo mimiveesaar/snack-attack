@@ -32,6 +32,7 @@ export class GameManager {
   private sessionId: string | null = null;
   private selfPlayerId: string | null = null;
   private running: boolean = false;
+  private isPaused: boolean = false;
   leaderboard: any;
 
   /**
@@ -196,16 +197,24 @@ export class GameManager {
     // Game paused
     this.socket.on('game:paused', (payload) => {
       console.log('GameManager: Game paused');
+      this.isPaused = true;
       if (this.hud) {
         this.hud.updatePauseState(true, payload.pausedByLeaderNickname);
+      }
+      if (this.sidebar) {
+        this.sidebar.updatePauseState(true);
       }
     });
 
     // Game resumed
     this.socket.on('game:resumed', (payload) => {
       console.log('GameManager: Game resumed');
+      this.isPaused = false;
       if (this.hud) {
         this.hud.updatePauseState(false, null);
+      }
+      if (this.sidebar) {
+        this.sidebar.updatePauseState(false);
       }
     });
 
@@ -305,6 +314,14 @@ export class GameManager {
         this.hud.setIsLeader(selfEntry.isLeader);
       }
     }
+
+    // Update sidebar with pause state
+    if (this.sidebar) {
+      this.sidebar.updatePauseState(payload.isPaused);
+    }
+
+    // Track pause state locally
+    this.isPaused = payload.isPaused;
   }
 
   /**
@@ -312,6 +329,9 @@ export class GameManager {
    */
   private onEngineTick(deltaMs: number, tickNumber: number): void {
     if (!this.running) return;
+
+    // Don't send input or update animations when paused
+    if (this.isPaused) return;
 
     // Send current input state every tick for continuous movement
     const inputController = getInputController();
@@ -360,11 +380,14 @@ export class GameManager {
    * Handle pause toggle button
    */
   private onPauseToggle(): void {
-    if (!this.socket) return;
+    if (!this.socket || !this.sidebar) return;
 
+    // Send the opposite of current state to toggle
+    const currentPauseState = this.sidebar.getPauseState();
+    console.log(`GameManager: onPauseToggle - current pause state: ${currentPauseState}`);
     this.socket.emit('game:pause-toggle', {
       playerId: this.selfPlayerId!,
-      isPaused: false, // Will be toggled by server
+      isPaused: !currentPauseState, // Toggle state
       timestamp: Date.now(),
     });
   }
