@@ -53,6 +53,7 @@ export class GameScene extends LitElement {
           left: 0;
           width: 100%;
           height: 100%;
+          z-index: 1;
         }
 
         #game-overlay {
@@ -64,7 +65,7 @@ export class GameScene extends LitElement {
           pointer-events: none;
           display: flex;
           flex-direction: column;
-          z-index: 100;
+          z-index: 10;
         }
 
         #sidebar {

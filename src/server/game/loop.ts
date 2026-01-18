@@ -82,8 +82,10 @@ export class GameLoop {
     session.incrementTick();
 
     // Check if game has ended (time limit reached) BEFORE updating timer
+    // Use a small threshold (100ms) to avoid race conditions with remaining time display
     const timeRemaining = session.getTimeRemainingMs();
-    if (timeRemaining <= 0 && state.status !== 'ended') {
+    if (timeRemaining <= 100 && state.status !== 'ended') {
+      console.log(`GameLoop: Game ending with ${timeRemaining}ms remaining`);
       state.status = 'ended';
       this.broadcastGameEnded(session);
       this.stop();
@@ -348,9 +350,18 @@ export class GameLoop {
     const leaderboard = session.updateLeaderboard();
     const winner = leaderboard.length > 0 ? leaderboard[0] : null;
 
+    // Check for draw - multiple players with same highest XP
+    let isDraw = false;
+    if (leaderboard.length > 1 && winner) {
+      const topXP = winner.xp;
+      const playersWithTopXP = leaderboard.filter((entry: any) => entry.xp === topXP);
+      isDraw = playersWithTopXP.length > 1;
+    }
+
     const payload = {
       sessionId: state.sessionId,
       lobbyId: state.lobbyId,
+      isDraw,
       winner: winner
         ? {
             playerId: winner.id,

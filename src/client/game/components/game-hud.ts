@@ -80,7 +80,7 @@ export class GameHUD extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 300;
+      z-index: 1100; /* Higher than sidebar (1000) */
     }
 
     .end-screen {
@@ -254,18 +254,18 @@ export class GameHUD extends LitElement {
   /**
    * Emit navigation events
    */
-  private handleReturnToLobby(): void {
+  private handlePlayAgain(): void {
     this.dispatchEvent(
-      new CustomEvent('return-to-lobby', {
+      new CustomEvent('play-again', {
         bubbles: true,
         composed: true,
       })
     );
   }
 
-  private handleNewGame(): void {
+  private handleLeaveGame(): void {
     this.dispatchEvent(
-      new CustomEvent('new-game', {
+      new CustomEvent('leave-game', {
         bubbles: true,
         composed: true,
       })
@@ -295,6 +295,22 @@ export class GameHUD extends LitElement {
               <h1>🐟 GAME FINISHED! 🐟</h1>
 
               ${(() => {
+                // Check if it's a draw
+                if (this.gameEndResults.isDraw) {
+                  const topXP = this.gameEndResults.leaderboard[0]?.xp || 0;
+                  const tiedPlayers = this.gameEndResults.leaderboard.filter(
+                    (entry: any) => entry.xp === topXP
+                  );
+                  return html`<div class="player-rank-section rank-1">
+                      <div class="rank-text">
+                        🤝 IT'S A DRAW! 🤝
+                      </div>
+                      <div class="rank-details">
+                        ${tiedPlayers.map((p: any) => p.nicknameDisplay).join(', ')} tied with ${topXP} XP
+                      </div>
+                    </div>`;
+                }
+
                 const selfEntry = this.gameEndResults.leaderboard.find(
                   (entry: any) => entry.playerId === this.gameEndResults.selfPlayerId
                 );
@@ -329,8 +345,8 @@ export class GameHUD extends LitElement {
                 : ''}
 
               <div class="action-buttons">
-                <button class="action-button" @click=${this.handleReturnToLobby}>Return to Lobby</button>
-                <button class="action-button" @click=${this.handleNewGame}>New Game</button>
+                <button class="action-button" @click=${this.handlePlayAgain}>Play Again</button>
+                <button class="action-button" @click=${this.handleLeaveGame}>Leave Game</button>
               </div>
             </div>
           </div>`

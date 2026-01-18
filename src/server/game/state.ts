@@ -30,8 +30,8 @@ export class GameSessionState {
       velocity: { x: 0, y: 0 },
       xp: 0,
       growthPhase: 1,
-      collisionRadius: 12,
-      visualSize: 1.0,
+      collisionRadius: 7.5, // Phase 1 collision radius
+      visualSize: 0.45,     // Phase 1 visual size
       status: 'alive' as const,
       respawnTimeMs: null,
       graceEndTimeMs: null,
@@ -48,7 +48,7 @@ export class GameSessionState {
       startedAt: Date.now(),
       status: 'active',
       timerStartMs: Date.now(),
-      gameTimerDurationMs: 2 * 60 * 1000, // 2 minutes
+      gameTimerDurationMs: 1 * 10 * 1000, // 2 minutes
       isPaused: false,
       pausedByLeaderId: null,
       serverTick: 0,
@@ -73,9 +73,9 @@ export class GameSessionState {
    */
   private getCollisionRadius(phase: 1 | 2 | 3): number {
     const radiusMap: Record<1 | 2 | 3, number> = {
-      1: 12,
-      2: 18,
-      3: 24,
+      1: 7,  // Bigger than pink (6), smaller than grey (9)
+      2: 10, // Bigger than grey (9), smaller than brown (12)
+      3: 13, // Bigger than brown (12), but not too much
     };
     return radiusMap[phase];
   }
@@ -85,9 +85,9 @@ export class GameSessionState {
    */
   private getVisualSize(phase: 1 | 2 | 3): number {
     const sizeMap: Record<1 | 2 | 3, number> = {
-      1: 0.45, // Smaller than before (was 0.5)
-      2: 0.65, // Smaller than before (was 0.7)
-      3: 0.85, // Smaller than before (was 0.95)
+      1: 0, // Smaller than before (was 0.5)
+      2: 0, // Smaller than before (was 0.7)
+      3: 0, // Smaller than before (was 0.95)
     };
     return sizeMap[phase];
   }

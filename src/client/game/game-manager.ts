@@ -104,12 +104,12 @@ export class GameManager {
     overlayContainer.appendChild(this.hud);
 
     // Wire HUD events
-    this.hud.addEventListener('return-to-lobby', () => {
-      this.onReturnToLobby();
+    this.hud.addEventListener('play-again', () => {
+      this.onPlayAgain();
     });
 
-    this.hud.addEventListener('new-game', () => {
-      this.onNewGame();
+    this.hud.addEventListener('leave-game', () => {
+      this.onLeaveGame();
     });
 
     // Initialize sidebar
@@ -122,7 +122,7 @@ export class GameManager {
     });
 
     this.sidebar.addEventListener('quit-game', () => {
-      this.onReturnToLobby();
+      this.onLeaveGame();
     });
 
     // Subscribe to server events
@@ -367,22 +367,21 @@ export class GameManager {
   }
 
   /**
-   * Handle return to lobby button
+   * Handle play again button - returns to lobby
    */
-  private onReturnToLobby(): void {
-    console.log('GameManager: Returning to lobby');
+  private onPlayAgain(): void {
+    console.log('GameManager: Play again - returning to lobby');
     const sceneController = getSceneController();
     sceneController.toLobby();
   }
 
   /**
-   * Handle new game button
+   * Handle leave game button - returns to lobby
    */
-  private onNewGame(): void {
-    console.log('GameManager: Starting new game');
-    // This would trigger a new game request to the server
-    // For now, just return to lobby
-    this.onReturnToLobby();
+  private onLeaveGame(): void {
+    console.log('GameManager: Leaving game - returning to lobby');
+    const sceneController = getSceneController();
+    sceneController.toLobby();
   }
 
   /**
