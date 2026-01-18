@@ -90,6 +90,7 @@ export class GameHUD extends LitElement {
       text-align: center;
       font-family: 'Courier New', monospace;
       max-width: 400px;
+      pointer-events: auto;
     }
 
     .end-screen h1 {
@@ -185,6 +186,9 @@ export class GameHUD extends LitElement {
       cursor: pointer;
       font-size: 12px;
       transition: background-color 0.2s;
+      pointer-events: auto;
+      position: relative;
+      z-index: 1101;
     }
 
     .action-button:hover {
@@ -345,8 +349,8 @@ export class GameHUD extends LitElement {
                 : ''}
 
               <div class="action-buttons">
-                <button class="action-button" @click=${this.handlePlayAgain}>Play Again</button>
-                <button class="action-button" @click=${this.handleLeaveGame}>Leave Game</button>
+                <button class="action-button" @click=${() => this.handlePlayAgain()}>Play Again</button>
+                <button class="action-button" @click=${() => this.handleLeaveGame()}>Leave Game</button>
               </div>
             </div>
           </div>`
