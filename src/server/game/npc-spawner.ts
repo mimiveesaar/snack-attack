@@ -74,7 +74,7 @@ export class NPCSpawner {
     // Create NPC
     const npcId = `npc-${this.spawnCounter++}-${Date.now()}`;
     const xpMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 10, grey: 25, brown: 50 };
-    const sizeMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 1.0, grey: 1.2, brown: 1.5 };
+    const sizeMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 0.7, grey: 0.85, brown: 1.0 };
     const radiusMap: Record<'pink' | 'grey' | 'brown', number> = { pink: 10, grey: 14, brown: 18 };
 
     state.npcs.push({

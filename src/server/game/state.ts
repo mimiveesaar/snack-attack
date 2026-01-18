@@ -85,9 +85,9 @@ export class GameSessionState {
    */
   private getVisualSize(phase: 1 | 2 | 3): number {
     const sizeMap: Record<1 | 2 | 3, number> = {
-      1: 1.0,
-      2: 1.5,
-      3: 2.0,
+      1: 0.7,
+      2: 1.0,
+      3: 1.3,
     };
     return sizeMap[phase];
   }
