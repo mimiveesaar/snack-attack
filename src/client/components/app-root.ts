@@ -1,13 +1,14 @@
 import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { lobbyClient, type ClientState } from '@client/state/lobby-state';
-import { getLobbyIdFromUrl, resetLobbyUrl } from '@client/state/router';
+import { getLobbyIdFromUrl, getSeedFromUrl, isGameRoute, resetLobbyUrl } from '@client/state/router';
 import type { LobbyState } from '@shared/types';
 import './lobby-entry';
 import './player-list';
 import './lobby-controls';
 import './share-url';
 import './waiting-view';
+import './game-view';
 
 @customElement('app-root')
 export class AppRoot extends LitElement {
@@ -48,6 +49,10 @@ export class AppRoot extends LitElement {
 
   render() {
     const { view, lobby, waiting, error } = this.clientState;
+    if (isGameRoute()) {
+      const seed = getSeedFromUrl() ?? '';
+      return html`<game-view .seed=${seed}></game-view>`;
+    }
     return html`
       <div class="lobby-shell">
         ${view === 'entry'

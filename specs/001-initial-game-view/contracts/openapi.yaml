@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Initial Game View Client Route Contract
+  version: 1.0.0
+  description: |
+    Client-only contract documenting the /game route and its deterministic seed input.
+    This feature does not add or change server endpoints.
+paths:
+  /game:
+    get:
+      summary: Render the initial game view background
+      description: |
+        Client route. Uses the seed query parameter to deterministically render the background layout.
+      parameters:
+        - in: query
+          name: seed
+          required: false
+          schema:
+            type: string
+          description: |
+            Seed used for deterministic layout. If missing or invalid, the client uses a documented default seed.
+      responses:
+        "200":
+          description: Client-rendered view (no server response body).

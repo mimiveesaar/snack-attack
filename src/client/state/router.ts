@@ -3,6 +3,16 @@ export function getLobbyIdFromUrl(): string | null {
   return match ? match[1] : null;
 }
 
+export function isGameRoute(): boolean {
+  return window.location.pathname === '/game';
+}
+
+export function getSeedFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  const seed = params.get('seed');
+  return seed && seed.trim().length > 0 ? seed : null;
+}
+
 export function setLobbyUrl(lobbyId: string): void {
   const next = `/lobby/${lobbyId}`;
   if (window.location.pathname !== next) {

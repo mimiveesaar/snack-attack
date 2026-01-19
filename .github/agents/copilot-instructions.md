@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-01-17
 
 ## Active Technologies
+- TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions (001-initial-game-view)
+- N/A (client-only rendering, no persistence required) (001-initial-game-view)
 
 - TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time), pnpm-managed; prefer DOM/Web APIs (001-lobby-system)
 
@@ -23,6 +25,7 @@ npm test && npm run lint
 TypeScript (strict mode) on Node.js (current LTS): Follow standard conventions
 
 ## Recent Changes
+- 001-initial-game-view: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 
 - 001-lobby-system: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time), pnpm-managed; prefer DOM/Web APIs
 
