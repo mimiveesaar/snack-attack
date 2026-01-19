@@ -16,7 +16,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   },
 });
 
-lobbyStore.startCleanup();
 
 const lobbyNs = io.of('/lobby');
 
