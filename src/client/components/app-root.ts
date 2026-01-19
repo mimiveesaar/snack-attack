@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { lobbyClient, type ClientState } from '@client/state/lobby-state';
+import { lobbyClient, type ClientState } from '@client/feature/lobby/state/lobby-state';
 import { getLobbyIdFromUrl, getSeedFromUrl, isGameRoute, resetLobbyUrl } from '@client/state/router';
 import type { LobbyState } from '@shared/types';
 import './lobby-entry';

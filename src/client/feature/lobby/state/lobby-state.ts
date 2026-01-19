@@ -6,7 +6,7 @@ import type {
   ServerToClientEvents,
   WaitingPayload,
 } from '@shared/types';
-import { getLobbyIdFromUrl, resetLobbyUrl, setLobbyUrl } from './router';
+import { getLobbyIdFromUrl, resetLobbyUrl, setLobbyUrl } from '../../../state/router';
 
 export type ViewMode = 'entry' | 'lobby' | 'waiting';
 
