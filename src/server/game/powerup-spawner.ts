@@ -10,8 +10,8 @@
 
 import type { GameSessionState } from './state';
 
-const SPAWN_INTERVAL = 10000; // 10 seconds between powerups
-const MAX_CONCURRENT_POWERUPS = 10;
+const SPAWN_INTERVAL = 2000; // 2 seconds between powerups (spawn frequently)
+const MAX_CONCURRENT_POWERUPS = 30; // allow many powerups on the field at once
 const POWERUP_LIFETIME = 30000; // 30 seconds before despawning
 
 const SPAWN_DISTANCE = 50; // pixels away from any player

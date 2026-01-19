@@ -163,6 +163,7 @@ export class CollisionDetector {
       for (const player of state.players) {
         if (player.status !== 'alive') continue;
         if (session.isPlayerInGrace(player.id)) continue; // Skip if in grace period
+        if (player.powerups.includes('invincibility')) continue; // Immune while invincible
 
         // Check collision
         if (this.circleCollide(npc.position, npc.collisionRadius, player.position, player.collisionRadius)) {

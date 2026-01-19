@@ -154,18 +154,17 @@ export class GameSessionState {
   }
 
   /**
-   * Add power-up to player
+   * Add power-up to player (replaces any existing powerup)
    */
   addPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility', durationMs: number = 10000): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
 
-    // Remove old powerup of same type if exists
-    const idx = player.powerups.indexOf(powerupType);
-    if (idx >= 0) {
-      player.powerups.splice(idx, 1);
-    }
+    // Remove all existing powerups (only one active at a time)
+    player.powerupEndTimes.clear();
+    player.powerups = [];
 
+    // Add new powerup
     player.powerups.push(powerupType);
     player.powerupEndTimes.set(powerupType, Date.now() + durationMs);
     return true;

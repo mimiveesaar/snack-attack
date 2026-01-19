@@ -362,10 +362,18 @@ export class GameManager {
 
     // Process game events (collisions, powerups, respawns)
     if (payload.events && payload.events.length > 0) {
-      payload.events.forEach((event) => {
+      console.log('[GameManager] Events received:', payload.events.length, 'events');
+      payload.events.forEach((event, idx) => {
+        console.log(`[GameManager] Event ${idx + 1}:`, event.type, event);
         if (event.type === 'fish-eaten') {
+          console.log('[GameManager] Playing eat sound');
           soundManager.playEatSound();
         } else if (event.type === 'powerup-collected') {
+          console.log('[GameManager] Powerup collected - playing sound', {
+            powerupType: event.data.powerupType,
+            collectedByPlayerId: event.data.collectedByPlayerId,
+            isOwnPowerup: event.data.collectedByPlayerId === this.selfPlayerId,
+          });
           soundManager.playPowerupSound();
           // Track powerup collection for timer display
           if (event.data.collectedByPlayerId === this.selfPlayerId && event.data.powerupType) {
@@ -374,6 +382,7 @@ export class GameManager {
             this.startPowerupTimer();
           }
         } else if (event.type === 'respawn-complete') {
+          console.log('[GameManager] Playing respawn sound');
           soundManager.playRespawnSound();
         }
       });

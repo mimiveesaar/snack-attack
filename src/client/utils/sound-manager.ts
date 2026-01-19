@@ -94,33 +94,57 @@ export class SoundManager {
    * Play a sound effect
    */
   playSound(soundType: string): void {
-    if (!this.soundEnabled || !this.audioContext || !this.masterGain) return;
+    if (!this.soundEnabled || !this.audioContext || !this.masterGain) {
+      console.warn('[SoundManager] Cannot play sound:', {
+        soundType,
+        soundEnabled: this.soundEnabled,
+        hasAudioContext: !!this.audioContext,
+        hasMasterGain: !!this.masterGain,
+      });
+      return;
+    }
+
+    // Resume audio context if suspended (required by browsers for autoplay)
+    if (this.audioContext.state === 'suspended') {
+      console.log('[SoundManager] AudioContext suspended, resuming...');
+      this.audioContext.resume().then(() => {
+        console.log('[SoundManager] AudioContext resumed');
+      });
+    }
 
     let frequency = 440;
     let duration = 0.1;
+    let volume = 0.15; // Default volume
 
     switch (soundType) {
       case 'eat':
         frequency = 523; // C5
         duration = 0.08;
+        volume = 0.15;
         break;
       case 'powerup':
         frequency = 659; // E5
         duration = 0.15;
+        volume = 0.5; // Louder so it cuts through background music
         break;
       case 'respawn':
         frequency = 784; // G5
         duration = 0.2;
+        volume = 0.15;
         break;
       case 'game-over':
         frequency = 330; // E4
         duration = 0.3;
+        volume = 0.15;
         break;
       case 'fish-select':
         frequency = 587; // D5
         duration = 0.1;
+        volume = 0.15;
         break;
     }
+
+    console.log(`[SoundManager] Playing ${soundType} sound at ${frequency}Hz with volume ${volume}, context state: ${this.audioContext.state}`);
 
     // Create oscillator and gain for this sound
     const osc = this.audioContext.createOscillator();
@@ -130,7 +154,7 @@ export class SoundManager {
     osc.type = 'sine';
     
     const now = this.audioContext.currentTime;
-    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.setValueAtTime(volume, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
     osc.connect(gain);
@@ -138,6 +162,8 @@ export class SoundManager {
 
     osc.start(now);
     osc.stop(now + duration);
+    
+    console.log(`[SoundManager] Sound scheduled: ${soundType} will stop at ${now + duration}`);
   }
 
   /**

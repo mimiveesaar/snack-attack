@@ -62,6 +62,8 @@ export class Fish extends VisualEntity {
   private lastFacingDirection: number = 1; // 1 for right, -1 for left
   private haloElement: SVGCircleElement | null = null;
   private haloColor: string | null = null;
+  private haloGradientId: string | null = null;
+  private haloFilterId: string | null = null;
   
   // Smooth movement properties
   private targetPosition: Vec2D;
@@ -144,22 +146,50 @@ export class Fish extends VisualEntity {
   private createOrUpdateHalo(): void {
     if (!this.element || !this.haloColor) return;
 
+    const svgRoot = (this.element as SVGGraphicsElement | null)?.ownerSVGElement;
+    if (!svgRoot) return;
+
     // Remove existing halo if present
-    if (this.haloElement) {
-      this.haloElement.remove();
+    this.removeHalo();
+
+    // Ensure <defs> exists
+    let defs = svgRoot.querySelector('defs');
+    if (!defs) {
+      defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      svgRoot.insertBefore(defs, svgRoot.firstChild);
     }
 
-    // Create new halo circle
+    // Create unique ids for gradient and blur filter
+    this.haloGradientId = `${this.id}-halo-gradient`;
+    this.haloFilterId = `${this.id}-halo-blur`;
+
+    // Radial gradient for glowing halo
+    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+    gradient.setAttribute('id', this.haloGradientId);
+    gradient.setAttribute('fx', '50%');
+    gradient.setAttribute('fy', '50%');
+    gradient.setAttribute('r', '50%');
+    gradient.innerHTML = `
+      <stop offset="0%" stop-color="${this.haloColor}" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="${this.haloColor}" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="${this.haloColor}" stop-opacity="0" />
+    `;
+    defs.appendChild(gradient);
+
+    // Blur filter to soften the glow
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', this.haloFilterId);
+    filter.innerHTML = '<feGaussianBlur in="SourceGraphic" stdDeviation="6" />';
+    defs.appendChild(filter);
+
+    // Create new halo circle using gradient fill and blur filter
     this.haloElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     this.haloElement.setAttribute('cx', '0');
     this.haloElement.setAttribute('cy', '0');
-    this.haloElement.setAttribute('r', String((this.collisionRadius + 8) / this.size)); // Slightly larger than collision radius
-    this.haloElement.setAttribute('fill', 'none');
-    this.haloElement.setAttribute('stroke', this.haloColor);
-    this.haloElement.setAttribute('stroke-width', String(3 / this.size));
-    this.haloElement.setAttribute('opacity', '0.7');
+    this.haloElement.setAttribute('r', String((this.collisionRadius + 20) / this.size));
+    this.haloElement.setAttribute('fill', `url(#${this.haloGradientId})`);
+    this.haloElement.setAttribute('filter', `url(#${this.haloFilterId})`);
     this.haloElement.setAttribute('class', 'powerup-halo');
-    this.haloElement.setAttribute('vector-effect', 'non-scaling-stroke');
 
     // Insert halo at the beginning so it appears behind the fish
     this.element.insertBefore(this.haloElement, this.element.firstChild);
@@ -173,6 +203,19 @@ export class Fish extends VisualEntity {
       this.haloElement.remove();
       this.haloElement = null;
     }
+    const svgRoot = (this.element as SVGGraphicsElement | null)?.ownerSVGElement;
+    if (svgRoot) {
+      if (this.haloGradientId) {
+        const grad = svgRoot.querySelector(`#${this.haloGradientId}`);
+        grad?.remove();
+      }
+      if (this.haloFilterId) {
+        const filt = svgRoot.querySelector(`#${this.haloFilterId}`);
+        filt?.remove();
+      }
+    }
+    this.haloGradientId = null;
+    this.haloFilterId = null;
   }
 
   /**

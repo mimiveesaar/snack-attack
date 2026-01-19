@@ -115,12 +115,12 @@ export class GameLoop {
     // Update power-ups
     this.updatePowerUps(session);
 
-    // Process collisions (eating, boundary)
-    this.processCollisions(session);
+    // Process collisions (eating, boundary) and collect events
+    const collisionEvents = this.processCollisions(session);
 
     // Broadcast state update every BROADCAST_INTERVAL_TICKS
     if (this.tickCount % BROADCAST_INTERVAL_TICKS === 0) {
-      this.broadcastStateUpdate(session);
+      this.broadcastStateUpdate(session, collisionEvents);
     }
 
     // Broadcast timer tick every TIMER_TICK_INTERVAL_TICKS
@@ -283,7 +283,7 @@ export class GameLoop {
   /**
    * Process collisions (eating, powerups, boundary)
    */
-  private processCollisions(session: any): void {
+  private processCollisions(session: any): any[] {
     const now = Date.now();
 
     // Process eating collisions - players eating NPCs
@@ -297,12 +297,15 @@ export class GameLoop {
 
     // Process boundary collisions
     collisionDetector.processBoundaryCollisions(session);
+
+    // Return all events combined
+    return [...eatingEvents, ...powerupEvents, ...npcEatingEvents];
   }
 
   /**
    * Broadcast state update to all players
    */
-  private broadcastStateUpdate(session: any): void {
+  private broadcastStateUpdate(session: any, events: any[] = []): void {
     const state = session.getState();
     const payload = {
       serverTick: state.serverTick,
@@ -340,7 +343,7 @@ export class GameLoop {
         ? state.players.find((p: any) => p.id === state.pausedByLeaderId)?.nicknameDisplay || null
         : null,
       timerRemainingMs: session.getTimeRemainingMs(),
-      events: [],
+      events: events,
       leaderboard: session.updateLeaderboard().map((entry: any, idx: number) => ({
         playerId: entry.id,
         nicknameDisplay: entry.nicknameDisplay,
