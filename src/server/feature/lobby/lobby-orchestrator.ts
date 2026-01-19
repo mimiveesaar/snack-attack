@@ -1,55 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import { Player, LobbyState, GameSession, Gamemode, Difficulty } from '../shared/types';
-
-
+import { Player, GameSession, Gamemode, Difficulty } from '../../../shared/types';
+import { deriveShareUrl } from './utils/shareUrl';
+import { nowIso } from '@shared/utils/time';
+import { dedupeNickname } from './utils/dedupeNickname';
+import { lobbyStore, type LobbyRecord } from './lobby-store';
 
 const MULTIPLAYER_CAP = 4;
 const SINGLEPLAYER_CAP = 1;
 const SESSION_DURATION_MS = 30_000;
 
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function deriveShareUrl(baseUrl: string, lobbyId: string): string {
-  const trimmed = baseUrl.replace(/\/$/, '');
-  return `${trimmed}/lobby/${lobbyId}`;
-}
-
-function dedupeNickname(players: Player[], nicknameBase: string): string {
-  let maxSuffix = 0;
-  for (const p of players) {
-    if (p.nicknameBase !== nicknameBase) continue;
-    const match = p.nicknameDisplay.match(/\((\d+)\)$/);
-    const suffix = match ? Number(match[1]) : 1;
-    maxSuffix = Math.max(maxSuffix, suffix);
-  }
-  return maxSuffix === 0 ? nicknameBase : `${nicknameBase} (${maxSuffix + 1})`;
-}
-
-export interface LobbyRecord extends LobbyState {
-  players: Player[];
-  activeSession?: GameSession;
-  joinCounter: number;
-  waiting: Player[];
-}
-
-export class LobbyStore {
-  private lobbies = new Map<string, LobbyRecord>();
-  private cleanupInterval: NodeJS.Timeout | null = null;
-
-  startCleanup(intervalMs = 5 * 60 * 1000): void {
-    if (this.cleanupInterval) return;
-    this.cleanupInterval = setInterval(() => this.cleanupEmptyLobbies(), intervalMs);
-  }
-
-  stopCleanup(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
-    }
-  }
-
+export class LobbyOrchestrator {
   createLobby(params: {
     playerId: string;
     nickname: string;
@@ -81,7 +41,7 @@ export class LobbyStore {
       waiting: [],
     };
 
-    this.lobbies.set(lobbyId, record);
+    lobbyStore.setLobby(lobbyId, record);
     return record;
   }
 
@@ -91,7 +51,7 @@ export class LobbyStore {
     nickname: string;
     color: string;
   }): { state: LobbyRecord | null; player?: Player; kicked?: string[]; waiting?: boolean; error?: string } {
-    const lobby = this.lobbies.get(params.lobbyId);
+    const lobby = lobbyStore.getState(params.lobbyId);
     if (!lobby) return { state: null };
 
     const capacity = lobby.maxPlayers;
@@ -124,7 +84,7 @@ export class LobbyStore {
   }
 
   leaveLobby(lobbyId: string, playerId: string): { state: LobbyRecord | null; deleted: boolean } {
-    const lobby = this.lobbies.get(lobbyId);
+    const lobby = lobbyStore.getState(lobbyId);
     if (!lobby) return { state: null, deleted: false };
 
     lobby.players = lobby.players.filter((p) => p.id !== playerId);
@@ -132,7 +92,7 @@ export class LobbyStore {
     this.ensureLeader(lobby);
 
     if (lobby.players.length === 0) {
-      this.lobbies.delete(lobbyId);
+      lobbyStore.removeLobby(lobbyId);
       return { state: null, deleted: true };
     }
 
@@ -145,13 +105,18 @@ export class LobbyStore {
     gamemode: Gamemode;
     difficulty: Difficulty;
   }): { state: LobbyRecord | null; kicked?: Player[]; error?: string } {
-    const lobby = this.lobbies.get(params.lobbyId);
+    const lobby = lobbyStore.getState(params.lobbyId);
     if (!lobby) return { state: null, error: 'Lobby not found' };
     if (!this.isLeader(lobby, params.leaderId)) return { state: null, error: 'Not leader' };
 
     lobby.gamemode = params.gamemode;
     lobby.difficulty = params.difficulty;
-    lobby.maxPlayers = params.gamemode === 'singleplayer' ? SINGLEPLAYER_CAP : MULTIPLAYER_CAP;
+
+    if (params.gamemode === 'singleplayer') {
+      lobby.maxPlayers = SINGLEPLAYER_CAP;
+    } else {
+      lobby.maxPlayers = MULTIPLAYER_CAP;
+    }
 
     const kicked: Player[] = [];
     if (lobby.players.length > lobby.maxPlayers) {
@@ -174,10 +139,16 @@ export class LobbyStore {
   }
 
   startGame(lobbyId: string, leaderId: string): { session: GameSession | null; error?: string } {
-    const lobby = this.lobbies.get(lobbyId);
-    if (!lobby) return { session: null, error: 'Lobby not found' };
-    if (!this.isLeader(lobby, leaderId)) return { session: null, error: 'Not leader' };
-    if (lobby.players.length > lobby.maxPlayers) return { session: null, error: 'Capacity exceeded' };
+    const lobby = lobbyStore.getState(lobbyId);
+    if (!lobby) {
+      return { session: null, error: 'Lobby not found' };
+    }
+    if (!this.isLeader(lobby, leaderId)) {
+      return { session: null, error: 'Not leader' };
+    }
+    if (lobby.players.length > lobby.maxPlayers) {
+      return { session: null, error: 'Capacity exceeded' };
+    }
 
     const session: GameSession = {
       sessionId: randomUUID().slice(0, 8),
@@ -193,7 +164,7 @@ export class LobbyStore {
   }
 
   endGame(lobbyId: string, seatsAvailable: number): { lobby: LobbyRecord | null } {
-    const lobby = this.lobbies.get(lobbyId);
+    const lobby = lobbyStore.getState(lobbyId);
     if (!lobby) return { lobby: null };
     if (!lobby.activeSession) return { lobby };
 
@@ -201,22 +172,6 @@ export class LobbyStore {
     lobby.status = 'waiting';
     this.admitWaiting(lobby);
     return { lobby };
-  }
-
-  getState(lobbyId: string): LobbyRecord | null {
-    return this.lobbies.get(lobbyId) ?? null;
-  }
-
-  list(): LobbyRecord[] {
-    return Array.from(this.lobbies.values());
-  }
-
-  cleanupEmptyLobbies(): void {
-    for (const [id, lobby] of this.lobbies) {
-      if (lobby.players.length === 0) {
-        this.lobbies.delete(id);
-      }
-    }
   }
 
   private admitWaiting(lobby: LobbyRecord): void {
@@ -238,4 +193,4 @@ export class LobbyStore {
   }
 }
 
-export const lobbyStore = new LobbyStore();
+export const lobbyOrchestrator = new LobbyOrchestrator();

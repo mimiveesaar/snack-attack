@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { bubbleAssets, defaultFishAsset, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from '@client/feature/assets/game-assets';
+import { bubbleAssets, defaultFishAsset, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from '@client/assets/game-assets';
 import { GameLoop } from '@client/feature/engine/game-loop';
 import { Fish, FishEntity } from '@client/feature/fish/fish';
 import { PlayerController } from '@client/feature/player/player-controller';

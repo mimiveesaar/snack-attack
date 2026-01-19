@@ -1,6 +1,7 @@
 {
-  "extends": "./tsconfig.client.json",
-  "compilerOptions": {
-    "noEmit": true
-  }
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.client.json" },
+    { "path": "./tsconfig.server.json" }
+  ]
 }

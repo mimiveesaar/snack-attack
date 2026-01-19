@@ -1,5 +1,5 @@
-import type { LobbyState } from './lobby';
-import type { GameSession, LeaderboardEntry } from './game-session';
+import { GameSession, LeaderboardEntry } from './game-session';
+import { LobbyState } from './lobby';
 
 export interface WaitingPayload {
   lobbyId: string;

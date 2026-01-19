@@ -1,4 +1,5 @@
-import { lobbyStore } from './lobby-store';
+import { lobbyStore } from './feature/lobby/lobby-store';
+import { lobbyOrchestrator } from './feature/lobby/lobby-orchestrator';
 import type { Namespace, Server } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '@shared/types';
 
@@ -17,7 +18,7 @@ export class GameSessionManager {
 
     lobby.activeSession.timerRemainingMs = SESSION_DURATION_MS;
     const timeout = setTimeout(() => {
-      const result = lobbyStore.endGame(lobbyId, lobby.maxPlayers - lobby.players.length);
+      const result = lobbyOrchestrator.endGame(lobbyId, lobby.maxPlayers - lobby.players.length);
       const endedSession = result.lobby?.activeSession || lobby.activeSession;
       if (result.lobby && endedSession) {
         io.to(lobbyId).emit('game:ended', endedSession);

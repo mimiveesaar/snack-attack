@@ -1,4 +1,4 @@
-import { bubbleAssets, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from '@client/feature/assets/game-assets';
+import { bubbleAssets, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from '@client/assets/game-assets';
 import { createPrng, hashSeedToUint32, randomBetween, randomInt } from '../../../utils/prng';
 import type { BubbleLayout, GameLayout, RockLayout, SeaweedLayout } from './layout-types';
 
