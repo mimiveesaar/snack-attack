@@ -1,0 +1,8 @@
+openapi: 3.0.3
+info:
+  title: Snack Attack Multiplayer Server v1
+  version: 0.1.0
+  description: |
+    No HTTP endpoints are introduced for this feature. Multiplayer communication
+    is handled via Socket.IO events documented in socket-events.md.
+paths: {}
