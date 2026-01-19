@@ -1,13 +1,12 @@
 /**
  * Sound Manager - Manages background music and sound effects
- * Uses Web Audio API for sound generation
+ * Uses Web Audio API for sound effects and HTML5 Audio for background music
  */
-
-import { Howl } from 'howler';
 
 export class SoundManager {
   private static instance: SoundManager;
   private soundEnabled: boolean = true;
+  private backgroundMusic: HTMLAudioElement | null = null;
   private backgroundMusicOscillators: OscillatorNode[] = [];
   private gainNodes: GainNode[] = [];
   private audioContext: AudioContext | null = null;
@@ -49,50 +48,25 @@ export class SoundManager {
   }
 
   /**
-   * Start background music - underwater adventure theme
+   * Start background music - plays MeltdownTheme.wav
    */
   private startBackgroundMusic(): void {
-    if (!this.audioContext || !this.masterGain) return;
+    if (this.backgroundMusic) {
+      // Resume if already loaded
+      this.backgroundMusic.play().catch((error) => {
+        console.warn('SoundManager: Failed to play background music', error);
+      });
+      return;
+    }
 
-    // Playful underwater melody pattern
-    const notes = [
-      // First phrase - ascending, playful
-      { freq: 523, duration: 0.3 },  // C5
-      { freq: 587, duration: 0.3 },  // D5
-      { freq: 659, duration: 0.3 },  // E5
-      { freq: 783, duration: 0.3 },  // G5
-      // Second phrase - descending with variation
-      { freq: 783, duration: 0.2 },  // G5
-      { freq: 659, duration: 0.2 },  // E5
-      { freq: 587, duration: 0.2 },  // D5
-      { freq: 523, duration: 0.4 },  // C5
-      // Third phrase - bouncy high notes
-      { freq: 880, duration: 0.2 },  // A5
-      { freq: 783, duration: 0.2 },  // G5
-      { freq: 659, duration: 0.2 },  // E5
-      { freq: 587, duration: 0.4 },  // D5
-      // Fourth phrase - return home
-      { freq: 659, duration: 0.25 }, // E5
-      { freq: 659, duration: 0.25 }, // E5 (held)
-      { freq: 587, duration: 0.25 }, // D5
-      { freq: 523, duration: 0.5 },  // C5 (longer)
-    ];
+    // Create and initialize background music audio element
+    this.backgroundMusic = new Audio(new URL('@client/assets/sound/soundtrack/MeltdownTheme.wav', import.meta.url).href);
+    this.backgroundMusic.loop = true;
+    this.backgroundMusic.volume = 0.3;
 
-    const playPattern = () => {
-      let currentTime = this.audioContext!.currentTime;
-      for (const note of notes) {
-        this.playOscillatorNote(note.freq, currentTime, note.duration);
-        currentTime += note.duration;
-      }
-      // Reschedule for next pattern
-      const patternDuration = notes.reduce((sum, n) => sum + n.duration, 0);
-      if (this.soundEnabled) {
-        setTimeout(() => playPattern(), (patternDuration + 0.2) * 1000);
-      }
-    };
-
-    // Start the first pattern
-    playPattern();
+    this.backgroundMusic.play().catch((error) => {
+      console.warn('SoundManager: Failed to play background music', error);
+    });
   }
 
   /**
@@ -173,13 +147,18 @@ export class SoundManager {
     this.soundEnabled = !this.soundEnabled;
     localStorage.setItem('snack-attack-sound-enabled', JSON.stringify(this.soundEnabled));
 
-    if (!this.audioContext || !this.masterGain) return this.soundEnabled;
-
     if (this.soundEnabled) {
-      this.masterGain.gain.value = 0.3;
+      if (this.masterGain) {
+        this.masterGain.gain.value = 0.3;
+      }
       this.startBackgroundMusic();
     } else {
-      this.masterGain.gain.value = 0;
+      if (this.masterGain) {
+        this.masterGain.gain.value = 0;
+      }
+      if (this.backgroundMusic) {
+        this.backgroundMusic.pause();
+      }
       // Stop all oscillators
       this.backgroundMusicOscillators.forEach((osc) => {
         try {

@@ -23,8 +23,8 @@ export interface GamePlayer {
   status: 'alive' | 'respawning' | 'spectating';
   respawnTimeMs: number | null;
   graceEndTimeMs: number | null;
-  powerups: ('speed-boost' | 'double-xp')[];
-  powerupEndTimes: Map<'speed-boost' | 'double-xp', number>;
+  powerups: ('speed-boost' | 'double-xp' | 'invincibility')[];
+  powerupEndTimes: Map<'speed-boost' | 'double-xp' | 'invincibility', number>;
   lastInputTick: number;
   inputQueue: GameInput[];
 }
@@ -43,7 +43,7 @@ export interface GameNPC {
 
 export interface GamePowerUp {
   id: string;
-  type: 'speed-boost' | 'double-xp';
+  type: 'invincibility' | 'speed-boost' | 'double-xp';
   position: Vec2D;
   collisionRadius: number;
   spawnTimeMs: number;
@@ -94,6 +94,8 @@ export interface PlayerGameState {
   positionX: number;
   positionY: number;
   ready: boolean;
+  activePowerup?: 'invincibility' | 'speed-boost' | 'double-xp';
+  powerupEndTimeMs?: number;
 }
 
 /**

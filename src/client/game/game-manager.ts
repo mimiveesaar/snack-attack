@@ -15,6 +15,7 @@ import { getGameEngine } from './engine';
 import { getInputController } from './input-controller';
 import { PlayerRenderer } from './managers/player-renderer';
 import { HostileRenderer } from './managers/hostile-renderer';
+import { getPowerupRenderer, clearPowerupRenderer } from './powerup-renderer';
 import { GameHUD } from './components/game-hud';
 import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
@@ -30,6 +31,7 @@ export class GameManager {
   private hostileRenderer: HostileRenderer | null = null;
   private hud: GameHUD | null = null;
   private sidebar: GameSidebar | null = null;
+  private powerupRenderer: any = null;
   private sessionId: string | null = null;
   private selfPlayerId: string | null = null;
   private running: boolean = false;
@@ -102,6 +104,10 @@ export class GameManager {
 
     this.hostileRenderer = new HostileRenderer();
     this.hostileRenderer.initialize(gameCanvas);
+
+    // Initialize PowerupRenderer
+    this.powerupRenderer = getPowerupRenderer();
+    this.powerupRenderer.initialize(gameCanvas);
 
     // Initialize HUD
     this.hud = new GameHUD();
@@ -277,6 +283,12 @@ export class GameManager {
       console.error('GameManager: hostileRenderer is null');
     }
 
+    // Render powerups
+    if (this.powerupRenderer && payload.powerups) {
+      console.log('[GameManager] Updating powerups:', payload.powerups.length, 'powerups');
+      this.powerupRenderer.updateAll(payload.powerups);
+    }
+
     // Update sidebar with player score and leaderboard
     if (this.sidebar) {
       // Find self player data
@@ -448,10 +460,13 @@ export class GameManager {
       this.playerRenderer.clear();
       this.playerRenderer = null;
     }
-
     if (this.hostileRenderer) {
       this.hostileRenderer.clear();
       this.hostileRenderer = null;
+    }
+    if (this.powerupRenderer) {
+      this.powerupRenderer.clear();
+      this.powerupRenderer = null;
     }
 
     // Remove DOM elements

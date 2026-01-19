@@ -14,6 +14,7 @@ import type { GameClientToServerEvents, GameServerToClientEvents } from '../../s
 import { getGameSession } from './state';
 import { collisionDetector } from './collision';
 import { npcSpawner } from './npc-spawner';
+import { powerupSpawner } from './powerup-spawner';
 
 const TICK_RATE_HZ = 60;
 const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
@@ -269,17 +270,24 @@ export class GameLoop {
    * Update power-up states
    */
   private updatePowerUps(session: any): void {
-    // TODO: Handle power-up expiration, spawning
+    // Spawn new powerups via spawner tick
+    powerupSpawner.tick(session);
+
+    // Clean up expired powerups
+    powerupSpawner.cleanupExpiredPowerups(session);
   }
 
   /**
-   * Process collisions (eating, boundary)
+   * Process collisions (eating, powerups, boundary)
    */
   private processCollisions(session: any): void {
     const now = Date.now();
 
     // Process eating collisions - players eating NPCs
     const eatingEvents = collisionDetector.processEatingCollisions(session, now);
+
+    // Process powerup collisions - players collecting powerups
+    const powerupEvents = collisionDetector.processPowerupCollisions(session, now);
 
     // Process NPCs eating players
     const npcEatingEvents = collisionDetector.processNPCsEatingPlayers(session, now);
@@ -319,6 +327,8 @@ export class GameLoop {
         id: p.id,
         type: p.type,
         position: p.position,
+        status: p.status,
+        collisionRadius: p.collisionRadius,
       })),
       status: state.status,
       isPaused: state.isPaused,

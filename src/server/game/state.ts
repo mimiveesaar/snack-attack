@@ -48,7 +48,7 @@ export class GameSessionState {
       startedAt: Date.now(),
       status: 'active',
       timerStartMs: Date.now(),
-      gameTimerDurationMs: 1 * 10 * 1000, // 2 minutes
+      gameTimerDurationMs: 2 * 30 * 1000, 
       isPaused: false,
       pausedByLeaderId: null,
       pausedAt: null,
@@ -156,7 +156,7 @@ export class GameSessionState {
   /**
    * Add power-up to player
    */
-  addPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp', durationMs: number = 10000): boolean {
+  addPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility', durationMs: number = 10000): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
 
@@ -174,7 +174,7 @@ export class GameSessionState {
   /**
    * Remove power-up from player
    */
-  removePowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp'): boolean {
+  removePowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility'): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
 
