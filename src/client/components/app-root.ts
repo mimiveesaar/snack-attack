@@ -8,7 +8,7 @@ import './player-list';
 import './lobby-controls';
 import './share-url';
 import './waiting-view';
-import './game-view';
+import '../feature/map/game-view';
 
 @customElement('app-root')
 export class AppRoot extends LitElement {

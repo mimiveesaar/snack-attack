@@ -1,5 +1,5 @@
 import { bubbleAssets, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from './game-assets';
-import { createPrng, hashSeedToUint32, randomBetween, randomInt } from './prng';
+import { createPrng, hashSeedToUint32, randomBetween, randomInt } from '../../../utils/prng';
 import type { BubbleLayout, GameLayout, RockLayout, SeaweedLayout } from './layout-types';
 
 // Fixed viewport dimensions matching the game view container.
@@ -11,8 +11,8 @@ const GROUND_Y = Math.floor(VIEWPORT_HEIGHT * 0.82);
 const WATER_TOP = 24;
 
 // Size ranges keep scaling in a visually consistent band.
-const ROCK_SIZE_RANGE: [number, number] = [0.7, 1.4];
-const SEAWEED_SIZE_RANGE: [number, number] = [0.6, 1.3];
+const ROCK_SIZE_RANGE: [number, number] = [1, 3];
+const SEAWEED_SIZE_RANGE: [number, number] = [1, 3];
 const BUBBLE_SIZE_RANGE: [number, number] = [0.4, 1.1];
 
 // Element counts tuned for a lively but uncluttered scene.
@@ -54,7 +54,7 @@ export function generateLayout(seed: string): GameLayout {
     type: 'rock',
     position: {
       x: Math.round(randomBetween(rockPrng, 40, VIEWPORT_WIDTH - 80)),
-      y: Math.round(randomBetween(rockPrng, GROUND_Y - 60, GROUND_Y + 10)),
+      y: Math.round(randomBetween(rockPrng, GROUND_Y, GROUND_Y + 12)),
     },
     size: Number(randomBetween(rockPrng, ROCK_SIZE_RANGE[0], ROCK_SIZE_RANGE[1]).toFixed(2)),
     variantIndex: randomInt(rockPrng, 0, rockAssets.length - 1),
@@ -65,7 +65,7 @@ export function generateLayout(seed: string): GameLayout {
     type: 'seaweed',
     position: {
       x: Math.round(randomBetween(seaweedPrng, 30, VIEWPORT_WIDTH - 60)),
-      y: Math.round(randomBetween(seaweedPrng, GROUND_Y - 90, GROUND_Y + 10)),
+      y: Math.round(randomBetween(seaweedPrng, GROUND_Y, GROUND_Y + 16)),
     },
     size: Number(randomBetween(seaweedPrng, SEAWEED_SIZE_RANGE[0], SEAWEED_SIZE_RANGE[1]).toFixed(2)),
     variantIndex: randomInt(seaweedPrng, 0, seaweedAssets.length - 1),
