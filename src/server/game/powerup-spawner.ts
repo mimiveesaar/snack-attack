@@ -16,8 +16,8 @@ const POWERUP_LIFETIME = 30000; // 30 seconds before despawning
 
 const SPAWN_DISTANCE = 50; // pixels away from any player
 const BOUNDARY_BUFFER = 20;
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 800;
+const GAME_WIDTH = 1000;
+const GAME_HEIGHT = 1000;
 
 export class PowerupSpawner {
   private lastSpawnTime: number = 0;

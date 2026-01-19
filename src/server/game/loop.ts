@@ -136,8 +136,8 @@ export class GameLoop {
    */
   private updatePlayers(session: any): void {
     const state = session.getState();
-    const GAME_WIDTH = 800;
-    const GAME_HEIGHT = 800;
+    const GAME_WIDTH = 1000;
+    const GAME_HEIGHT = 1000;
     const now = Date.now();
 
     for (const player of state.players) {
@@ -171,8 +171,8 @@ export class GameLoop {
    */
   private findSafeRespawnLocation(session: any): { x: number; y: number } | null {
     const state = session.getState();
-    const GAME_WIDTH = 800;
-    const GAME_HEIGHT = 800;
+    const GAME_WIDTH = 1000;
+    const GAME_HEIGHT = 1000;
     const BOUNDARY_BUFFER = 50;
     const SAFE_DISTANCE = 100; // pixels from any other fish
     const attempts = 20;

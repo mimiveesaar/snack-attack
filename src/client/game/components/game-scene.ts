@@ -4,11 +4,11 @@ import { customElement } from 'lit/decorators.js';
 /**
  * GameScene - Main game canvas component
  *
- * Provides a fixed 500×500 game viewport with gradient background and border.
+ * Provides a fixed 1000×1000 game viewport with gradient background and border.
  * Hosts all game renderers and overlays.
  *
  * Layout:
- * - Game canvas: 500×500 with gradient background + black border
+ * - Game canvas: 1000×1000 with gradient background + black border
  * - HUD: Timer, pause button, end screen overlay (positioned absolute)
  * - Sidebar: Real-time score, leaderboard, controls (positioned absolute)
  * - Decorations: Sand, rocks, seaweed (rendered via decal-renderer)
@@ -40,7 +40,7 @@ export class GameScene extends LitElement {
         .game-container {
           position: relative;
           width: 1000px;
-          height: 700px;
+          height: 1000px;
           background: linear-gradient(180deg, #b4c3b5 0%, #49534a 100%);
           border: 3px solid black;
           overflow: hidden;
@@ -82,7 +82,7 @@ export class GameScene extends LitElement {
       </style>
       <div class="game-container">
         <!-- SVG canvas - renderers will mount here -->
-        <svg id="game-canvas" width="500" height="500" viewBox="0 0 500 500">
+        <svg id="game-canvas" width="1000" height="1000" viewBox="0 0 1000 1000">
           <!-- Player renderer will render here -->
           <!-- Hostile renderer will render here -->
           <!-- Powerup renderer will render here -->
