@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { bubbleAssets, defaultFishAsset, rockAssets, seaweedAssets, terrainDirtAssets, terrainSandAssets } from '@client/feature/assets/game-assets';
 import { GameLoop } from '@client/feature/engine/game-loop';
-import { Fish } from '@client/feature/fish/fish';
+import { Fish, FishEntity } from '@client/feature/fish/fish';
 import { PlayerController } from '@client/feature/player/player-controller';
 import { generateLayout } from './utils/layout-generator';
 import { normalizeSeed } from '@client/utils/seed';
@@ -22,8 +22,8 @@ export class GameView extends LitElement {
     maxStepsPerFrame: 5,
     maxFrameDeltaSeconds: 0.25,
   });
-  private playerFish: Fish | null = null;
-  private fishElement: HTMLDivElement | null = null;
+  private playerFish: FishEntity | null = null;
+  private fishElement: Fish | null = null;
 
   createRenderRoot() {
     return this;
@@ -42,7 +42,7 @@ export class GameView extends LitElement {
 
   protected firstUpdated() {
     this.ensureFish();
-    this.fishElement = this.renderRoot.querySelector('.player-fish');
+    this.fishElement = this.renderRoot.querySelector('game-fish');
     this.gameLoop.start(this.step, this.renderFrame);
   }
 
@@ -58,7 +58,7 @@ export class GameView extends LitElement {
       return;
     }
     const { width, height } = this.layout;
-    this.playerFish = new Fish('player', { x: width * 0.5, y: height * 0.5 }, { spriteSrc: defaultFishAsset });
+    this.playerFish = new FishEntity('player', { x: width * 0.5, y: height * 0.5 }, { spriteSrc: defaultFishAsset });
   }
 
   private resetFishPosition() {
@@ -82,9 +82,7 @@ export class GameView extends LitElement {
     if (!this.playerFish || !this.fishElement) {
       return;
     }
-    const renderState = this.playerFish.getRenderState();
-    const angle = renderState.rotation + renderState.wiggleAngle;
-    this.fishElement.style.transform = `translate(${renderState.position.x}px, ${-renderState.position.y}px) rotate(${angle}rad)`;
+    this.fishElement.setRenderState(this.playerFish.getRenderState());
   };
 
   render() {
@@ -132,9 +130,7 @@ export class GameView extends LitElement {
             `,
           )}
 
-          <div class="player-fish" style="transform: translate(-9999px, -9999px);">
-            <img src=${fishSprite} alt="Player fish" />
-          </div>
+          <game-fish .spriteSrc=${fishSprite}></game-fish>
 
           <div class="game-hud">
             <span class="game-seed">Seed</span>

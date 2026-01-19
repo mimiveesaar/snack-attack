@@ -106,6 +106,9 @@ As a player, if my device lags briefly, my fish catches up smoothly so movement 
 - **FR-009**: The fish MUST accelerate toward a maximum speed while input is held and apply drag to decelerate when no input is present.
 - **FR-010**: The engine MUST cap the number of fixed-step updates processed per render to prevent runaway catch-up.
 - **FR-011**: The fish avatar MUST render using the provided fish assets.
+- **FR-012**: Fish rendering MUST be implemented as a Lit component that receives render state updates from the movement system.
+- **FR-013**: The fish sprite MUST mirror horizontally when moving left.
+- **FR-014**: The fish sprite MUST tilt vertically to indicate upward/downward movement without full directional rotation.
 
 ### Assumptions
 

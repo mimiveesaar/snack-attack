@@ -1,4 +1,7 @@
+import { LitElement, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import type { Vec2 } from '@shared/types/vec2';
+import { getFishRotation, getFishWiggleAngle, updateFishMovement } from './fish.movement';
 
 export interface FishConfig {
   maxSpeed: number;
@@ -25,60 +28,7 @@ const DEFAULT_CONFIG: FishConfig = {
   spriteSrc: '',
 };
 
-const clampMagnitude = (value: Vec2, max: number): Vec2 => {
-  const length = Math.hypot(value.x, value.y);
-  if (length <= max || length === 0) {
-    return value;
-  }
-  const scale = max / length;
-  return { x: value.x * scale, y: value.y * scale };
-};
-
-const normalize = (value: Vec2): Vec2 => {
-  const length = Math.hypot(value.x, value.y);
-  if (length === 0) {
-    return { x: 0, y: 0 };
-  }
-  return { x: value.x / length, y: value.y / length };
-};
-
-const scale = (value: Vec2, scalar: number): Vec2 => ({
-  x: value.x * scalar,
-  y: value.y * scalar,
-});
-
-const add = (left: Vec2, right: Vec2): Vec2 => ({
-  x: left.x + right.x,
-  y: left.y + right.y,
-});
-
-const subtract = (left: Vec2, right: Vec2): Vec2 => ({
-  x: left.x - right.x,
-  y: left.y - right.y,
-});
-
-const clampVerticalAngle = (direction: Vec2, fallbackX: number): Vec2 => {
-  if (direction.x === 0 && direction.y === 0) {
-    return direction;
-  }
-
-  let adjusted = { ...direction };
-  if (adjusted.x === 0 && adjusted.y !== 0) {
-    const horizontal = fallbackX === 0 ? 1 : Math.sign(fallbackX);
-    adjusted = { x: horizontal, y: adjusted.y };
-  }
-
-  if (Math.abs(adjusted.y) > Math.abs(adjusted.x)) {
-    adjusted = {
-      x: adjusted.x,
-      y: Math.sign(adjusted.y) * Math.abs(adjusted.x),
-    };
-  }
-
-  return normalize(adjusted);
-};
-
-export class Fish {
+export class FishEntity {
   readonly id: string;
   position: Vec2;
   velocity: Vec2;
@@ -95,46 +45,61 @@ export class Fish {
   }
 
   update(deltaSeconds: number, inputDirection: Vec2) {
-    const limitedInput = clampVerticalAngle(inputDirection, this.facingDirection.x);
-    const hasInput = limitedInput.x !== 0 || limitedInput.y !== 0;
+    const state = {
+      position: this.position,
+      velocity: this.velocity,
+      facingDirection: this.facingDirection,
+      wigglePhase: this.wigglePhase,
+    };
 
-    if (hasInput) {
-      const desiredVelocity = scale(limitedInput, this.config.maxSpeed);
-      const difference = subtract(desiredVelocity, this.velocity);
-      const maxChange = this.config.acceleration * deltaSeconds;
-      const change = clampMagnitude(difference, maxChange);
-      this.velocity = add(this.velocity, change);
-    } else {
-      const speed = Math.hypot(this.velocity.x, this.velocity.y);
-      if (speed > 0) {
-        const decel = Math.min(speed, this.config.drag * deltaSeconds);
-        const nextSpeed = speed - decel;
-        const direction = normalize(this.velocity);
-        this.velocity = scale(direction, nextSpeed);
-      }
-    }
+    updateFishMovement(state, deltaSeconds, inputDirection, this.config);
 
-    this.velocity = clampMagnitude(this.velocity, this.config.maxSpeed);
-    this.position = add(this.position, scale(this.velocity, deltaSeconds));
-
-    if (hasInput) {
-      this.facingDirection = limitedInput;
-    } else if (Math.hypot(this.velocity.x, this.velocity.y) > 0.01) {
-      this.facingDirection = normalize(this.velocity);
-    }
-
-    const wiggleIntensity = Math.min(1, Math.hypot(this.velocity.x, this.velocity.y) / this.config.maxSpeed);
-    this.wigglePhase += deltaSeconds * this.config.wiggleSpeed * wiggleIntensity;
+    this.position = state.position;
+    this.velocity = state.velocity;
+    this.facingDirection = state.facingDirection;
+    this.wigglePhase = state.wigglePhase;
   }
 
   getRenderState(): FishRenderState {
-    const rotation = Math.atan2(this.facingDirection.y, this.facingDirection.x);
-    const wiggleAngle = Math.sin(this.wigglePhase) * this.config.wiggleAmplitude;
+    const rotation = getFishRotation(this.facingDirection);
+    const wiggleAngle = getFishWiggleAngle(this.wigglePhase, this.config.wiggleAmplitude);
     return {
       position: { ...this.position },
       rotation,
       wiggleAngle,
       spriteSrc: this.config.spriteSrc,
     };
+  }
+}
+
+@customElement('game-fish')
+export class Fish extends LitElement {
+  @property({ type: String }) spriteSrc = '';
+  @property({ attribute: false }) renderState: FishRenderState | null = null;
+
+  createRenderRoot() {
+    return this;
+  }
+
+  setRenderState(state: FishRenderState) {
+    this.renderState = state;
+  }
+
+  render() {
+    const renderState = this.renderState;
+    const isFacingLeft = renderState ? Math.cos(renderState.rotation) < 0 : false;
+    const mirror = isFacingLeft ? ' scaleX(-1)' : '';
+    const maxTilt = 0.35;
+    const verticalTilt = renderState ? -Math.sin(renderState.rotation) * maxTilt : 0;
+    const transform = renderState
+      ? `translate(${renderState.position.x}px, ${-renderState.position.y}px)${mirror} rotate(${verticalTilt}rad)`
+      : 'translate(-9999px, -9999px)';
+    const spriteSrc = renderState?.spriteSrc ?? this.spriteSrc;
+
+    return html`
+      <div class="player-fish" style="transform: ${transform};">
+        <img src=${spriteSrc} alt="Player fish" />
+      </div>
+    `;
   }
 }
