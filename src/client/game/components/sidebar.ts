@@ -545,8 +545,9 @@ export class GameSidebar extends LitElement {
 
             <h3>Power-ups</h3>
             <ul>
-              <li>⚡ Speed Boost: 1.2x movement speed (10s)</li>
-              <li>✨ Double XP: 2x points from eating (10s)</li>
+              <li><strong>⚡ Speed Boost:</strong> Increases your movement speed by 20% for 10 seconds. Great for escaping danger or chasing prey!</li>
+              <li><strong>✨ Double XP:</strong> Doubles the XP you gain from eating fish for 10 seconds. Perfect for leveling up quickly!</li>
+              <li><strong>🛡️ Invincibility:</strong> Makes you immune to being eaten for 10 seconds. Use it to escape predators or go on the offensive!</li>
             </ul>
 
             <h3>Controls</h3>

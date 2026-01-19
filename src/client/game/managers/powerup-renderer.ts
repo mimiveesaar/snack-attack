@@ -49,21 +49,20 @@ export class PowerupRenderer {
   }
 
   private createPowerupSVG(powerup: GamePowerUp): SVGElement {
-    const color = 
-      powerup.type === 'invincibility' ? '#FFD700' :  // Gold
-      powerup.type === 'speed-boost' ? '#00BFFF' :     // Deep sky blue
-      '#FF69B4'; // Hot pink for double-xp
+    const emoji = 
+      powerup.type === 'invincibility' ? '🛡️' :
+      powerup.type === 'speed-boost' ? '⚡' :
+      '✨'; // double-xp
     
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    icon.setAttribute('r', String(powerup.collisionRadius || 12));
-    icon.setAttribute('fill', color);
-    icon.setAttribute('stroke', '#222');
-    icon.setAttribute('stroke-width', '2');
-    icon.setAttribute('opacity', '0.85');
-    icon.setAttribute('cx', String(powerup.position.x));
-    icon.setAttribute('cy', String(powerup.position.y));
-    icon.setAttribute('data-powerup', powerup.type);
-    return icon;
+    const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    textEl.setAttribute('x', String(powerup.position.x));
+    textEl.setAttribute('y', String(powerup.position.y));
+    textEl.setAttribute('text-anchor', 'middle');
+    textEl.setAttribute('dominant-baseline', 'central');
+    textEl.setAttribute('font-size', String((powerup.collisionRadius || 12) * 2));
+    textEl.setAttribute('data-powerup', powerup.type);
+    textEl.textContent = emoji;
+    return textEl;
   }
 
   clear(): void {
