@@ -9,6 +9,9 @@ const MULTIPLAYER_CAP = 4;
 const SINGLEPLAYER_CAP = 1;
 const SESSION_DURATION_MS = 30_000;
 
+// Start periodic cleanup of empty lobbies.
+lobbyStore.startCleanup();
+
 export class LobbyOrchestrator {
   createLobby(params: {
     playerId: string;
