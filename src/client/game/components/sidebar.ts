@@ -30,6 +30,8 @@ export class GameSidebar extends LitElement {
   @state() private isLeader: boolean = false;
   @state() private showHelp: boolean = false;
   @state() private isPaused: boolean = false;
+  @state() private activePowerup: string | null = null;
+  @state() private powerupTimeRemaining: number = 0;
 
   static styles = css`
     :host {
@@ -343,6 +345,55 @@ export class GameSidebar extends LitElement {
     .close-button:hover {
       background: #357abd;
     }
+
+    .powerup-section {
+      background: #78a75d;
+      border: 2px solid black;
+      border-radius: 4px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .powerup-title {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .powerup-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .powerup-emoji {
+      font-size: 32px;
+    }
+
+    .powerup-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .powerup-name {
+      font-size: 11px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .powerup-timer {
+      font-size: 14px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+
+    .powerup-empty {
+      font-size: 11px;
+      color: #666;
+      font-style: italic;
+    }
   `;
 
   /**
@@ -373,6 +424,14 @@ export class GameSidebar extends LitElement {
    */
   updatePauseState(isPaused: boolean) {
     this.isPaused = isPaused;
+  }
+
+  /**
+   * Update active powerup and time remaining
+   */
+  updateActivePowerup(powerupType: string | null, timeRemaining: number) {
+    this.activePowerup = powerupType;
+    this.powerupTimeRemaining = timeRemaining;
   }
 
   /**
@@ -459,6 +518,30 @@ export class GameSidebar extends LitElement {
         <div class="score-section">
           <div class="score-label">SCORE</div>
           <div class="score-value">${this.playerScore}</div>
+        </div>
+
+        <!-- Active Powerup Section -->
+        <div class="powerup-section">
+          <div class="powerup-title">ACTIVE POWERUP</div>
+          ${this.activePowerup ? html`
+            <div class="powerup-display">
+              <div class="powerup-emoji">
+                ${this.activePowerup === 'speed-boost' ? '⚡' :
+                  this.activePowerup === 'double-xp' ? '✨' :
+                  this.activePowerup === 'invincibility' ? '🛡️' : '?'}
+              </div>
+              <div class="powerup-info">
+                <div class="powerup-name">
+                  ${this.activePowerup === 'speed-boost' ? 'Speed Boost' :
+                    this.activePowerup === 'double-xp' ? 'Double XP' :
+                    this.activePowerup === 'invincibility' ? 'Invincibility' : 'Unknown'}
+                </div>
+                <div class="powerup-timer">${(this.powerupTimeRemaining / 1000).toFixed(1)}s</div>
+              </div>
+            </div>
+          ` : html`
+            <div class="powerup-empty">No active powerup</div>
+          `}
         </div>
 
         <!-- Fish-o-meter -->

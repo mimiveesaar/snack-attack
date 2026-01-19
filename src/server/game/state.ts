@@ -188,6 +188,26 @@ export class GameSessionState {
   }
 
   /**
+   * Clean up expired powerups for all players
+   */
+  cleanupExpiredPowerups(): void {
+    const now = Date.now();
+    for (const player of this.state.players) {
+      const toRemove: ('speed-boost' | 'double-xp' | 'invincibility')[] = [];
+      
+      for (const [powerupType, endTime] of player.powerupEndTimes) {
+        if (now >= endTime) {
+          toRemove.push(powerupType as 'speed-boost' | 'double-xp' | 'invincibility');
+        }
+      }
+      
+      for (const powerupType of toRemove) {
+        this.removePowerup(player.id, powerupType);
+      }
+    }
+  }
+
+  /**
    * Compute leaderboard from current player states
    */
   private computeLeaderboard(players: GamePlayer[]): GameLeaderboardEntry[] {

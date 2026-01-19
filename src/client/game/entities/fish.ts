@@ -60,6 +60,8 @@ export class Fish extends VisualEntity {
   private growthPhase: 1 | 2 | 3 = 1;
   private svgAsset: SVGSVGElement | null = null;
   private lastFacingDirection: number = 1; // 1 for right, -1 for left
+  private haloElement: SVGCircleElement | null = null;
+  private haloColor: string | null = null;
   
   // Smooth movement properties
   private targetPosition: Vec2D;
@@ -114,6 +116,63 @@ export class Fish extends VisualEntity {
     this.growthPhase = phase;
     const sizeMap: Record<1 | 2 | 3, number> = { 1: 1.0, 2: 1.5, 3: 2.0 };
     this.setSize(sizeMap[phase]);
+  }
+
+  /**
+   * Set powerup halo around the fish
+   * @param powerupType - The type of powerup ('speed-boost', 'double-xp', 'invincibility') or null to remove halo
+   */
+  setPowerupHalo(powerupType: string | null): void {
+    const haloColorMap: Record<string, string> = {
+      'speed-boost': '#FF0000',      // Red
+      'double-xp': '#FFFF00',        // Yellow
+      'invincibility': '#0000FF'     // Blue
+    };
+
+    if (powerupType && haloColorMap[powerupType]) {
+      this.haloColor = haloColorMap[powerupType];
+      this.createOrUpdateHalo();
+    } else {
+      this.haloColor = null;
+      this.removeHalo();
+    }
+  }
+
+  /**
+   * Create or update the halo element
+   */
+  private createOrUpdateHalo(): void {
+    if (!this.element || !this.haloColor) return;
+
+    // Remove existing halo if present
+    if (this.haloElement) {
+      this.haloElement.remove();
+    }
+
+    // Create new halo circle
+    this.haloElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    this.haloElement.setAttribute('cx', '0');
+    this.haloElement.setAttribute('cy', '0');
+    this.haloElement.setAttribute('r', String((this.collisionRadius + 8) / this.size)); // Slightly larger than collision radius
+    this.haloElement.setAttribute('fill', 'none');
+    this.haloElement.setAttribute('stroke', this.haloColor);
+    this.haloElement.setAttribute('stroke-width', String(3 / this.size));
+    this.haloElement.setAttribute('opacity', '0.7');
+    this.haloElement.setAttribute('class', 'powerup-halo');
+    this.haloElement.setAttribute('vector-effect', 'non-scaling-stroke');
+
+    // Insert halo at the beginning so it appears behind the fish
+    this.element.insertBefore(this.haloElement, this.element.firstChild);
+  }
+
+  /**
+   * Remove the halo element
+   */
+  private removeHalo(): void {
+    if (this.haloElement) {
+      this.haloElement.remove();
+      this.haloElement = null;
+    }
   }
 
   /**

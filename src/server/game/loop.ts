@@ -273,7 +273,10 @@ export class GameLoop {
     // Spawn new powerups via spawner tick
     powerupSpawner.tick(session);
 
-    // Clean up expired powerups
+    // Clean up expired powerups from players
+    session.cleanupExpiredPowerups();
+
+    // Clean up expired powerup items
     powerupSpawner.cleanupExpiredPowerups(session);
   }
 
@@ -313,6 +316,7 @@ export class GameLoop {
         visualSize: p.visualSize,
         status: p.status,
         powerups: p.powerups,
+        powerupEndTimeMs: p.powerups.length > 0 ? (p.powerupEndTimes?.get(p.powerups[0]) ?? null) : null,
         color: p.color,
         nicknameDisplay: p.nicknameDisplay,
       })),

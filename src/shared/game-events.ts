@@ -48,7 +48,8 @@ export interface GamePlayerStateUpdate {
   growthPhase: 1 | 2 | 3;
   visualSize: number;
   status: 'alive' | 'respawning' | 'spectating';
-  powerups: ('speed-boost' | 'double-xp')[];
+  powerups: ('speed-boost' | 'double-xp' | 'invincibility')[];
+  powerupEndTimeMs?: number | null;
   color: string;
   nicknameDisplay: string;
 }

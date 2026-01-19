@@ -70,7 +70,7 @@ export class GameScene extends LitElement {
 
         #sidebar {
           width: 200px;
-          height: 500px;
+          height: 750px;
           background-color: #f0f0f0;
           border: 3px solid black;
           border-radius: 8px;

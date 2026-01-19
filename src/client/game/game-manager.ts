@@ -36,6 +36,10 @@ export class GameManager {
   private selfPlayerId: string | null = null;
   private running: boolean = false;
   private isPaused: boolean = false;
+  private activePowerupType: string | null = null;
+  private powerupCollectionTime: number = 0;
+  private powerupDuration: number = 10000; // 10 seconds
+  private powerupUpdateInterval: NodeJS.Timeout | null = null;
   leaderboard: any;
 
   /**
@@ -263,6 +267,7 @@ export class GameManager {
         growthPhase: p.growthPhase,
         visualSize: p.visualSize,
         status: p.status,
+        powerups: p.powerups,
       }));
       this.playerRenderer.updateAll(playerRenderStates);
     } else {
@@ -295,6 +300,25 @@ export class GameManager {
       const selfPlayer = payload.players.find((p) => p.playerId === this.selfPlayerId);
       if (selfPlayer) {
         this.sidebar.updatePlayerScore(selfPlayer.xp, selfPlayer.growthPhase);
+        
+        // Update active powerup in sidebar with server-provided remaining time (fallback to 10s)
+        if (selfPlayer.powerups && selfPlayer.powerups.length > 0) {
+          const activePowerupType = selfPlayer.powerups[0];
+          const remainingMs = Math.max(
+            0,
+            (selfPlayer.powerupEndTimeMs ?? Date.now() + 10000) - Date.now()
+          );
+
+          this.sidebar.updateActivePowerup(activePowerupType, remainingMs);
+          // Sync local timer to server end time
+          this.activePowerupType = activePowerupType;
+          this.powerupDuration = remainingMs;
+          this.powerupCollectionTime = Date.now();
+          this.startPowerupTimer();
+        } else {
+          this.activePowerupType = null;
+          this.sidebar.updateActivePowerup(null, 0);
+        }
       }
 
       // Update leaderboard in sidebar
@@ -343,11 +367,49 @@ export class GameManager {
           soundManager.playEatSound();
         } else if (event.type === 'powerup-collected') {
           soundManager.playPowerupSound();
+          // Track powerup collection for timer display
+          if (event.data.collectedByPlayerId === this.selfPlayerId && event.data.powerupType) {
+            this.activePowerupType = event.data.powerupType;
+            this.powerupCollectionTime = Date.now();
+            this.startPowerupTimer();
+          }
         } else if (event.type === 'respawn-complete') {
           soundManager.playRespawnSound();
         }
       });
     }
+  }
+
+  /**
+   * Start the powerup timer update interval
+   */
+  private startPowerupTimer(): void {
+    // Clear existing interval if any
+    if (this.powerupUpdateInterval) {
+      clearInterval(this.powerupUpdateInterval);
+    }
+
+    // Update powerup display every 100ms
+    this.powerupUpdateInterval = setInterval(() => {
+      if (!this.sidebar || !this.activePowerupType) {
+        clearInterval(this.powerupUpdateInterval!);
+        this.powerupUpdateInterval = null;
+        return;
+      }
+
+      const elapsedMs = Date.now() - this.powerupCollectionTime;
+      const remainingMs = Math.max(0, this.powerupDuration - elapsedMs);
+
+      if (remainingMs <= 0) {
+        // Powerup expired
+        this.sidebar.updateActivePowerup(null, 0);
+        this.activePowerupType = null;
+        clearInterval(this.powerupUpdateInterval!);
+        this.powerupUpdateInterval = null;
+      } else {
+        this.sidebar.updateActivePowerup(this.activePowerupType, remainingMs);
+      }
+    }, 100);
   }
 
   /**
@@ -445,6 +507,12 @@ export class GameManager {
     console.log('GameManager: Cleaning up');
 
     this.running = false;
+
+    // Clear powerup timer
+    if (this.powerupUpdateInterval) {
+      clearInterval(this.powerupUpdateInterval);
+      this.powerupUpdateInterval = null;
+    }
 
     // Remove resize listener
     window.removeEventListener('resize', () => this.onWindowResize());

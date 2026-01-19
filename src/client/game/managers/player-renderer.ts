@@ -21,6 +21,7 @@ export interface PlayerRenderState {
   growthPhase: 1 | 2 | 3;
   visualSize: number;
   status: 'alive' | 'respawning' | 'spectating';
+  powerups?: ('speed-boost' | 'double-xp' | 'invincibility')[];
 }
 
 export class PlayerRenderer {
@@ -68,6 +69,13 @@ export class PlayerRenderer {
     fish.setPosition(state.position);
     fish.setVelocity(state.velocity);
     fish.setGrowthPhase(state.growthPhase);
+
+    // Update powerup halo
+    if (state.powerups && state.powerups.length > 0) {
+      fish.setPowerupHalo(state.powerups[0]); // Show halo for first active powerup
+    } else {
+      fish.setPowerupHalo(null); // Remove halo if no powerups
+    }
 
     // Handle respawn state
     if (state.status === 'respawning') {
