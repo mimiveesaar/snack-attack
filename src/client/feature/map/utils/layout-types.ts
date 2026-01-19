@@ -1,9 +1,6 @@
-export type ElementType = 'rock' | 'seaweed' | 'bubble';
+import type { Vec2 } from '@shared/types/vec2';
 
-export interface Vec2 {
-  x: number;
-  y: number;
-}
+export type ElementType = 'rock' | 'seaweed' | 'bubble';
 
 export interface TerrainLayout {
   dirtIndex: number;

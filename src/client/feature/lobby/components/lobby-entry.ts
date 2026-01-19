@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { playerColors, pickDefaultColor } from '@client/utils/colors';
-import { validateNickname } from '@client/utils/validation';
+import { validateNickname } from '../validation';
 
 @customElement('lobby-entry')
 export class LobbyEntry extends LitElement {

@@ -1,0 +1,9 @@
+openapi: 3.0.3
+info:
+  title: Snack Attack Player Movement API
+  version: 0.1.0
+  description: Client-only movement feature. No HTTP endpoints are introduced in this phase.
+servers:
+  - url: https://api.snack-attack.example
+paths: {}
+components: {}

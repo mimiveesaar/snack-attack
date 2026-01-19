@@ -59,6 +59,22 @@ game-bubble {
   pointer-events: none;
 }
 
+.player-fish {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.player-fish img {
+  display: block;
+  width: 72px;
+  height: auto;
+  transform-origin: center;
+}
+
 .ambient-sprite {
   display: block;
   transform-origin: bottom center;
