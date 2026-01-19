@@ -1,7 +1,7 @@
 # Implementation Plan: Player Movement (Client)
 
-**Branch**: `001-player-movement` | **Date**: 19 January 2026 | **Spec**: [specs/001-player-movement/spec.md](specs/001-player-movement/spec.md)
-**Input**: Feature specification from /specs/001-player-movement/spec.md
+**Branch**: `003-player-movement` | **Date**: 19 January 2026 | **Spec**: [specs/003-player-movement/spec.md](specs/003-player-movement/spec.md)
+**Input**: Feature specification from /specs/003-player-movement/spec.md
 
 ## Summary
 
@@ -76,7 +76,7 @@ src/
 ```
 ## Phase 0: Research
 
-Completed in [specs/001-player-movement/research.md](specs/001-player-movement/research.md).
+Completed in [specs/003-player-movement/research.md](specs/003-player-movement/research.md).
 
 Key decisions:
 - Fixed timestep of 0.0167s with accumulator and rAF loop.
@@ -87,13 +87,13 @@ Key decisions:
 ## Phase 1: Design & Contracts
 
 ### Data Model
-Defined in [specs/001-player-movement/data-model.md](specs/001-player-movement/data-model.md).
+Defined in [specs/003-player-movement/data-model.md](specs/003-player-movement/data-model.md).
 
 ### Contracts
-No HTTP endpoints introduced in this phase; documented in [specs/001-player-movement/contracts/openapi.yaml](specs/001-player-movement/contracts/openapi.yaml).
+No HTTP endpoints introduced in this phase; documented in [specs/001-player-movement/contracts/openapi.yaml](specs/003-player-movement/contracts/openapi.yaml).
 
 ### Quickstart
-Manual run/verification steps in [specs/001-player-movement/quickstart.md](specs/001-player-movement/quickstart.md).
+Manual run/verification steps in [specs/003-player-movement/quickstart.md](specs/003-player-movement/quickstart.md).
 
 ### Update Agent Context
 Run `.specify/scripts/bash/update-agent-context.sh copilot` after Phase 1 artifacts are generated.

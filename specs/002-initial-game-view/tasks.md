@@ -4,7 +4,7 @@ description: "Task list for Initial Game View (Background & Atmosphere)"
 
 # Tasks: Initial Game View (Background & Atmosphere)
 
-**Input**: Design documents from `/specs/001-initial-game-view/`
+**Input**: Design documents from `/specs/002-initial-game-view/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Constitutional Note**: This project prohibits all testing. Task lists contain implementation and validation steps only—no test files, test frameworks, or test infrastructure tasks are permitted.

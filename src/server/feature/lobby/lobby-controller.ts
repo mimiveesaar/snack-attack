@@ -2,7 +2,6 @@ import type { Namespace, Socket } from 'socket.io';
 
 import { lobbyStore, type LobbyRecord } from './lobby-store';
 import { lobbyOrchestrator } from './lobby-orchestrator';
-import { gameSessionManager } from '../../game-session';
 import { ClientToServerEvents, ServerToClientEvents } from '../../../shared/types';
 
 const NICKNAME_REGEX = /^[A-Za-z0-9]{1,31}$/;

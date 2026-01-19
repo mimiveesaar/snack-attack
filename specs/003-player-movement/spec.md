@@ -1,6 +1,6 @@
 # Feature Specification: Player Movement (Client)
 
-**Feature Branch**: `001-player-movement`  
+**Feature Branch**: `003-player-movement`  
 **Created**: 19 January 2026  
 **Status**: Draft  
 **Input**: User description: "Let's start implementing player movement for the fish game, currently keep everything on the client, but keep it mind it needs to be networked in the next step. Create a requestAnimationFrame based engine that ticks, To ensure movement happens at the same speed regardless of whether the hardware is running at 20 TPS or 200 TPS, you decouple logic from rendering. Create base fish.ts, base class for all fish. It is responsible for displaying the fish and its movement direction and other movement logic like wiggle and drag. Use Vec2 Velocity Keep in mind fish shouldn't move up and don't but dive at an 45 degree angle. Instead of moving \"per frame,\" you move in Fixed Timesteps (e.g., exactly 0.05s chunks). If a client lags, it accumulates \"missed time.\" When it recovers, it runs the physics loop multiple times in a single frame to \"catch up\" to the current time, ensuring it has traveled the same distance as everyone else. Player should be able to move with both WASD and arrow keys. Player should be handled by Client Controller. Player should use the underlaying fish.ts entity and apply controls to it."

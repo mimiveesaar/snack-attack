@@ -1,9 +1,9 @@
 # Feature Specification: Multiplayer Server v1
 
-**Feature Branch**: `001-multiplayer-server`  
+**Feature Branch**: `004-multiplayer-server`  
 **Created**: 19 January 2026  
 **Status**: Draft  
-**Input**: User description: "Let's start implementing the first version of multiplayer. Only focus on the server. When gamemode is set to singleplayer, it will still use multiplayer under the hood, just player count is restricted to 1. The game is started when start game is called by lobby-orchestrator. Game-store should handle active game sessions, game-orchestrator should manage active game sessions, lobby-controller should handle SocketIO events. When player disconnects/loses connection it should be broadcast to other players in the room. When a player connects, he should send a ready packet with his playerId, so player from the lobby can associated with his socketId. To ensure things happen at the same speed regardless if the server lags. Instead of moving \"per frame,\" you move in Fixed Timesteps. (60 tps) The server should broadcast the array of hostiles (other players/npcs), that contains (entity id, vec2, velocity)."
+**Input**: User description: "Let's start implementing the first version of multiplayer. Only focus on the server. When gamemode is set to singleplayer, it will still use multiplayer under the hood, just player count is restricted to 1. The game is started when start game is called by lobby-orchestrator. Game-store should handle active game sessions, game-orchestrator should manage active game sessions, lobby-controller should handle SocketIO events. When player disconnects/loses connection it should be broadcast to other players in the room. When a player connects and loads the scene, he should send a ready packet with his playerId from the lobby, so player can be associated with his socketId. The game should use a separate namespace (/game). To ensure things happen at the same speed regardless if the server lags. Instead of moving \"per frame,\" you move in Fixed Timesteps. (60 tps) The server should broadcast the array of hostiles (other players/npcs), that contains (entity id, vec2, velocity)."
 
 ## Clarifications
 
@@ -16,6 +16,8 @@
 - Q: How should the server respond to an invalid ready packet? → A: Respond with an error and allow retry.
 - Q: What happens if not all players are ready before session start? → A: Start anyway with whoever is ready.
 - Q: Can players join after a session has started? → A: No, players cannot join mid-game.
+- Q: Which Socket.IO namespace should game traffic use? → A: Use a dedicated `/game` namespace.
+- Q: When is the ready packet sent? → A: After the client connects and finishes loading the game scene.
 
 ## User Scenarios & Validation *(mandatory)*
 
@@ -40,7 +42,7 @@ As a player in a lobby, I want the game to start and receive live session update
 
 **Why this priority**: This is the core multiplayer experience and the minimum viable server behavior.
 
-**Manual Verification**: Start a lobby game, connect two clients, send ready packets, and observe that both clients receive tick packets at a steady cadence.
+**Manual Verification**: Start a lobby game, connect two clients to the `/game` namespace, load the scene, send ready packets, and observe that both clients receive tick packets at a steady cadence.
 
 **Acceptance Scenarios**:
 
@@ -104,6 +106,7 @@ As a player choosing singleplayer mode, I want the game to use the same multipla
 - **FR-002**: System MUST maintain a list of active game sessions and support lookup by lobby or session identifier.
 - **FR-003**: System MUST accept a ready packet containing a player id and associate it with the player's live connection.
 - **FR-003a**: System MUST validate the player id against the lobby before acknowledging the ready packet.
+- **FR-003b**: System MUST accept ready packets only on the `/game` namespace after the client has loaded the game scene.
 - **FR-004**: System MUST ignore or reject gameplay participation from connections that have not completed the ready association.
 - **FR-005**: System MUST broadcast hostile snapshots to all players in a session every simulation tick (60 Hz), where each snapshot includes entity id, position (x,y), and velocity for every non-local entity.
 - **FR-006**: System MUST advance game state in fixed 60-tick-per-second steps and compensate for server lag by processing multiple fixed steps when needed.
@@ -115,6 +118,7 @@ As a player choosing singleplayer mode, I want the game to use the same multipla
 - **FR-012**: System MUST respond to an invalid ready packet with an error while keeping the connection open for retry.
 - **FR-013**: System MUST start the session with the currently ready players even if some lobby players are not ready.
 - **FR-014**: System MUST reject attempts to join or ready after the session has started; mid-game joins are not allowed.
+- **FR-015**: System MUST host multiplayer gameplay socket events under the `/game` namespace.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -128,6 +132,7 @@ As a player choosing singleplayer mode, I want the game to use the same multipla
 - **FR-002**: Active sessions can be listed and a session can be retrieved using its lobby or session identifier.
 - **FR-003**: A ready packet containing a valid player id creates or updates a player-to-connection association.
 - **FR-003a**: A ready packet is acknowledged only after the player id is confirmed as a member of the lobby.
+- **FR-003b**: Ready packets are only processed on the `/game` namespace after the client has loaded the game scene.
 - **FR-004**: A connection without a ready association cannot receive or contribute to session gameplay updates.
 - **FR-005**: Each hostile snapshot is broadcast every simulation tick (60 Hz) and includes every non-local entity with id, position (x,y), and velocity.
 - **FR-006**: During lag, multiple fixed steps are processed to keep the simulation aligned to 60 steps per second.
@@ -139,6 +144,7 @@ As a player choosing singleplayer mode, I want the game to use the same multipla
 - **FR-012**: Invalid ready packets result in an error response and allow the client to retry without reconnecting.
 - **FR-013**: Session start proceeds with the subset of ready players and excludes those not ready.
 - **FR-014**: Ready packets from players not in the active session are rejected once the session is active.
+- **FR-015**: All multiplayer gameplay socket events are routed through the `/game` namespace.
 
 ## Success Criteria *(mandatory)*
 

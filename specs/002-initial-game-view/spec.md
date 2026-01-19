@@ -1,6 +1,6 @@
 # Feature Specification: Initial Game View (Background & Atmosphere)
 
-**Feature Branch**: `001-initial-game-view`  
+**Feature Branch**: `002-initial-game-view`  
 **Created**: 19 January 2026  
 **Status**: Draft  
 **Input**: User description: "Create a specification for the inital game view. The game should be under /game route. Currently only focus on the background and athomsphere, not the players (DO NOT CREATE PLAYERS). Use assets from the client/assets folder. Create visual entities like Rock.ts (Renders the rock sprite. Can specify size by being able to select a multiplier or could have a randomizer for the sizes.) Seaweed.ts (Renders the seaweed sprite. Can specify size.), Bubble.ts(Renders the bubble sprite. Can specify size. bubbles should be animated and move up from the ground). Use the terrain dirt and sand for the background. Only create the client side implementation. Map entities should be rendered using a seed provided by the server (DO NOT IMPLEMENT THE SERVER SIDE). Every client that uses the same seed, should render the map in the same way."

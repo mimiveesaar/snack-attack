@@ -1,8 +1,8 @@
-# Specification Quality Checklist: Multiplayer Server v1
+# Specification Quality Checklist: Initial Game View (Background & Atmosphere)
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 19 January 2026
-**Feature**: [specs/001-multiplayer-server/spec.md](specs/001-multiplayer-server/spec.md)
+**Purpose**: Validate specification completeness and quality before proceeding to planning  
+**Created**: 19 January 2026  
+**Feature**: [specs/002-initial-game-view/spec.md](specs/002-initial-game-view/spec.md)
 
 ## Content Quality
 
@@ -31,5 +31,4 @@
 
 ## Notes
 
-- Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
-- Validation completed on 19 January 2026; all checks passed.
+- All checks passed on 19 January 2026.

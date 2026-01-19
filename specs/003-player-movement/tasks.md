@@ -5,7 +5,7 @@ description: "Task list for player movement implementation"
 
 # Tasks: Player Movement (Client)
 
-**Input**: Design documents from `/specs/001-player-movement/`
+**Input**: Design documents from `/specs/003-player-movement/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
 **Constitutional Note**: This project prohibits all testing. Task lists contain implementation and validation steps only—no test files, test frameworks, or test infrastructure tasks are permitted.

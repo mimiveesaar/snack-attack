@@ -7,6 +7,10 @@ Auto-generated from all feature plans. Last updated: 2026-01-17
 - N/A (client-only rendering, no persistence required) (001-initial-game-view)
 - TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication); no new dependencies (001-player-movement)
 - In-memory server state (game sessions, player connections) only (001-multiplayer-server)
+- TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication; `/lobby` + `/game` namespaces) + minimal justified additions (001-multiplayer-server)
+- In-memory session registry only (no persistence) (001-multiplayer-server)
+- TypeScript (strict mode) on Node.js (current LTS) + Socket.IO (real-time communication), pnpm-managed; no new deps expected (001-multiplayer-server)
+- In-memory game session state keyed by lobbyId/sessionId; no persistent DB (001-multiplayer-server)
 
 - TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time), pnpm-managed; prefer DOM/Web APIs (001-lobby-system)
 
@@ -27,9 +31,9 @@ npm test && npm run lint
 TypeScript (strict mode) on Node.js (current LTS): Follow standard conventions
 
 ## Recent Changes
+- 001-multiplayer-server: Added TypeScript (strict mode) on Node.js (current LTS) + Socket.IO (real-time communication), pnpm-managed; no new deps expected
 - 001-multiplayer-server: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
-- 001-player-movement: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication); no new dependencies
-- 001-initial-game-view: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
+- 001-multiplayer-server: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication; `/lobby` + `/game` namespaces) + minimal justified additions
 
 
 <!-- MANUAL ADDITIONS START -->
