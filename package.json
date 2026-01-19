@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev:server": "tsx -r tsconfig-paths/register src/server/index.ts",
+    "dev:server": "TS_NODE_PROJECT=tsconfig.server.json tsx -r tsconfig-paths/register src/server/index.ts",
     "dev:client": "vite --config vite.config.ts",
     "build": "vite build --config vite.config.ts",
     "build:server": "tsc -p tsconfig.server.json",
-    "start:server": "node -r tsconfig-paths/register dist/server/index.js",
+    "start:server": "TS_NODE_PROJECT=tsconfig.server.json node -r tsconfig-paths/register dist/server/index.js",
     "typecheck": "tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.server.json --noEmit"
   },
   "dependencies": {
