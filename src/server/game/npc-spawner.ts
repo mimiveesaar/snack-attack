@@ -27,8 +27,8 @@ const SWARM_RADIUS = 40; // How spread out the swarm is
 
 const SPAWN_DISTANCE = 50; // pixels from any player
 const BOUNDARY_BUFFER = 20;
-const GAME_WIDTH = 1000;
-const GAME_HEIGHT = 1000;
+const GAME_WIDTH = 600;
+const GAME_HEIGHT = 600;
 
 export class NPCSpawner {
   private lastSpawnTime: Record<'pink' | 'grey' | 'brown', number> = {
