@@ -292,6 +292,9 @@ export class GameLoop {
     // Process powerup collisions - players collecting powerups
     const powerupEvents = collisionDetector.processPowerupCollisions(session, now);
 
+    // Process player-vs-player eating collisions
+    const playerEatingEvents = collisionDetector.processPlayersEatingPlayers(session, now);
+
     // Process NPCs eating players
     const npcEatingEvents = collisionDetector.processNPCsEatingPlayers(session, now);
 
@@ -299,7 +302,7 @@ export class GameLoop {
     collisionDetector.processBoundaryCollisions(session);
 
     // Return all events combined
-    return [...eatingEvents, ...powerupEvents, ...npcEatingEvents];
+    return [...eatingEvents, ...powerupEvents, ...playerEatingEvents, ...npcEatingEvents];
   }
 
   /**

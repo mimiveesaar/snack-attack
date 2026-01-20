@@ -82,9 +82,11 @@ export interface CollisionEventData {
   tick: number;
   data: {
     eatenFishId?: string;
+    eatenPlayerId?: string;
     eatenByPlayerId?: string;
     xpTransferred?: number;
     eatenByNewXp?: number;
+    playerLostXp?: number;
     powerId?: string;
     collectedByPlayerId?: string;
     powerupType?: 'speed-boost' | 'double-xp';
@@ -112,9 +114,11 @@ export interface GameCollisionPayload {
   tick: number;
   data: {
     eatenFishId?: string;
+    eatenPlayerId?: string;
     eatenByPlayerId?: string;
     xpTransferred?: number;
     eatenByNewXp?: number;
+    playerLostXp?: number;
     powerId?: string;
     collectedByPlayerId?: string;
     powerupType?: 'speed-boost' | 'double-xp';

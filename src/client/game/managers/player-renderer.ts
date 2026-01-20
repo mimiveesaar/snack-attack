@@ -72,7 +72,7 @@ export class PlayerRenderer {
     fish.setVelocity(state.velocity);
     fish.setGrowthPhase(state.growthPhase);
 
-    const displayText = this.truncateLabel(state.nicknameDisplay);
+    const displayText = this.formatLabel(state.nicknameDisplay, state.xp);
     fish.setNicknameLabel(displayText);
 
     // Update powerup halo
@@ -158,5 +158,10 @@ export class PlayerRenderer {
   private truncateLabel(text: string): string {
     if (text.length <= this.MAX_LABEL_LENGTH) return text;
     return `${text.slice(0, this.MAX_LABEL_LENGTH - 1)}…`;
+  }
+
+  private formatLabel(nickname: string, xp: number): string {
+    const trimmedName = this.truncateLabel(nickname);
+    return `${trimmedName} • ${xp} XP`;
   }
 }

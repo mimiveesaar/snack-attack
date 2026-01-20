@@ -437,7 +437,7 @@ export class Fish extends VisualEntity {
     if (this.nicknameLabel) return;
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('fill', '#ffffff');
-    label.setAttribute('font-size', String(10 / this.size));
+    label.setAttribute('font-size', String(9 / this.size));
     label.setAttribute('text-anchor', 'middle');
     label.setAttribute('dominant-baseline', 'middle');
     label.setAttribute('font-family', '"Courier New", monospace');
@@ -455,11 +455,11 @@ export class Fish extends VisualEntity {
     }
 
     this.nicknameLabel.textContent = this.nicknameText;
-    this.nicknameLabel.setAttribute('font-size', String(10 / this.size));
+    this.nicknameLabel.setAttribute('font-size', String(9 / this.size));
 
     const baseRadius = this.collisionRadius / this.size;
     const labelX = 0;
-    const labelY = -baseRadius * 2.1;
+    const labelY = -baseRadius * 2.4;
 
     this.nicknameLabel.setAttribute('x', String(labelX));
     this.nicknameLabel.setAttribute('y', String(labelY));

@@ -13,13 +13,13 @@ description: "Task list for PvP Fish Eating"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Review respawn delay/grace constants in src/server/game/state.ts for reuse in PvP eating
+- [x] T001 Review respawn delay/grace constants in src/server/game/state.ts for reuse in PvP eating
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T002 [P] Update collision event payload typing for player-eat fields in src/shared/game-events.ts
+- [x] T002 [P] Update collision event payload typing for player-eat fields in src/shared/game-events.ts
 
 ---
 
@@ -31,9 +31,9 @@ description: "Task list for PvP Fish Eating"
 
 ### Implementation
 
-- [ ] T003 [US1] Add player-vs-player collision handling with XP comparison and grace/invincibility checks in src/server/game/collision.ts
-- [ ] T004 [US1] Emit player-eat fish-eaten event data (eatenPlayerId, eatenByPlayerId, playerLostXp) in src/server/game/collision.ts
-- [ ] T005 [US1] Include player-vs-player collision events in the server tick pipeline in src/server/game/loop.ts
+- [x] T003 [US1] Add player-vs-player collision handling with XP comparison and grace/invincibility checks in src/server/game/collision.ts
+- [x] T004 [US1] Emit player-eat fish-eaten event data (eatenPlayerId, eatenByPlayerId, playerLostXp) in src/server/game/collision.ts
+- [x] T005 [US1] Include player-vs-player collision events in the server tick pipeline in src/server/game/loop.ts
 
 **Checkpoint**: PvP collisions trigger respawn with XP reset and no XP gain for the eater.
 
@@ -47,8 +47,8 @@ description: "Task list for PvP Fish Eating"
 
 ### Implementation
 
-- [ ] T006 [P] [US2] Format nickname labels to include XP in src/client/game/managers/player-renderer.ts
-- [ ] T007 [P] [US2] Adjust label sizing/positioning for nickname+XP text in src/client/game/entities/fish.ts
+- [x] T006 [P] [US2] Format nickname labels to include XP in src/client/game/managers/player-renderer.ts
+- [x] T007 [P] [US2] Adjust label sizing/positioning for nickname+XP text in src/client/game/entities/fish.ts
 
 **Checkpoint**: XP labels update with player XP changes and remain anchored to fish.
 
