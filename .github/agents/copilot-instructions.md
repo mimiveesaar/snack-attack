@@ -27,9 +27,9 @@ npm test && npm run lint
 TypeScript (strict mode) on Node.js (current LTS): Follow standard conventions
 
 ## Recent Changes
+- 005-waiting-lobby: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
+- 005-waiting-lobby: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 - 004-pvp-fish-eating: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
-- 003-player-nickname-labels: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
-- 001-player-nickname-labels: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 
 
 <!-- MANUAL ADDITIONS START -->
