@@ -29,6 +29,8 @@ export class PlayerRenderer {
   private players: Map<string, Fish> = new Map();
   private selfPlayerId: string | null = null;
 
+  private readonly MAX_LABEL_LENGTH = 12;
+
   /**
    * Initialize renderer with container
    */
@@ -69,6 +71,9 @@ export class PlayerRenderer {
     fish.setPosition(state.position);
     fish.setVelocity(state.velocity);
     fish.setGrowthPhase(state.growthPhase);
+
+    const displayText = this.truncateLabel(state.nicknameDisplay);
+    fish.setNicknameLabel(displayText);
 
     // Update powerup halo
     if (state.powerups && state.powerups.length > 0) {
@@ -148,5 +153,10 @@ export class PlayerRenderer {
   destroy(): void {
     this.clear();
     this.container = null;
+  }
+
+  private truncateLabel(text: string): string {
+    if (text.length <= this.MAX_LABEL_LENGTH) return text;
+    return `${text.slice(0, this.MAX_LABEL_LENGTH - 1)}…`;
   }
 }

@@ -9,13 +9,13 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Review existing player state payload for `nicknameDisplay` in src/client/game/game-manager.ts and src/shared/game.ts
+- [x] T001 Review existing player state payload for `nicknameDisplay` in src/client/game/game-manager.ts and src/shared/game.ts
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T002 Add label storage and cleanup scaffolding in src/client/game/managers/player-renderer.ts
+- [x] T002 Add label storage and cleanup scaffolding in src/client/game/managers/player-renderer.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -29,9 +29,9 @@
 
 ### Implementation
 
-- [ ] T003 [US1] Create/update SVG `<text>` labels per player in src/client/game/managers/player-renderer.ts
-- [ ] T004 [P] [US1] Ensure `nicknameDisplay` is mapped into `PlayerRenderState` in src/client/game/game-manager.ts
-- [ ] T005 [US1] Remove label elements on player removal and renderer clear in src/client/game/managers/player-renderer.ts
+- [x] T003 [US1] Create/update SVG `<text>` labels per player in src/client/game/managers/player-renderer.ts
+- [x] T004 [P] [US1] Ensure `nicknameDisplay` is mapped into `PlayerRenderState` in src/client/game/game-manager.ts
+- [x] T005 [US1] Remove label elements on player removal and renderer clear in src/client/game/managers/player-renderer.ts
 
 **Checkpoint**: User Story 1 functional and manually verifiable
 
@@ -45,9 +45,9 @@
 
 ### Implementation
 
-- [ ] T006 [US2] Apply label styling (white fill, small font size, centered text) in src/client/game/managers/player-renderer.ts
-- [ ] T007 [US2] Implement nickname truncation with ellipsis in src/client/game/managers/player-renderer.ts
-- [ ] T008 [US2] Clamp label Y-position to keep text visible near top boundary in src/client/game/managers/player-renderer.ts
+- [x] T006 [US2] Apply label styling (white fill, small font size, centered text) in src/client/game/managers/player-renderer.ts
+- [x] T007 [US2] Implement nickname truncation with ellipsis in src/client/game/managers/player-renderer.ts
+- [x] T008 [US2] Clamp label Y-position to keep text visible near top boundary in src/client/game/managers/player-renderer.ts
 
 **Checkpoint**: User Stories 1 and 2 both independently functional
 

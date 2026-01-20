@@ -64,6 +64,10 @@ export class Fish extends VisualEntity {
   private haloColor: string | null = null;
   private haloGradientId: string | null = null;
   private haloFilterId: string | null = null;
+  private nicknameLabel: SVGTextElement | null = null;
+  private nicknameText: string = '';
+  private currentRotationAngle: number = 0;
+  private isFacingLeft: boolean = false;
   
   // Smooth movement properties
   private targetPosition: Vec2D;
@@ -102,6 +106,7 @@ export class Fish extends VisualEntity {
     this.size = size;
     this.updateCollisionRadius();
     this.updateRender();
+    this.updateNicknameLabel();
   }
 
   /**
@@ -118,6 +123,11 @@ export class Fish extends VisualEntity {
     this.growthPhase = phase;
     const sizeMap: Record<1 | 2 | 3, number> = { 1: 1.0, 2: 1.5, 3: 2.0 };
     this.setSize(sizeMap[phase]);
+  }
+
+  setNicknameLabel(text: string): void {
+    this.nicknameText = text;
+    this.updateNicknameLabel();
   }
 
   /**
@@ -346,6 +356,9 @@ export class Fish extends VisualEntity {
         console.log(`Fish.render(): Cloned ${svgElement.children.length} direct children`);
       }
 
+      this.ensureNicknameLabel(g);
+      this.updateNicknameLabel();
+
       console.log('About to append to container, g has children?', g.childNodes.length);
       container.appendChild(g);
       console.log(`Fish.render(): SUCCESS - Appended fish ${this.id} to container`);
@@ -413,9 +426,47 @@ export class Fish extends VisualEntity {
     g.appendChild(body);
     g.appendChild(eye);
     g.appendChild(tail);
+    this.ensureNicknameLabel(g);
+    this.updateNicknameLabel();
     container.appendChild(g);
 
     this.element = g;
+  }
+
+  private ensureNicknameLabel(group: SVGGElement): void {
+    if (this.nicknameLabel) return;
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('fill', '#ffffff');
+    label.setAttribute('font-size', String(10 / this.size));
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('dominant-baseline', 'middle');
+    label.setAttribute('font-family', '"Courier New", monospace');
+    label.setAttribute('pointer-events', 'none');
+    label.setAttribute('class', 'player-nickname');
+    group.appendChild(label);
+    this.nicknameLabel = label;
+  }
+
+  private updateNicknameLabel(): void {
+    if (!this.nicknameLabel) return;
+    if (!this.nicknameText) {
+      this.nicknameLabel.textContent = '';
+      return;
+    }
+
+    this.nicknameLabel.textContent = this.nicknameText;
+    this.nicknameLabel.setAttribute('font-size', String(10 / this.size));
+
+    const baseRadius = this.collisionRadius / this.size;
+    const labelX = 0;
+    const labelY = -baseRadius * 2.1;
+
+    this.nicknameLabel.setAttribute('x', String(labelX));
+    this.nicknameLabel.setAttribute('y', String(labelY));
+    this.nicknameLabel.setAttribute(
+      'transform',
+      `rotate(${-this.currentRotationAngle}) scale(${this.isFacingLeft ? -1 : 1}, 1)`
+    );
   }
 
   /**
@@ -440,11 +491,16 @@ export class Fish extends VisualEntity {
       const rawAngle = Math.atan2(this.velocity.y, Math.abs(this.velocity.x));
       rotationAngle = Math.max(-30, Math.min(30, (rawAngle * 180) / Math.PI)); // Limit to ±30 degrees
     }
+
+    this.currentRotationAngle = rotationAngle;
+    this.isFacingLeft = facingLeft;
     
     this.element.setAttribute(
       'transform',
       `translate(${this.position.x}, ${this.position.y}) scale(${scaleX * this.size}, ${this.size}) rotate(${rotationAngle})`
     );
+
+    this.updateNicknameLabel();
   }
 }
 
