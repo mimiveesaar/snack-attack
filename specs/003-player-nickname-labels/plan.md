@@ -1,13 +1,13 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Player Nickname Labels
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `003-player-nickname-labels` | **Date**: 2026-01-20 | **Spec**: [specs/003-player-nickname-labels/spec.md](specs/003-player-nickname-labels/spec.md)
+**Input**: Feature specification from `/specs/003-player-nickname-labels/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+Render small white nickname labels above each player-controlled fish during gameplay. Labels derive from existing player state and are drawn as SVG text elements aligned to player positions, with truncation for long names and boundary-safe positioning.
 
 ## Technical Context
 
@@ -19,14 +19,14 @@
 
 **Language/Version**: TypeScript (strict mode) on Node.js (current LTS)
 **Primary Dependencies**: Lit (web components), Socket.IO (real-time communication) + minimal justified additions
-**Storage**: [if applicable, e.g., localStorage, IndexedDB, file system, or N/A]
+**Storage**: N/A (derived from existing game state)
 **Testing**: None (constitutional prohibition—no test frameworks or test files)
 **Target Platform**: Desktop web browsers (Chrome, Firefox, Safari, Edge) with fixed viewport
 **Rendering**: DOM/CSS/SVG only (HTML Canvas prohibited by constitution)
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Project Type**: Web application (client + server + shared types)
+**Performance Goals**: 60 FPS rendering with minimal SVG text updates per tick
+**Constraints**: No HTML Canvas; fixed desktop viewport; no automated tests
+**Scale/Scope**: Multiplayer sessions up to 4 players
 
 ## Constitution Check
 
@@ -40,6 +40,8 @@
 - **Technology Stack**: Node.js, TypeScript (strict mode), Lit, Socket.IO, pnpm exclusively?
 - **Desktop-First Game**: Fixed viewport, no responsive design, no mobile support?
 - **Rendering**: DOM/CSS/SVG only—no HTML Canvas usage?
+
+**Result**: Pass (no violations expected)
 
 ## Project Structure
 
@@ -64,39 +66,48 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── components/    # Lit web components
-├── services/      # Business logic
-├── models/        # Data models
-└── utils/         # Utilities (prefer standard library)
+├── client/
+│   ├── game/
+│   │   ├── managers/           # Renderers (player, npc, powerup)
+│   │   └── components/         # Game scene + overlays
+│   └── state/                  # Lobby/game client state
+├── server/
+│   └── game/                   # Game loop + collision
+└── shared/                     # Shared types
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-└── src/
-    ├── models/
-    ├── services/
-    └── api/
+## Implementation Plan
 
-frontend/
-└── src/
-    ├── components/  # Lit web components
-    ├── pages/
-    └── services/
+### Phase 0: Research
+- Complete: [specs/003-player-nickname-labels/research.md](specs/003-player-nickname-labels/research.md).
 
-# [REMOVE IF UNUSED] Option 3: Multi-package (monorepo with shared code)
-packages/
-├── ui/
-│   └── src/       # Shared Lit components
-├── core/
-│   └── src/       # Shared business logic
-└── app/
-    └── src/       # Main application
+### Phase 1: Design & Contracts
+- Data model: [specs/003-player-nickname-labels/data-model.md](specs/003-player-nickname-labels/data-model.md).
+- Contracts: [specs/003-player-nickname-labels/contracts/notes.md](specs/003-player-nickname-labels/contracts/notes.md).
+- Quickstart: [specs/003-player-nickname-labels/quickstart.md](specs/003-player-nickname-labels/quickstart.md).
+
+### Phase 2: Implementation Outline
+1) **Player renderer enhancement**
+  - Add label rendering using SVG `<text>` elements for each player.
+  - Position label above fish and update per state update.
+2) **Label styling & truncation**
+  - Apply white fill and small font size.
+  - Truncate long names to a max length with ellipsis.
+3) **Boundary handling**
+  - Ensure labels stay visible at top boundary (offset clamp).
+4) **Manual validation**
+  - Follow quickstart checks; no automated tests.
+
+### Post-Design Constitution Check
+- **Code Clarity**: Pass
+- **Simple UX**: Pass
+- **Minimal Dependencies**: Pass
+- **Simple Over Abstract**: Pass
+- **No Testing**: Pass
+- **Technology Stack**: Pass
+- **Desktop-First Game**: Pass
+- **Rendering**: Pass
+
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
