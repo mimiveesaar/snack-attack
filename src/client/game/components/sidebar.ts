@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { PLAYER_GROWTH_CONFIG } from '@shared/game-config';
 
 interface LeaderboardEntry {
   playerId: string;
@@ -451,28 +452,17 @@ export class GameSidebar extends LitElement {
     return this.isPaused;
   }
 
-  /**
-   * Calculate progress percentage for Fish-o-meter
-   * Bar is divided into thirds:
-   * - Bottom third (0-33.33%): Phase 1 (0-50 XP)
-   * - Middle third (33.33-66.66%): Phase 2 (50-150 XP)
-   * - Top third (66.66-100%): Phase 3 (150+ XP)
-   */
-  private getFishOMeterProgress(): number {
-    const PHASE_1_MAX = 50;    // 0-50 XP
-    const PHASE_2_MAX = 150;   // 50-150 XP
-    const PHASE_3_MAX = 300;   // 150-300 XP (visual max)
 
-    if (this.playerXP <= PHASE_1_MAX) {
-      // Phase 1: Fill 0% to 33.33%
-      return (this.playerXP / PHASE_1_MAX) * 33.33;
-    } else if (this.playerXP <= PHASE_2_MAX) {
-      // Phase 2: Fill 33.33% to 66.66%
-      const progressInPhase2 = (this.playerXP - PHASE_1_MAX) / (PHASE_2_MAX - PHASE_1_MAX);
+  private getFishOMeterProgress(): number {
+
+
+    if (this.playerXP <= PLAYER_GROWTH_CONFIG[1].xpThreshold) {
+      return (this.playerXP / PLAYER_GROWTH_CONFIG[1].xpThreshold) * 33.33;
+    } else if (this.playerXP <= PLAYER_GROWTH_CONFIG[2].xpThreshold) {
+      const progressInPhase2 = (this.playerXP - PLAYER_GROWTH_CONFIG[1].xpThreshold) / (PLAYER_GROWTH_CONFIG[2].xpThreshold - PLAYER_GROWTH_CONFIG[1].xpThreshold);
       return 33.33 + (progressInPhase2 * 33.33);
     } else {
-      // Phase 3: Fill 66.66% to 100%
-      const progressInPhase3 = Math.min((this.playerXP - PHASE_2_MAX) / (PHASE_3_MAX - PHASE_2_MAX), 1);
+      const progressInPhase3 = Math.min((this.playerXP - PLAYER_GROWTH_CONFIG[2].xpThreshold) / (PLAYER_GROWTH_CONFIG[3].xpThreshold - PLAYER_GROWTH_CONFIG[2].xpThreshold), 1);
       return 66.66 + (progressInPhase3 * 33.34);
     }
   }

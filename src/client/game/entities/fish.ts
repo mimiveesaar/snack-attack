@@ -10,6 +10,7 @@
 
 import { VisualEntity, type EntityStatus } from './visual-entity';
 import type { Vec2D } from '../../../shared/game';
+import { PLAYER_GROWTH_CONFIG } from '@shared/game-config';
 
 export type FishType = 'player' | 'npc-pink' | 'npc-grey' | 'npc-brown';
 
@@ -122,8 +123,7 @@ export class Fish extends VisualEntity {
    */
   setGrowthPhase(phase: 1 | 2 | 3): void {
     this.growthPhase = phase;
-    const sizeMap: Record<1 | 2 | 3, number> = { 1: 1.0, 2: 1.5, 3: 2.0 };
-    this.setSize(sizeMap[phase]);
+    this.setSize(PLAYER_GROWTH_CONFIG[phase].visualSize);
   }
 
   setNicknameLabel(text: string): void {

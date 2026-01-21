@@ -1,5 +1,5 @@
 import type { GameSessionState } from '../../game/state';
-import { NPC_SPAWN_CONFIG } from '../../../shared/game-config';
+import { NPC_SPAWN_CONFIG } from '../../config';
 
 type NPCType = keyof typeof NPC_SPAWN_CONFIG.types;
 
