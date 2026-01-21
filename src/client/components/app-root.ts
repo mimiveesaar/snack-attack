@@ -1,7 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { lobbyClient, type ClientState } from "@client/state/lobby-state";
-import { getLobbyIdFromUrl, resetLobbyUrl } from "@client/state/router";
+import { lobbyClient, type ClientState } from "@client/lobby/lobby-manager";
+import { getLobbyIdFromUrl, resetLobbyUrl } from "@client/lobby/router";
 import type { LobbyState } from "@shared/types";
 import { soundManager } from "@client/utils/sound-manager";
 import "./lobby-entry";

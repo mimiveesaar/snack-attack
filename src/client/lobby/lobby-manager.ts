@@ -23,7 +23,7 @@ export interface ClientState {
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:3001';
 
-class LobbyClient {
+class LobbyManager {
   private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
   private listeners = new Set<(state: ClientState) => void>();
   private state: ClientState = {
@@ -170,4 +170,4 @@ class LobbyClient {
   }
 }
 
-export const lobbyClient = new LobbyClient();
+export const lobbyClient = new LobbyManager();

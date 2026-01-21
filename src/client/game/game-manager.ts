@@ -7,8 +7,8 @@ import { HostileRenderer } from './managers/hostile-renderer';
 import { GameHUD } from './components/game-hud';
 import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
-import { resetLobbyUrl } from '@client/state/router';
-import { lobbyClient } from '@client/state/lobby-state';
+import { resetLobbyUrl } from '@client/lobby/router';
+import { lobbyClient } from '@client/lobby/lobby-manager';
 import { soundManager } from '@client/utils/sound-manager';
 import { PowerupRenderer } from './managers/powerup-renderer';
 
