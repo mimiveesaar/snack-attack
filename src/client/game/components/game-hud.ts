@@ -19,6 +19,7 @@ export class GameHUD extends LitElement {
   @state() isGameEnded: boolean = false;
   @state() isLeader: boolean = false;
   @state() gameEndResults: any = null;
+  @state() endScreenRemainingMs: number = 0;
 
   static styles = css`
     :host {
@@ -171,30 +172,12 @@ export class GameHUD extends LitElement {
       border-bottom: 1px solid #eee;
     }
 
-    .action-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .action-button {
-      padding: 0.5rem 1rem;
-      font-family: 'Courier New', monospace;
-      background-color: #4a90e2;
-      color: white;
-      border: 2px solid black;
-      border-radius: 4px;
-      cursor: pointer;
+    .returning-note {
+      margin-top: 0.75rem;
       font-size: 12px;
-      transition: background-color 0.2s;
-      pointer-events: auto;
-      position: relative;
-      z-index: 1101;
+      color: #666;
     }
 
-    .action-button:hover {
-      background-color: #357abd;
-    }
   `;
 
   /**
@@ -241,6 +224,14 @@ export class GameHUD extends LitElement {
   showEndScreen(winner: any, leaderboard: any[], selfPlayerId: string): void {
     this.isGameEnded = true;
     this.gameEndResults = { winner, leaderboard, selfPlayerId };
+    this.endScreenRemainingMs = 10000;
+  }
+
+  /**
+   * Update end screen countdown
+   */
+  updateEndScreenCountdown(ms: number): void {
+    this.endScreenRemainingMs = Math.max(0, ms);
   }
 
   /**
@@ -250,27 +241,6 @@ export class GameHUD extends LitElement {
     this.dispatchEvent(
       new CustomEvent('pause-toggle', {
         detail: { isPaused: !this.isPaused },
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  /**
-   * Emit navigation events
-   */
-  private handlePlayAgain(): void {
-    this.dispatchEvent(
-      new CustomEvent('play-again', {
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-  private handleLeaveGame(): void {
-    this.dispatchEvent(
-      new CustomEvent('leave-game', {
         bubbles: true,
         composed: true,
       })
@@ -353,10 +323,8 @@ export class GameHUD extends LitElement {
                     )}
                   </div>`
                 : ''}
-
-              <div class="action-buttons">
-                <button class="action-button" @click=${() => this.handlePlayAgain()}>Play Again</button>
-                <button class="action-button" @click=${() => this.handleLeaveGame()}>Leave Game</button>
+              <div class="returning-note">
+                Returning to lobby in ${Math.max(1, Math.ceil(this.endScreenRemainingMs / 1000))}s…
               </div>
             </div>
           </div>`

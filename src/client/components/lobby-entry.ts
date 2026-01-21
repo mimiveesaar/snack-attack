@@ -23,11 +23,12 @@ export class LobbyEntry extends LitElement {
       display: flex;
       gap: 1rem;
       justify-content: center;
+      align-items: center;
       flex-wrap: wrap;
     }
 
     .fish-button {
-      background: #ffffff;
+      background: #8d9e8e !important;
       border: 3px solid #ddd;
       border-radius: 8px;
       padding: 1rem;
@@ -47,7 +48,7 @@ export class LobbyEntry extends LitElement {
 
     .fish-button:hover {
       border-color: #999;
-      background: #f0f0f0;
+      background: #8d9e8e !important;
       transform: scale(1.05);
     }
 
@@ -175,6 +176,10 @@ export class LobbyEntry extends LitElement {
         opacity: 1;
         transform: scale(1);
       }
+    }
+
+    .panel {
+      align-self: center;
     }
   `;
 

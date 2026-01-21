@@ -40,6 +40,8 @@ export class GameManager {
   private powerupCollectionTime: number = 0;
   private powerupDuration: number = 10000; // 10 seconds
   private powerupUpdateInterval: NodeJS.Timeout | null = null;
+  private endScreenReturnTimeout: number | null = null;
+  private endScreenCountdownInterval: number | null = null;
   private fishEatenEventCount: number = 0;
   leaderboard: any;
 
@@ -117,15 +119,6 @@ export class GameManager {
     // Initialize HUD
     this.hud = new GameHUD();
     overlayContainer.appendChild(this.hud);
-
-    // Wire HUD events
-    this.hud.addEventListener('play-again', () => {
-      this.onPlayAgain();
-    });
-
-    this.hud.addEventListener('leave-game', () => {
-      this.onLeaveGame();
-    });
 
     // Initialize sidebar - clear old sidebar first
     sidebarContainer.innerHTML = '';
@@ -468,6 +461,16 @@ export class GameManager {
   private onGameEnded(payload: any): void {
     console.log('GameManager: Game ended', payload);
 
+    if (this.endScreenReturnTimeout !== null) {
+      window.clearTimeout(this.endScreenReturnTimeout);
+      this.endScreenReturnTimeout = null;
+    }
+
+    if (this.endScreenCountdownInterval !== null) {
+      window.clearInterval(this.endScreenCountdownInterval);
+      this.endScreenCountdownInterval = null;
+    }
+
     // Immediately stop running to prevent any more input being sent
     this.running = false;
 
@@ -479,6 +482,28 @@ export class GameManager {
     if (this.hud && this.selfPlayerId) {
       this.hud.showEndScreen(payload.winner, payload.leaderboard, this.selfPlayerId);
     }
+
+    // Return to lobby after 10 seconds
+    const endAt = Date.now() + 10000;
+    if (this.hud) {
+      this.hud.updateEndScreenCountdown(10000);
+    }
+    this.endScreenCountdownInterval = window.setInterval(() => {
+      const remainingMs = endAt - Date.now();
+      if (this.hud) {
+        this.hud.updateEndScreenCountdown(remainingMs);
+      }
+      if (remainingMs <= 0 && this.endScreenCountdownInterval !== null) {
+        window.clearInterval(this.endScreenCountdownInterval);
+        this.endScreenCountdownInterval = null;
+      }
+    }, 250);
+
+    this.endScreenReturnTimeout = window.setTimeout(() => {
+      const sceneController = getSceneController();
+      sceneController.toLobby();
+      this.endScreenReturnTimeout = null;
+    }, 10000);
   }
 
   /**
@@ -529,6 +554,16 @@ export class GameManager {
     if (this.powerupUpdateInterval) {
       clearInterval(this.powerupUpdateInterval);
       this.powerupUpdateInterval = null;
+    }
+
+    if (this.endScreenReturnTimeout !== null) {
+      window.clearTimeout(this.endScreenReturnTimeout);
+      this.endScreenReturnTimeout = null;
+    }
+
+    if (this.endScreenCountdownInterval !== null) {
+      window.clearInterval(this.endScreenCountdownInterval);
+      this.endScreenCountdownInterval = null;
     }
 
     // Remove resize listener
