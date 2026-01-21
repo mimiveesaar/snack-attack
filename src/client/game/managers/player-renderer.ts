@@ -43,9 +43,6 @@ export class PlayerRenderer {
     console.log(`PlayerRenderer: Container in DOM?`, document.body.contains(container));
   }
 
-  /**
-   * Update or create player
-   */
   updatePlayer(state: PlayerRenderState): void {
     if (!this.container) {
       console.warn('PlayerRenderer.updatePlayer: Container is null');
@@ -94,9 +91,6 @@ export class PlayerRenderer {
     }
   }
 
-  /**
-   * Remove player
-   */
   removePlayer(playerId: string): void {
     const fish = this.players.get(playerId);
     if (fish) {
@@ -105,9 +99,6 @@ export class PlayerRenderer {
     }
   }
 
-  /**
-   * Update all players
-   */
   updateAll(states: PlayerRenderState[]): void {
     if (!this.container) {
       console.warn('PlayerRenderer: Container not found');
@@ -136,26 +127,17 @@ export class PlayerRenderer {
     toRemove.forEach((id) => this.removePlayer(id));
   }
 
-  /**
-   * Update all players per frame
-   */
   updateFrame(deltaMs: number): void {
     this.players.forEach((fish) => {
       fish.update(deltaMs);
     });
   }
 
-  /**
-   * Clear all players
-   */
   clear(): void {
     this.players.forEach((fish) => fish.destroy());
     this.players.clear();
   }
 
-  /**
-   * Destroy renderer
-   */
   destroy(): void {
     this.clear();
     this.container = null;

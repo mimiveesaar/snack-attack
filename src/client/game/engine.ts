@@ -26,9 +26,6 @@ export class GameEngine {
     this.tickRate = tickRate;
   }
 
-  /**
-   * Start the game engine
-   */
   start(): void {
     if (this.running) return;
 
@@ -39,9 +36,6 @@ export class GameEngine {
     this.tick();
   }
 
-  /**
-   * Stop the game engine
-   */
   stop(): void {
     if (!this.running) return;
 
@@ -54,9 +48,6 @@ export class GameEngine {
     }
   }
 
-  /**
-   * Main engine tick
-   */
   private tick = (): void => {
     if (!this.running) return;
 
@@ -74,9 +65,6 @@ export class GameEngine {
     this.animationFrameId = requestAnimationFrame(this.tick);
   };
 
-  /**
-   * Subscribe to engine ticks
-   */
   onTick(listener: EngineTickListener): () => void {
     this.listeners.add(listener);
 
@@ -85,16 +73,10 @@ export class GameEngine {
     };
   }
 
-  /**
-   * Get current tick number
-   */
   getCurrentTick(): number {
     return this.tickNumber;
   }
 
-  /**
-   * Destroy engine
-   */
   destroy(): void {
     this.stop();
     this.listeners.clear();

@@ -54,9 +54,7 @@ export class GameManager {
   private resizeHandler: (() => void) | null = null;
   leaderboard: any;
 
-  /**
-   * Initialize the game session
-   */
+
   async initialize(sessionId: string, playerId: string): Promise<void> {
     console.log(`GameManager: Initializing session ${sessionId} for player ${playerId}`);
     console.log(`GameManager: Socket server URL: ${SOCKET_SERVER}/game`);
@@ -543,18 +541,18 @@ export class GameManager {
     });
   }
 
-  /**
-   * Handle play again button - returns to lobby
-   */
-  private onPlayAgain(): void {
-    console.log('GameManager: Play again - returning to lobby');
-    const sceneController = getSceneController();
-    sceneController.toLobby();
-  }
+  // /**
+  //  * Handle play again button - returns to lobby
+  //  */
+  // private onPlayAgain(): void {
+  //   console.log('GameManager: Play again - returning to lobby');
+  //   const sceneController = getSceneController();
+  //   sceneController.toLobby();
+  // }
 
-  /**
-   * Handle leave game button - returns to lobby
-   */
+  // /**
+  //  * Handle leave game button - returns to lobby
+  //  */
   private onLeaveGame(): void {
     console.log('GameManager: Leaving game - returning to lobby entry');
     lobbyClient.leaveLobby();

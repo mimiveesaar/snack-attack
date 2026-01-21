@@ -9,7 +9,7 @@ export const NPC_SPAWN_CONFIG = {
 			maxConcurrent: 15,
 			xp: 10,
 			collisionRadius: 6,
-			visualSize: 0.45,
+			visualSize: 0.4,
 			swarm: {
 				size: 3,
 				radius: 40,

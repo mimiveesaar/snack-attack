@@ -24,66 +24,39 @@ export class VisualEntity {
     this.velocity = { x: 0, y: 0 };
   }
 
-  /**
-   * Update entity position
-   */
   setPosition(pos: Vec2D): void {
     this.position = pos;
     this.updateRender();
   }
 
-  /**
-   * Get current position
-   */
   getPosition(): Vec2D {
     return this.position;
   }
 
-  /**
-   * Set velocity
-   */
   setVelocity(vel: Vec2D): void {
     this.velocity = vel;
   }
 
-  /**
-   * Get velocity
-   */
   getVelocity(): Vec2D {
     return this.velocity;
   }
 
-  /**
-   * Update entity state
-   */
   setStatus(status: EntityStatus): void {
     this.status = status;
   }
 
-  /**
-   * Get entity status
-   */
   getStatus(): EntityStatus {
     return this.status;
   }
 
-  /**
-   * Get entity ID
-   */
   getId(): string {
     return this.id;
   }
 
-  /**
-   * Get render element
-   */
   getElement(): SVGElement | HTMLElement | null {
     return this.element;
   }
 
-  /**
-   * Update render (to be overridden by subclasses)
-   */
   protected updateRender(): void {
     if (!this.element) return;
 
@@ -94,25 +67,16 @@ export class VisualEntity {
     }
   }
 
-  /**
-   * Render the entity
-   */
   render(container: SVGElement | HTMLElement): Promise<void> {
     // To be overridden by subclasses
     console.warn(`VisualEntity.render() not implemented for ${this.constructor.name}`);
     return Promise.resolve();
   }
 
-  /**
-   * Update entity (called each frame)
-   */
   update(deltaMs: number): void {
     // To be overridden by subclasses
   }
 
-  /**
-   * Destroy entity and clean up
-   */
   destroy(): void {
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);

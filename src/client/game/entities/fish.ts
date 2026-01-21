@@ -1,22 +1,9 @@
-/**
- * Fish Entity - Represents a player or NPC fish
- *
- * Responsibilities:
- * - Render fish sprite with color using SVG assets
- * - Track size/scale
- * - Handle animation states (wiggle, direction)
- * - Apply growth phase visual changes
- */
-
 import { VisualEntity, type EntityStatus } from './visual-entity';
 import type { Vec2D } from '../../../shared/game';
 import { PLAYER_GROWTH_CONFIG } from '@shared/config';
 
 export type FishType = 'player' | 'npc-pink' | 'npc-grey' | 'npc-brown';
 
-/**
- * Map color hex codes to fish SVG asset names
- */
 function getfishAssetName(color: string): string {
   const colorMap: Record<string, string> = {
     // Player colors
@@ -229,42 +216,26 @@ export class Fish extends VisualEntity {
     this.haloFilterId = null;
   }
 
-  /**
-   * Set target position for smooth animation
-   * Override parent setPosition to enable smooth movement
-   */
   setPosition(pos: Vec2D): void {
     this.startPosition = { ...this.position };
     this.targetPosition = { ...pos };
     this.animationProgress = 0; // Start animation
   }
 
-  /**
-   * Get current interpolated position
-   */
   getPosition(): Vec2D {
     return this.position;
   }
 
-  /**
-   * Update direction based on velocity
-   */
   updateDirection(): void {
     if (Math.abs(this.velocity.x) > 0.1 || Math.abs(this.velocity.y) > 0.1) {
       this.direction = Math.atan2(this.velocity.y, this.velocity.x);
     }
   }
 
-  /**
-   * Ease out cubic function for smoother movement
-   */
   private easeOutCubic(t: number): number {
     return 1 - Math.pow(1 - t, 3);
   }
 
-  /**
-   * Update entity each frame
-   */
   update(deltaMs: number): void {
     this.updateDirection();
     this.wigglePhase = (this.wigglePhase + deltaMs / 100) % (Math.PI * 2);
@@ -284,9 +255,6 @@ export class Fish extends VisualEntity {
     }
   }
 
-  /**
-   * Render fish using SVG asset
-   */
   async render(container: SVGElement): Promise<void> {
 
     console.log(`Fish.render() START for ${this.id}`);
@@ -470,9 +438,6 @@ export class Fish extends VisualEntity {
     );
   }
 
-  /**
-   * Update render position and orientation
-   */
   protected updateRender(): void {
     if (!this.element) return;
     

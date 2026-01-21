@@ -92,6 +92,6 @@ export class SoundToggle extends LitElement {
   }
 
   createRenderRoot() {
-    return this; // use light DOM
+    return this; 
   }
 }

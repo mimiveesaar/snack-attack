@@ -52,7 +52,7 @@ export class PowerupRenderer {
     const emoji = 
       powerup.type === 'invincibility' ? '🛡️' :
       powerup.type === 'speed-boost' ? '⚡' :
-      '✨'; // double-xp
+      '✨';
     
     const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     textEl.setAttribute('x', String(powerup.position.x));

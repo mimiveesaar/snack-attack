@@ -1,13 +1,3 @@
-/**
- * Client Input Controller - Captures keyboard input and dispatches to game loop
- *
- * Responsibilities:
- * - Listen to keyboard events (arrow keys, WASD)
- * - Maintain current direction state
- * - Send input to server every tick
- * - Handle input queue
- */
-
 export type Direction = { x: -1 | 0 | 1; y: -1 | 0 | 1 };
 
 export class InputController {
@@ -23,17 +13,11 @@ export class InputController {
     this.setupKeyboardListeners();
   }
 
-  /**
-   * Setup keyboard event listeners
-   */
   private setupKeyboardListeners(): void {
     window.addEventListener('keydown', this.handleKeyDownBound);
     window.addEventListener('keyup', this.handleKeyUpBound);
   }
 
-  /**
-   * Handle key down event
-   */
   private handleKeyDown(e: KeyboardEvent): void {
     const key = e.key.toLowerCase();
 
@@ -57,9 +41,6 @@ export class InputController {
     this.updateDirection();
   }
 
-  /**
-   * Handle key up event
-   */
   private handleKeyUp(e: KeyboardEvent): void {
     const key = e.key.toLowerCase();
 
@@ -83,9 +64,6 @@ export class InputController {
     this.updateDirection();
   }
 
-  /**
-   * Update direction based on pressed keys
-   */
   private updateDirection(): void {
     const newDirection: Direction = { x: 0, y: 0 };
 
@@ -98,16 +76,10 @@ export class InputController {
     this.notifyListeners();
   }
 
-  /**
-   * Get current direction
-   */
   getDirection(): Direction {
     return this.direction;
   }
 
-  /**
-   * Subscribe to direction changes
-   */
   onDirectionChange(callback: (direction: Direction) => void): () => void {
     if (!this.listeners.has('change')) {
       this.listeners.set('change', new Set());
@@ -119,17 +91,11 @@ export class InputController {
     };
   }
 
-  /**
-   * Notify listeners of direction change
-   */
   private notifyListeners(): void {
     const callbacks = this.listeners.get('change') || new Set();
     callbacks.forEach((cb) => cb(this.direction));
   }
 
-  /**
-   * Destroy input controller (cleanup listeners)
-   */
   destroy(): void {
     window.removeEventListener('keydown', this.handleKeyDownBound);
     window.removeEventListener('keyup', this.handleKeyUpBound);

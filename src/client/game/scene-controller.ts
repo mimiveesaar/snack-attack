@@ -8,7 +8,7 @@
  * - Wire state subscriptions for rendered scene
  */
 
-import { createGameManager, getGameManager, destroyGameManager } from './game-manager';
+import { createGameManager, destroyGameManager } from './game-manager';
 
 export type SceneType = 'lobby' | 'game' | 'waiting';
 

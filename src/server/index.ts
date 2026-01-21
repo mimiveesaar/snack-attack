@@ -10,7 +10,6 @@ import { CLIENT_ORIGIN } from '../shared/config';
 
 const PORT = Number(process.env.SOCKET_PORT || 3001);
 
-
 const httpServer = createServer();
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
