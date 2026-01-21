@@ -14,8 +14,12 @@ export class InputController {
   private direction: Direction = { x: 0, y: 0 };
   private keysPressed: Set<string> = new Set();
   private listeners: Map<string, Set<(direction: Direction) => void>> = new Map();
+  private readonly handleKeyDownBound: (e: KeyboardEvent) => void;
+  private readonly handleKeyUpBound: (e: KeyboardEvent) => void;
 
   constructor() {
+    this.handleKeyDownBound = (e) => this.handleKeyDown(e);
+    this.handleKeyUpBound = (e) => this.handleKeyUp(e);
     this.setupKeyboardListeners();
   }
 
@@ -23,8 +27,8 @@ export class InputController {
    * Setup keyboard event listeners
    */
   private setupKeyboardListeners(): void {
-    window.addEventListener('keydown', (e) => this.handleKeyDown(e));
-    window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+    window.addEventListener('keydown', this.handleKeyDownBound);
+    window.addEventListener('keyup', this.handleKeyUpBound);
   }
 
   /**
@@ -127,10 +131,11 @@ export class InputController {
    * Destroy input controller (cleanup listeners)
    */
   destroy(): void {
-    window.removeEventListener('keydown', (e) => this.handleKeyDown(e));
-    window.removeEventListener('keyup', (e) => this.handleKeyUp(e));
+    window.removeEventListener('keydown', this.handleKeyDownBound);
+    window.removeEventListener('keyup', this.handleKeyUpBound);
     this.listeners.clear();
     this.keysPressed.clear();
+    this.direction = { x: 0, y: 0 };
   }
 }
 

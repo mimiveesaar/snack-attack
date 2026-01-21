@@ -30,7 +30,7 @@ export const PLAYER_GROWTH_CONFIG: PlayerGrowthConfig = {
 		growthPhase: 3,
 		xpThreshold: 30,
 		collisionRadius: 13,
-		visualSize: 1.5,
+		visualSize: 1.4,
 	},
 } as const;
 

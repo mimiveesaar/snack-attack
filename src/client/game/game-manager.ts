@@ -12,7 +12,7 @@
 import { io, Socket } from 'socket.io-client';
 import type { GameStateUpdatePayload, GameServerToClientEvents, GameClientToServerEvents } from '@shared/game-events';
 import { getGameEngine } from './engine';
-import { getInputController } from './input-controller';
+import { destroyInputController, getInputController } from './input-controller';
 import { PlayerRenderer } from './managers/player-renderer';
 import { HostileRenderer } from './managers/hostile-renderer';
 import { getPowerupRenderer, clearPowerupRenderer } from './powerup-renderer';
@@ -51,6 +51,7 @@ export class GameManager {
   private endScreenReturnTimeout: number | null = null;
   private endScreenCountdownInterval: number | null = null;
   private fishEatenEventCount: number = 0;
+  private resizeHandler: (() => void) | null = null;
   leaderboard: any;
 
   /**
@@ -166,7 +167,8 @@ export class GameManager {
     console.log('GameManager: HostileRenderer container:', this.hostileRenderer?.['container']);
 
     // Handle window resize for responsive gameplay
-    window.addEventListener('resize', () => this.onWindowResize());
+    this.resizeHandler = () => this.onWindowResize();
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   /**
@@ -494,6 +496,9 @@ export class GameManager {
     const engine = getGameEngine();
     engine.stop();
 
+    // Disable input controller immediately at game end
+    destroyInputController();
+
     // Show end screen
     if (this.hud && this.selfPlayerId) {
       this.hud.showEndScreen(payload.winner, payload.leaderboard, this.selfPlayerId);
@@ -583,7 +588,13 @@ export class GameManager {
     }
 
     // Remove resize listener
-    window.removeEventListener('resize', () => this.onWindowResize());
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
+
+    // Destroy input controller
+    destroyInputController();
 
     // Disconnect socket
     if (this.socket) {
