@@ -13,7 +13,7 @@ import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { getGameSession } from './state';
 import { collisionDetector } from './collision';
-import { npcSpawner } from './npc-spawner';
+import { npcSpawner } from '../feature/npc/npc-spawner';
 import { powerupSpawner } from './powerup-spawner';
 
 const TICK_RATE_HZ = 60;
