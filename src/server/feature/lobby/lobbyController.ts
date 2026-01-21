@@ -116,7 +116,7 @@ export class LobbyController {
           return;
         }
 
-        const result = lobbyManager.startGame(lobby, socket.id);
+        const result = lobbyManager.createGame(lobby, socket.id);
         if (!result.session) {
           if (result.error) socket.emit('lobby:error', { message: result.error });
           callback(null as unknown as any);

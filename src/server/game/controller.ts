@@ -1,16 +1,6 @@
-/**
- * Game Controller - Routes game namespace events to orchestrator/session handlers
- *
- * Responsibilities:
- * - Validate incoming events
- * - Route to appropriate handlers
- * - Error handling and logging
- * - Map socket IDs to player IDs
- */
-
 import type { Socket, Namespace } from 'socket.io';
 
-import { getGameSession, getAllGameSessions } from './state';
+import { getGameSession, getAllGameSessions } from './sessionStore';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 
 export class GameController {
@@ -21,9 +11,6 @@ export class GameController {
     this.gameNamespace = gameNamespace;
   }
 
-  /**
-   * Register event handlers for a socket
-   */
   registerHandlers(socket: Socket<GameClientToServerEvents, GameServerToClientEvents>): void {
     // Store session ID from auth
     const sessionId = (socket.handshake.auth as any)?.sessionId;

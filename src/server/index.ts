@@ -3,10 +3,9 @@ import { Server, Namespace } from 'socket.io';
 
 import { lobbyController } from './feature/lobby/lobbyController';
 import { lobbyStore } from './feature/lobby/lobbyStore';
-import { gameSessionManager } from './game-session';
+import { gameSessionManager } from './game/gameSessionManager';
 import { ClientToServerEvents, ServerToClientEvents, GameClientToServerEvents, GameServerToClientEvents } from '../shared/types';
 import { GameController } from './game/controller';
-
 import { createGameOrchestrator } from './game/orchestrator';
 import { CLIENT_ORIGIN } from '../shared/config';
 

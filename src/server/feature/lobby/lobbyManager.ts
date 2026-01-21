@@ -125,7 +125,7 @@ export class LobbyManager {
     return { kicked };
   }
 
-  public startGame(lobby: LobbyRecord, leaderId: string): { session: GameSession | null; error?: string } {
+  public createGame(lobby: LobbyRecord, leaderId: string): { session: GameSession | null; error?: string } {
     if (!this.isLeader(lobby, leaderId)) return { session: null, error: 'Not leader' };
     if (lobby.players.length > lobby.maxPlayers) return { session: null, error: 'Capacity exceeded' };
 

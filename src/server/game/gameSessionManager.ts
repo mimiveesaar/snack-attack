@@ -1,21 +1,18 @@
-import { lobbyStore } from './feature/lobby/lobbyStore';
-import { lobbyManager } from './feature/lobby/lobbyManager';
+import { lobbyStore } from '../feature/lobby/lobbyStore';
+import { lobbyManager } from '../feature/lobby/lobbyManager';
 import type { Namespace, Server } from 'socket.io';
 
-import { gameOrchestrator } from './game/orchestrator';
-import { getGameSession } from './game/state';
-import { ClientToServerEvents, ServerToClientEvents } from '../shared/events';
-import { ActiveGameSnapshot } from '../shared/game-session';
-import { GameClientToServerEvents, GameServerToClientEvents } from '../shared/game-events';
-import { SESSION_DURATION_MS } from '../shared/config';
+import { gameOrchestrator } from './orchestrator';
+import { getGameSession } from './sessionStore';
+import { ClientToServerEvents, ServerToClientEvents } from '../../shared/events';
+import { ActiveGameSnapshot } from '../../shared/game-session';
+import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
+import { SESSION_DURATION_MS } from '../../shared/config';
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents> | null = null;
 
-  /**
-   * Set the game namespace for broadcasting events
-   */
   setGameNamespace(ns: Namespace<GameClientToServerEvents, GameServerToClientEvents>): void {
     this.gameNamespace = ns;
   }

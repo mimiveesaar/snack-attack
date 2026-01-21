@@ -11,7 +11,7 @@
 
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { getGameSession } from './state';
+import { getGameSession } from './sessionStore';
 import { collisionDetector } from '../feature/collision';
 import { NPCManager } from '../feature/npc/npc-manager';
 import { PlayerManager } from '../feature/player/player-manager';

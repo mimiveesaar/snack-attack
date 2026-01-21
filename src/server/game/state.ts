@@ -8,7 +8,6 @@ export interface GamePlayerInit {
   isLeader?: boolean;
 }
 
-
 /**
  * GameSessionState manages the authoritative game state for a single game session.
  * This is the single source of truth for all game logic.
@@ -76,9 +75,6 @@ export class GameSessionState {
     return PLAYER_GROWTH_CONFIG[phase].visualSize;
   }
 
-  /**
-   * Update player XP and recalculate growth phase
-   */
   updatePlayerXp(playerId: string, xpDelta: number): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -93,9 +89,6 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Set player respawn state
-   */
   setPlayerRespawning(playerId: string, respawnDelayMs: number = 2000): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -112,9 +105,6 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Complete player respawn at new position
-   */
   completePlayerRespawn(playerId: string, newPosition: Vec2D): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -126,18 +116,12 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Check if player is in grace period (can't be eaten)
-   */
   isPlayerInGrace(playerId: string): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player || !player.graceEndTimeMs) return false;
     return Date.now() < player.graceEndTimeMs;
   }
 
-  /**
-   * Add power-up to player (replaces any existing powerup)
-   */
   addPlayerPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility', durationMs: number = 10000): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -152,9 +136,6 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Remove power-up from player
-   */
   removePlayerPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility'): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -168,9 +149,6 @@ export class GameSessionState {
     return false;
   }
 
-  /**
-   * Clean up expired powerups for all players
-   */
   cleanupExpiredPlayerPowerups(): void {
     const now = Date.now();
     for (const player of this.state.players) {
@@ -188,9 +166,6 @@ export class GameSessionState {
     }
   }
 
-  /**
-   * Compute leaderboard from current player states
-   */
   private computeLeaderboard(players: GamePlayer[]): GameLeaderboardEntry[] {
     return players
       .map((p) => ({
@@ -203,9 +178,6 @@ export class GameSessionState {
       .sort((a, b) => b.xp - a.xp);
   }
 
-  /**
-   * Apply player input direction
-   */
   applyPlayerInput(playerId: string, direction: { x: -1 | 0 | 1; y: -1 | 0 | 1 }): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player || player.status !== 'alive') return false;
@@ -229,49 +201,30 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Recompute and update leaderboard
-   */
   updateLeaderboard(): GameLeaderboardEntry[] {
     this.state.leaderboard = this.computeLeaderboard(this.state.players);
     return this.state.leaderboard;
   }
 
-  /**
-   * Queue events for next broadcast
-   */
   queueEvents(events: any[]): void {
     if (!events.length) return;
     this.pendingEvents.push(...events);
   }
 
-  /**
-   * Drain queued events
-   */
   drainEvents(): any[] {
     const queued = this.pendingEvents;
     this.pendingEvents = [];
     return queued;
   }
 
-  /**
-   * Get current game state (snapshot)
-   */
   getState(): GameState {
     return this.state;
   }
 
-  /**
-   * Update server tick counter
-   */
   incrementTick(): void {
     this.state.serverTick++;
   }
 
-
-  /**
-   * Get time remaining in milliseconds
-   */
   getTimeRemainingMs(): number {
     if (this.state.status === 'ended') return 0;
     
@@ -289,9 +242,6 @@ export class GameSessionState {
     return remaining;
   }
 
-  /**
-   * Pause game
-   */
   pauseGame(leaderId: string): boolean {
     if (this.state.isPaused) return false;
     console.log(`[PAUSE] Game paused by leader ${leaderId} at ${Date.now()}, pausedElapsedMs: ${this.state.pausedElapsedMs}`);
@@ -301,9 +251,6 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Resume game
-   */
   resumeGame(): boolean {
     if (!this.state.isPaused) return false;
     
@@ -320,9 +267,6 @@ export class GameSessionState {
     return true;
   }
 
-  /**
-   * Mark player as quit
-   */
   markPlayerQuit(playerId: string): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
@@ -331,27 +275,4 @@ export class GameSessionState {
     player.velocity.y = 0;
     return true;
   }
-}
-
-/**
- * Global game session store (in-memory)
- */
-const sessionStore = new Map<string, GameSessionState>();
-
-export function createGameSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): GameSessionState {
-  const session = new GameSessionState(sessionId, lobbyId, players);
-  sessionStore.set(sessionId, session);
-  return session;
-}
-
-export function getGameSession(sessionId: string): GameSessionState | undefined {
-  return sessionStore.get(sessionId);
-}
-
-export function deleteGameSession(sessionId: string): void {
-  sessionStore.delete(sessionId);
-}
-
-export function getAllGameSessions(): Map<string, GameSessionState> {
-  return sessionStore;
 }

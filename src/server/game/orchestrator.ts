@@ -1,18 +1,7 @@
-/**
- * Game Orchestrator - Manages active game sessions
- *
- * Responsibilities:
- * - Create new game sessions
- * - Track active sessions
- * - Manage session lifecycle
- * - Coordinate session start/stop
- */
-
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { createGameSession, getGameSession, deleteGameSession } from './state';
+import { createGameSession, getGameSession, deleteGameSession } from './sessionStore';
 import { createGameLoop, deleteGameLoop } from './loop';
-import { createPlayerClockSync } from './clock';
 
 export interface GamePlayerInit {
   id: string;
@@ -28,9 +17,6 @@ export class GameOrchestrator {
     this.gameNamespace = gameNamespace;
   }
 
-  /**
-   * Create and start a new game session
-   */
   startSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): boolean {
     if (this.activeSessions.has(sessionId)) {
       console.warn(`GameOrchestrator: Session ${sessionId} already active`);
@@ -45,10 +31,6 @@ export class GameOrchestrator {
       const session = createGameSession(sessionId, lobbyId, players);
       console.log(`GameOrchestrator: Game session created and stored with sessionId: ${sessionId}`);
 
-      // Create player clock sync records
-      players.forEach((p) => {
-        createPlayerClockSync(p.id);
-      });
 
       // Create and start game loop
       const loop = createGameLoop(sessionId, this.gameNamespace);
@@ -68,9 +50,6 @@ export class GameOrchestrator {
     }
   }
 
-  /**
-   * Stop and clean up a game session
-   */
   stopSession(sessionId: string): boolean {
     if (!this.activeSessions.has(sessionId)) {
       return false;
@@ -83,14 +62,6 @@ export class GameOrchestrator {
       deleteGameLoop(sessionId);
 
       // Delete game state
-      const session = getGameSession(sessionId);
-      if (session) {
-        const state = session.getState();
-        state.players.forEach((p: any) => {
-          // Clean up player clock sync
-          // deletePlayerClockSync(p.id); // TODO: implement if needed
-        });
-      }
       deleteGameSession(sessionId);
 
       // Untrack session
@@ -103,16 +74,10 @@ export class GameOrchestrator {
     }
   }
 
-  /**
-   * Get active sessions count
-   */
   getActiveSessionCount(): number {
     return this.activeSessions.size;
   }
 
-  /**
-   * Check if session is active
-   */
   isSessionActive(sessionId: string): boolean {
     return this.activeSessions.has(sessionId);
   }
