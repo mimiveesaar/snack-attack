@@ -26,7 +26,7 @@ export const processPowerupCollisions = (session: GameSessionState): CollisionEv
           powerupsToCollect.push(powerup.id);
 
           // Apply powerup to player (10 second duration)
-          session.addPowerup(player.id, powerup.type, 10000);
+          session.addPlayerPowerup(player.id, powerup.type, 10000);
 
           // Record event
           console.log(`[Collision] Powerup collected: ${powerup.type} by ${player.nicknameDisplay}`, {

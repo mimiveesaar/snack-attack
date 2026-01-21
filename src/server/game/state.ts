@@ -138,7 +138,7 @@ export class GameSessionState {
   /**
    * Add power-up to player (replaces any existing powerup)
    */
-  addPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility', durationMs: number = 10000): boolean {
+  addPlayerPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility', durationMs: number = 10000): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
 
@@ -155,7 +155,7 @@ export class GameSessionState {
   /**
    * Remove power-up from player
    */
-  removePowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility'): boolean {
+  removePlayerPowerup(playerId: string, powerupType: 'speed-boost' | 'double-xp' | 'invincibility'): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
 
@@ -171,7 +171,7 @@ export class GameSessionState {
   /**
    * Clean up expired powerups for all players
    */
-  cleanupExpiredPowerups(): void {
+  cleanupExpiredPlayerPowerups(): void {
     const now = Date.now();
     for (const player of this.state.players) {
       const toRemove: ('speed-boost' | 'double-xp' | 'invincibility')[] = [];
@@ -183,7 +183,7 @@ export class GameSessionState {
       }
       
       for (const powerupType of toRemove) {
-        this.removePowerup(player.id, powerupType);
+        this.removePlayerPowerup(player.id, powerupType);
       }
     }
   }

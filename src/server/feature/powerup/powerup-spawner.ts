@@ -138,5 +138,3 @@ export class PowerupSpawner {
     return null; // Couldn't find safe location
   }
 }
-
-export const powerupSpawner = new PowerupSpawner();

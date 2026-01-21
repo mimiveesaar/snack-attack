@@ -8,7 +8,7 @@ import { processPowerupCollisions } from './checks/player-powerup.check';
 
 export class CollisionManager {
 
-public processCollisions(session: GameSessionState, now: number): CollisionEvent[] {
+public processCollisions(session: GameSessionState): CollisionEvent[] {
 
     processBoundaryCollisions(session);
 

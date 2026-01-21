@@ -11,10 +11,12 @@
 
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { GameSessionState, getGameSession } from './state';
+import { getGameSession } from './state';
 import { collisionDetector } from '../feature/collision';
-import { powerupSpawner } from '../feature/powerup/powerup-spawner';
 import { NPCManager } from '../feature/npc/npc-manager';
+import { PlayerManager } from '../feature/player/player-manager';
+import { PowerupManager } from '../feature/powerup/powerup-manager';
+import { FixedStepEngine } from './engine';
 
 const TICK_RATE_HZ = 60;
 const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
@@ -27,8 +29,10 @@ const TIMER_TICK_INTERVAL_TICKS = TICK_RATE_HZ; // Every 60 ticks = 1 second
 export class GameLoop {
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>;
   private npcManager: NPCManager;
+  private playerManager : PlayerManager;
+  private powerupManager : PowerupManager;
   private sessionId: string;
-  private intervalId: NodeJS.Timeout | null = null;
+  private engine: FixedStepEngine;
   private tickCount: number = 0;
   private running: boolean = false;
 
@@ -39,11 +43,11 @@ export class GameLoop {
     this.sessionId = sessionId;
     this.gameNamespace = gameNamespace;
     this.npcManager = new NPCManager(TICK_INTERVAL_MS);
+    this.playerManager = new PlayerManager(TICK_INTERVAL_MS);
+    this.powerupManager = new PowerupManager();
+    this.engine = new FixedStepEngine(TICK_INTERVAL_MS);
   }
 
-  /**
-   * Start the game loop
-   */
   start(): void {
     if (this.running) return;
 
@@ -51,29 +55,19 @@ export class GameLoop {
     this.running = true;
     this.tickCount = 0;
 
-    this.intervalId = setInterval(() => {
-      this.tick();
-    }, TICK_INTERVAL_MS);
+    this.engine.start(() => this.tick());
   }
 
-  /**
-   * Stop the game loop
-   */
   stop(): void {
     if (!this.running) return;
 
     console.log(`GameLoop: Stopping for session ${this.sessionId}`);
     this.running = false;
 
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
+    this.engine.stop();
   }
 
-  /**
-   * Main game loop tick
-   */
+  // Main game loop.
   private tick(): void {
     const session = getGameSession(this.sessionId);
     if (!session) {
@@ -105,17 +99,17 @@ export class GameLoop {
       return;
     }
 
-    // Update player state (process inputs, physics, etc.)
-    this.updatePlayers(session);
+    // Update player state.
+    this.playerManager.tick(session);
 
     // Update NPCs (spawning, positioning)
     this.npcManager.tick(session);
 
     // Update power-ups
-    this.updatePowerUps(session);
+    this.powerupManager.tick(session);
 
     // Process collisions (eating, boundary) and collect events
-    const collisionEvents = collisionDetector.processCollisions(session, Date.now());
+    const collisionEvents = collisionDetector.processCollisions(session);
     session.queueEvents(collisionEvents);
 
     // Broadcast state update every BROADCAST_INTERVAL_TICKS
@@ -124,116 +118,13 @@ export class GameLoop {
     }
 
     // Broadcast timer tick every TIMER_TICK_INTERVAL_TICKS
+    // Clients can update a timer display smoothly at 60 Hz without processing heavy state data
     if (this.tickCount % TIMER_TICK_INTERVAL_TICKS === 0) {
       this.broadcastTimerTick(session);
     }
 
     this.tickCount++;
   }
-
-  /**
-   * Update player states (movement, respawn, etc.)
-   */
-  private updatePlayers(session: any): void {
-    const state = session.getState();
-    const GAME_WIDTH = 600;
-    const GAME_HEIGHT = 600;
-    const now = Date.now();
-
-    for (const player of state.players) {
-      // Handle respawning players
-      if (player.status === 'respawning' && player.respawnTimeMs && now >= player.respawnTimeMs) {
-        // Find safe respawn position
-        const spawnPos = this.findSafeRespawnLocation(session);
-        if (spawnPos) {
-          session.completePlayerRespawn(player.id, spawnPos);
-        }
-        continue;
-      }
-
-      if (player.status !== 'alive') continue;
-
-      // Update position based on velocity
-      player.position.x += player.velocity.x * TICK_INTERVAL_MS;
-      player.position.y += player.velocity.y * TICK_INTERVAL_MS;
-
-      // Boundary collision (keep player in bounds)
-      const radius = player.collisionRadius;
-      if (player.position.x - radius < 0) player.position.x = radius;
-      if (player.position.x + radius > GAME_WIDTH) player.position.x = GAME_WIDTH - radius;
-      if (player.position.y - radius < 0) player.position.y = radius;
-      if (player.position.y + radius > GAME_HEIGHT) player.position.y = GAME_HEIGHT - radius;
-    }
-  }
-
-  /**
-   * Find a safe respawn location for a player
-   */
-  private findSafeRespawnLocation(session: any): { x: number; y: number } | null {
-    const state = session.getState();
-    const GAME_WIDTH = 600;
-    const GAME_HEIGHT = 600;
-    const BOUNDARY_BUFFER = 50;
-    const SAFE_DISTANCE = 100; // pixels from any other fish
-    const attempts = 20;
-
-    for (let i = 0; i < attempts; i++) {
-      const x = BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER);
-      const y = BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER);
-
-      let safe = true;
-
-      // Check distance to all other alive players
-      for (const player of state.players) {
-        if (player.status !== 'alive') continue;
-        const dx = x - player.position.x;
-        const dy = y - player.position.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < SAFE_DISTANCE) {
-          safe = false;
-          break;
-        }
-      }
-
-      // Check distance to all NPCs
-      if (safe) {
-        for (const npc of state.npcs) {
-          const dx = x - npc.position.x;
-          const dy = y - npc.position.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < SAFE_DISTANCE) {
-            safe = false;
-            break;
-          }
-        }
-      }
-
-      if (safe) {
-        return { x, y };
-      }
-    }
-
-    // If no safe location found, return a random position anyway
-    return {
-      x: BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER),
-      y: BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER),
-    };
-  }
-
-  /**
-   * Update power-up states
-   */
-  private updatePowerUps(session: any): void {
-    // Spawn new powerups via spawner tick
-    powerupSpawner.tick(session);
-
-    // Clean up expired powerups from players
-    session.cleanupExpiredPowerups();
-
-    // Clean up expired powerup items
-    powerupSpawner.cleanupExpiredPowerups(session);
-  }
-
 
   /**
    * Broadcast state update to all players
