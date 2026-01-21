@@ -1,5 +1,5 @@
 import type { GameState, GamePlayer, GameLeaderboardEntry, Vec2D } from "../../shared/game";
-import { PLAYER_GROWTH_CONFIG } from "../../shared/config";
+import { PLAYER_GROWTH_CONFIG, SESSION_DURATION_MS } from "../../shared/config";
 
 export interface GamePlayerInit {
   id: string;
@@ -45,7 +45,7 @@ export class GameSessionState {
       startedAt: Date.now(),
       status: 'active',
       timerStartMs: Date.now(),
-      gameTimerDurationMs: 30 * 1000,
+      gameTimerDurationMs: SESSION_DURATION_MS,
       isPaused: false,
       pausedByLeaderId: null,
       pausedAt: null,
