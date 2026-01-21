@@ -1,10 +1,12 @@
 import type { LobbyState } from './lobby';
-import type { GameSession, LeaderboardEntry } from './game-session';
+import type { ActiveGameSnapshot, GameSession } from './game-session';
 
 export interface WaitingPayload {
   lobbyId: string;
-  leaderboard: LeaderboardEntry[];
-  timerRemainingMs: number;
+  waitingPosition: number;
+  isLobbyFull: boolean;
+  fullMessage: string | null;
+  snapshot: ActiveGameSnapshot;
 }
 
 export interface KickedPayload {

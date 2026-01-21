@@ -48,7 +48,7 @@ export class GameSessionState {
       startedAt: Date.now(),
       status: 'active',
       timerStartMs: Date.now(),
-      gameTimerDurationMs: 2 * 30 * 1000, 
+      gameTimerDurationMs: 30 * 1000,
       isPaused: false,
       pausedByLeaderId: null,
       pausedAt: null,

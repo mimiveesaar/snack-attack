@@ -600,7 +600,7 @@ export class GameSidebar extends LitElement {
             <h2>🐟 Snack Attack - Game Rules</h2>
             
             <h3>Objective</h3>
-            <p>Eat other fish to gain XP and become the biggest fish in 2 minutes!</p>
+            <p>Eat other fish to gain XP and become the biggest fish in 30 seconds!</p>
 
             <h3>How to Play</h3>
             <ul>

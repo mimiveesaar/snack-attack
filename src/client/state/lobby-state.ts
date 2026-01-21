@@ -156,6 +156,10 @@ class LobbyClient {
     });
 
     this.socket.on('game:ended', (session) => {
+      if (this.state.view === 'waiting') {
+        this.setState({ activeSession: session });
+        return;
+      }
       this.setState({ activeSession: session, waiting: null, view: 'lobby' });
     });
   }

@@ -131,6 +131,10 @@ export class LobbyStore {
     lobby.waiting = lobby.waiting.filter((p) => p.id !== playerId);
     this.ensureLeader(lobby);
 
+    if (lobby.status === 'waiting') {
+      this.admitWaiting(lobby);
+    }
+
     if (lobby.players.length === 0) {
       this.lobbies.delete(lobbyId);
       return { state: null, deleted: true };
@@ -208,6 +212,17 @@ export class LobbyStore {
 
   getState(lobbyId: string): LobbyRecord | null {
     return this.lobbies.get(lobbyId) ?? null;
+  }
+
+  getWaitingPlayers(lobbyId: string): Player[] {
+    return this.lobbies.get(lobbyId)?.waiting ?? [];
+  }
+
+  getWaitingPosition(lobbyId: string, playerId: string): number | null {
+    const lobby = this.lobbies.get(lobbyId);
+    if (!lobby) return null;
+    const index = lobby.waiting.findIndex((player) => player.id === playerId);
+    return index === -1 ? null : index + 1;
   }
 
   list(): LobbyRecord[] {

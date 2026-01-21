@@ -13,7 +13,7 @@ import '../../components/sound-toggle';
 
 @customElement('game-hud')
 export class GameHUD extends LitElement {
-  @state() timerRemainingMs: number = 120000; // 2 minutes
+  @state() timerRemainingMs: number = 30000; // 30 seconds
   @state() isPaused: boolean = false;
   @state() pausedByLeaderNickname: string | null = null;
   @state() isGameEnded: boolean = false;

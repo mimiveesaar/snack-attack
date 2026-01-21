@@ -17,6 +17,19 @@ function toLobbyState(lobby: LobbyRecord) {
   return state;
 }
 
+function buildWaitingPayload(lobby: LobbyRecord, playerId: string) {
+  const waitingPosition = lobbyStore.getWaitingPosition(lobby.lobbyId, playerId) ?? 1;
+  const isLobbyFull = lobby.players.length >= lobby.maxPlayers;
+  const snapshot = gameSessionManager.getActiveGameSnapshot(lobby.lobbyId);
+  return {
+    lobbyId: lobby.lobbyId,
+    waitingPosition,
+    isLobbyFull,
+    fullMessage: isLobbyFull ? 'Lobby full (4/4). Waiting for a slot.' : null,
+    snapshot,
+  };
+}
+
 const httpServer = createServer();
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
@@ -101,12 +114,7 @@ lobbyNs.on('connection', (socket) => {
     socket.join(payload.lobbyId);
 
     if (result.waiting && result.state.activeSession) {
-      const { activeSession } = result.state;
-      socket.emit('game:waiting', {
-        lobbyId: result.state.lobbyId,
-        leaderboard: activeSession?.leaderboard ?? [],
-        timerRemainingMs: activeSession?.timerRemainingMs ?? 0,
-      });
+      socket.emit('game:waiting', buildWaitingPayload(result.state, socket.id));
     } else {
       callback(toLobbyState(result.state));
       lobbyNs.to(payload.lobbyId).emit('lobby:state', toLobbyState(result.state));
@@ -178,6 +186,15 @@ lobbyNs.on('connection', (socket) => {
     }
   });
 });
+
+setInterval(() => {
+  for (const lobby of lobbyStore.list()) {
+    if (lobby.waiting.length === 0) continue;
+    for (const waitingPlayer of lobby.waiting) {
+      lobbyNs.to(waitingPlayer.id).emit('game:waiting', buildWaitingPayload(lobby, waitingPlayer.id));
+    }
+  }
+}, 1000);
 
 httpServer.listen(PORT, () => {
   console.log(`Socket server listening on :${PORT}`);

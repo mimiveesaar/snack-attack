@@ -88,7 +88,7 @@ export class AppRoot extends LitElement {
 
         ${view === 'waiting' && waiting
           ? html`
-              <waiting-view .leaderboard=${waiting.leaderboard} .timerRemainingMs=${waiting.timerRemainingMs}></waiting-view>
+              <waiting-view .snapshot=${waiting.snapshot} .fullMessage=${waiting.fullMessage}></waiting-view>
             `
           : null}
 

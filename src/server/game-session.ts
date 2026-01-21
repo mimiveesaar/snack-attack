@@ -2,10 +2,12 @@ import { lobbyStore } from './lobby-store';
 import type { Namespace, Server } from 'socket.io';
 
 import { gameOrchestrator } from './game/orchestrator';
+import { getGameSession } from './game/state';
 import { ClientToServerEvents, ServerToClientEvents } from '../shared/events';
+import { ActiveGameSnapshot } from '../shared/game-session';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../shared/game-events';
 
-const SESSION_DURATION_MS = 120_000; // 2 minutes total game time
+const SESSION_DURATION_MS = 30_000; // 30 seconds total game time
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();
@@ -16,6 +18,32 @@ export class GameSessionManager {
    */
   setGameNamespace(ns: Namespace<GameClientToServerEvents, GameServerToClientEvents>): void {
     this.gameNamespace = ns;
+  }
+
+  getActiveGameSnapshot(lobbyId: string): ActiveGameSnapshot {
+    const lobby = lobbyStore.getState(lobbyId);
+    if (!lobby || lobby.status !== 'active' || !lobby.activeSession) {
+      return { hasActiveGame: false, timerRemainingMs: null, leaderboard: [] };
+    }
+
+    const session = getGameSession(lobby.activeSession.sessionId);
+    if (!session) {
+      return { hasActiveGame: false, timerRemainingMs: null, leaderboard: [] };
+    }
+
+    const state = session.getState();
+    const leaderboard = state.leaderboard.map((entry, index) => ({
+      playerId: entry.id,
+      nicknameDisplay: entry.nicknameDisplay,
+      score: entry.xp,
+      rank: index + 1,
+    }));
+
+    return {
+      hasActiveGame: true,
+      timerRemainingMs: session.getTimeRemainingMs(),
+      leaderboard,
+    };
   }
 
   start(
