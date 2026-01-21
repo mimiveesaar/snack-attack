@@ -9,7 +9,7 @@
  */
 
 import { Fish, type FishType } from '../entities/fish';
-import type { Vec2D } from '../physics';
+import type { Vec2D } from '../../../shared/game';
 
 export interface PlayerRenderState {
   playerId: string;

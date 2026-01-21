@@ -8,7 +8,7 @@
  */
 
 import { NPC, type NPCType } from '../entities/npc';
-import type { Vec2D } from '../physics';
+import type { Vec2D } from '../../../shared/game';
 
 export interface NPCRenderState {
   id: string;

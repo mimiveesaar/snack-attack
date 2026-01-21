@@ -1,10 +1,5 @@
-import { GameState, GamePlayer, GameLeaderboardEntry } from "../../shared/game";
-
-
-export interface Vec2D {
-  x: number;
-  y: number;
-}
+import type { GameState, GamePlayer, GameLeaderboardEntry, Vec2D } from "../../shared/game";
+import { PLAYER_GROWTH_CONFIG } from "../../shared/game-config";
 
 export interface GamePlayerInit {
   id: string;
@@ -12,6 +7,7 @@ export interface GamePlayerInit {
   color: string;
   isLeader?: boolean;
 }
+
 
 /**
  * GameSessionState manages the authoritative game state for a single game session.
@@ -62,37 +58,22 @@ export class GameSessionState {
     };
   }
 
-  /**
-   * Compute growth phase from XP
-   */
   private getGrowthPhase(xp: number): 1 | 2 | 3 {
-    if (xp < 50) return 1;
-    if (xp < 150) return 2;
-    return 3;
+    if (xp >= PLAYER_GROWTH_CONFIG[3].xpThreshold) {
+      return 3;
+    } else if (xp >= PLAYER_GROWTH_CONFIG[2].xpThreshold) {
+      return 2;
+    } else {
+      return 1;
+    }
   }
 
-  /**
-   * Compute collision radius for a player's growth phase
-   */
   private getCollisionRadius(phase: 1 | 2 | 3): number {
-    const radiusMap: Record<1 | 2 | 3, number> = {
-      1: 7,  // Bigger than pink (6), smaller than grey (9)
-      2: 10, // Bigger than grey (9), smaller than brown (12)
-      3: 13, // Bigger than brown (12), but not too much
-    };
-    return radiusMap[phase];
+    return PLAYER_GROWTH_CONFIG[phase].collisionRadius;
   }
 
-  /**
-   * Compute visual size for a player's growth phase
-   */
   private getVisualSize(phase: 1 | 2 | 3): number {
-    const sizeMap: Record<1 | 2 | 3, number> = {
-      1: 0, // Smaller than before (was 0.5)
-      2: 0, // Smaller than before (was 0.7)
-      3: 0, // Smaller than before (was 0.95)
-    };
-    return sizeMap[phase];
+    return PLAYER_GROWTH_CONFIG[phase].visualSize;
   }
 
   /**
@@ -287,14 +268,6 @@ export class GameSessionState {
     this.state.serverTick++;
   }
 
-  /**
-   * Update game timer (called every tick)
-   */
-  updateTimer(): void {
-    // Timer update logic is handled by the loop checking getTimeRemainingMs()
-    // This method is kept for compatibility but doesn't need to set status
-    // Status is set in the game loop to ensure proper game end handling
-  }
 
   /**
    * Get time remaining in milliseconds

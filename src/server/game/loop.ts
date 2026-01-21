@@ -13,7 +13,7 @@ import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { GameSessionState, getGameSession } from './state';
 import { collisionDetector } from '../feature/collision';
-import { powerupSpawner } from './powerup-spawner';
+import { powerupSpawner } from '../feature/powerup/powerup-spawner';
 import { NPCManager } from '../feature/npc/npc-manager';
 
 const TICK_RATE_HZ = 60;
@@ -104,9 +104,6 @@ export class GameLoop {
       this.stop();
       return;
     }
-
-    // Update timer (this won't affect game end check above)
-    session.updateTimer();
 
     // Update player state (process inputs, physics, etc.)
     this.updatePlayers(session);

@@ -8,7 +8,8 @@
  * - Apply growth phase visual changes
  */
 
-import { VisualEntity, type Vec2D, type EntityStatus } from './visual-entity';
+import { VisualEntity, type EntityStatus } from './visual-entity';
+import type { Vec2D } from '../../../shared/game';
 
 export type FishType = 'player' | 'npc-pink' | 'npc-grey' | 'npc-brown';
 

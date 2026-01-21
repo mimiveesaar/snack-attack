@@ -1,4 +1,5 @@
 import { buffer } from "stream/consumers";
+import { PlayerGrowthConfig } from "./game";
 
 export const MULTIPLAYER_CAP = 4;
 export const SINGLEPLAYER_CAP = 1;
@@ -57,5 +58,26 @@ export const NPC_SPAWN_CONFIG = {
 			height: 600,
 		},
 		maxAttempts: 10,
+	},
+} as const;
+
+export const PLAYER_GROWTH_CONFIG: PlayerGrowthConfig = {
+	1: {
+		growthPhase: 1,
+		xpThreshold: 100,
+		collisionRadius: 7,
+		visualSize: 0,
+	},
+	2: {
+		growthPhase: 2,
+		xpThreshold: 300,
+		collisionRadius: 10,
+		visualSize: 0,
+	},
+	3: {
+		growthPhase: 3,
+		xpThreshold: 600,
+		collisionRadius: 13,
+		visualSize: 0,
 	},
 } as const;

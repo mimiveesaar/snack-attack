@@ -5,7 +5,7 @@
  */
 
 import { Fish } from './fish';
-import type { Vec2D } from './visual-entity';
+import type { Vec2D } from '../../../shared/game';
 
 export type NPCType = 'pink' | 'grey' | 'brown';
 

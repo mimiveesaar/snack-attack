@@ -7,12 +7,9 @@
  * - Rendering
  */
 
-export type EntityStatus = 'spawning' | 'alive' | 'despawning' | 'destroyed';
+import type { Vec2D } from '../../../shared/game';
 
-export interface Vec2D {
-  x: number;
-  y: number;
-}
+export type EntityStatus = 'spawning' | 'alive' | 'despawning' | 'destroyed';
 
 export class VisualEntity {
   protected id: string;

@@ -6,6 +6,16 @@ export interface Vec2D {
   y: number;
 }
 
+export type PlayerGrowthConfig = Record<
+  1 | 2 | 3,
+  {
+    growthPhase: 1 | 2 | 3;
+    xpThreshold: number;
+    collisionRadius: number;
+    visualSize: number;
+  }
+>;
+
 /**
  * Game-specific player state during active gameplay
  */

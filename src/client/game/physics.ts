@@ -9,10 +9,7 @@
  * - Manage velocity and acceleration
  */
 
-export interface Vec2D {
-  x: number;
-  y: number;
-}
+import type { Vec2D } from '../../shared/game';
 
 export interface EntityState {
   position: Vec2D;

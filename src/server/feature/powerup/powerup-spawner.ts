@@ -8,7 +8,7 @@
  * - Log powerup spawn events
  */
 
-import type { GameSessionState } from './state';
+import type { GameSessionState } from '../../game/state';
 
 const SPAWN_INTERVAL = 2000; // 2 seconds between powerups (spawn frequently)
 const MAX_CONCURRENT_POWERUPS = 3; // cap powerups on the field at once
