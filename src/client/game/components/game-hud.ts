@@ -40,6 +40,26 @@ export class GameHUD extends LitElement {
       z-index: 101;
     }
 
+    .sound-toggle-container {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      pointer-events: auto;
+    }
+
+    sound-toggle .sound-toggle {
+      border: 2px solid var(--border);
+      background: var(--accent-primary);
+      color: #000000;
+      box-shadow: 0 3px 0 var(--accent-dark), 0 6px 12px var(--shadow);
+    }
+
+    sound-toggle .sound-toggle:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--accent-dark), 0 4px 8px var(--shadow);
+    }
+
     .pause-overlay {
       position: absolute;
       top: 0;
@@ -253,7 +273,7 @@ export class GameHUD extends LitElement {
       <div class="timer">${this.formatTime(this.timerRemainingMs)}</div>
 
       <!-- Sound Toggle -->
-      <div style="position: absolute; top: 1rem; right: 1rem; z-index: 9999; pointer-events: auto;">
+      <div class="sound-toggle-container">
         <sound-toggle></sound-toggle>
       </div>
 

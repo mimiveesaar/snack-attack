@@ -63,6 +63,9 @@ export class AppRoot extends LitElement {
   };
 
   private handleStartGame = (event: CustomEvent<{ lobbyId: string }>) => {
+    if (!soundManager.isSoundEnabled()) {
+      soundManager.toggleSound();
+    }
     soundManager.playCrunchSound();
     lobbyClient.startGame(event.detail.lobbyId);
   };
