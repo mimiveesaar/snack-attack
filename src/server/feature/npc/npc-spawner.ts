@@ -9,8 +9,8 @@ export class NPCSpawner {
     grey: 0,
     brown: 0,
   };
-  private spawnCounter = 0;
 
+  private spawnCounter = 0;
 
   public tick(session: GameSessionState): void {
     const now = Date.now();

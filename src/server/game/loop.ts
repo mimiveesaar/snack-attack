@@ -11,8 +11,8 @@
 
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { getGameSession } from './state';
-import { collisionDetector } from './collision';
+import { GameSessionState, getGameSession } from './state';
+import { collisionDetector } from '../feature/collision';
 import { npcSpawner } from '../feature/npc/npc-spawner';
 import { powerupSpawner } from './powerup-spawner';
 
@@ -116,7 +116,7 @@ export class GameLoop {
     this.updatePowerUps(session);
 
     // Process collisions (eating, boundary) and collect events
-    const collisionEvents = this.processCollisions(session);
+    const collisionEvents = collisionDetector.processCollisions(session, Date.now());
     session.queueEvents(collisionEvents);
 
     // Broadcast state update every BROADCAST_INTERVAL_TICKS
@@ -281,30 +281,6 @@ export class GameLoop {
     powerupSpawner.cleanupExpiredPowerups(session);
   }
 
-  /**
-   * Process collisions (eating, powerups, boundary)
-   */
-  private processCollisions(session: any): any[] {
-    const now = Date.now();
-
-    // Process eating collisions - players eating NPCs
-    const eatingEvents = collisionDetector.processEatingCollisions(session, now);
-
-    // Process powerup collisions - players collecting powerups
-    const powerupEvents = collisionDetector.processPowerupCollisions(session, now);
-
-    // Process player-vs-player eating collisions
-    const playerEatingEvents = collisionDetector.processPlayersEatingPlayers(session, now);
-
-    // Process NPCs eating players
-    const npcEatingEvents = collisionDetector.processNPCsEatingPlayers(session, now);
-
-    // Process boundary collisions
-    collisionDetector.processBoundaryCollisions(session);
-
-    // Return all events combined
-    return [...eatingEvents, ...powerupEvents, ...playerEatingEvents, ...npcEatingEvents];
-  }
 
   /**
    * Broadcast state update to all players
