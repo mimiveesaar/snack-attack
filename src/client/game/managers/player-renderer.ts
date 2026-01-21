@@ -20,7 +20,7 @@ export interface PlayerRenderState {
   xp: number;
   growthPhase: 1 | 2 | 3;
   visualSize: number;
-  status: 'alive' | 'respawning' | 'spectating';
+  status: 'alive' | 'respawning' | 'spectating' | 'quit';
   powerups?: ('speed-boost' | 'double-xp' | 'invincibility')[];
 }
 
@@ -115,12 +115,18 @@ export class PlayerRenderer {
     }
 
     // Update existing players
-    states.forEach((state) => {
+    const activeStates = states.filter((state) => state.status !== 'quit');
+    activeStates.forEach((state) => {
       this.updatePlayer(state);
     });
 
+    // Remove quit players immediately
+    states
+      .filter((state) => state.status === 'quit')
+      .forEach((state) => this.removePlayer(state.playerId));
+
     // Remove players no longer in state
-    const stateIds = new Set(states.map((s) => s.playerId));
+    const stateIds = new Set(activeStates.map((s) => s.playerId));
     const toRemove: string[] = [];
     this.players.forEach((_, playerId) => {
       if (!stateIds.has(playerId)) {

@@ -281,7 +281,6 @@ export class GameSidebar extends LitElement {
 
     .entry-name.quit {
       color: #999;
-      text-decoration: line-through;
     }
 
     .entry-leader-badge {
@@ -292,6 +291,17 @@ export class GameSidebar extends LitElement {
       border-radius: 2px;
       margin-left: 0.25rem;
       font-weight: bold;
+    }
+
+    .entry-status-badge {
+      background: #999;
+      color: #fff;
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      margin-left: 0.25rem;
+      font-weight: bold;
+      text-transform: uppercase;
     }
 
     .entry-xp {
@@ -587,6 +597,7 @@ export class GameSidebar extends LitElement {
               <div class="entry-name ${entry.status === 'quit' ? 'quit' : ''}">
                 ${entry.nicknameDisplay}
                 ${entry.isLeader ? html`<span class="entry-leader-badge">LEADER</span>` : ''}
+                ${entry.status === 'quit' ? html`<span class="entry-status-badge">QUIT</span>` : ''}
               </div>
               <div class="entry-xp">${entry.xp}</div>
             </div>

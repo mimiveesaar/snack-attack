@@ -25,7 +25,7 @@ function buildWaitingPayload(lobby: LobbyRecord, playerId: string) {
     lobbyId: lobby.lobbyId,
     waitingPosition,
     isLobbyFull,
-    fullMessage: isLobbyFull ? 'Lobby full (4/4). Waiting for a slot.' : null,
+    fullMessage: isLobbyFull ? 'Lobby full. Waiting for a slot.' : null,
     snapshot,
   };
 }

@@ -20,7 +20,7 @@ export interface GamePlayer {
   growthPhase: 1 | 2 | 3;
   collisionRadius: number;
   visualSize: number;
-  status: 'alive' | 'respawning' | 'spectating';
+  status: 'alive' | 'respawning' | 'spectating' | 'quit';
   respawnTimeMs: number | null;
   graceEndTimeMs: number | null;
   powerups: ('speed-boost' | 'double-xp' | 'invincibility')[];

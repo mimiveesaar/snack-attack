@@ -353,7 +353,9 @@ export class GameSessionState {
   markPlayerQuit(playerId: string): boolean {
     const player = this.state.players.find((p) => p.id === playerId);
     if (!player) return false;
-    player.status = 'spectating';
+    player.status = 'quit';
+    player.velocity.x = 0;
+    player.velocity.y = 0;
     return true;
   }
 }

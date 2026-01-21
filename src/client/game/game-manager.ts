@@ -26,6 +26,14 @@ import { soundManager } from '@client/utils/sound-manager';
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
 
 export class GameManager {
+  private lastLeaderboard: Array<{
+    playerId: string;
+    nicknameDisplay: string;
+    rank: number;
+    xp: number;
+    isLeader: boolean;
+    status: 'active' | 'respawning' | 'spectating' | 'quit';
+  }> = [];
   private socket: Socket<GameServerToClientEvents, GameClientToServerEvents> | null = null;
   private playerRenderer: PlayerRenderer | null = null;
   private hostileRenderer: HostileRenderer | null = null;
@@ -232,6 +240,15 @@ export class GameManager {
     // Player disconnected
     this.socket.on('game:player-disconnected', (payload) => {
       console.log(`GameManager: Player ${payload.playerId} disconnected`);
+      if (this.sidebar && this.lastLeaderboard.length > 0) {
+        const updated: typeof this.lastLeaderboard = this.lastLeaderboard.map((entry) =>
+          entry.playerId === payload.playerId
+            ? { ...entry, status: 'quit' }
+            : entry
+        );
+        this.lastLeaderboard = updated;
+        this.sidebar.updateLeaderboard(updated);
+      }
     });
 
     // Errors
@@ -316,16 +333,15 @@ export class GameManager {
       }
 
       // Update leaderboard in sidebar
-      this.sidebar.updateLeaderboard(
-        payload.leaderboard.map((entry) => ({
-          playerId: entry.playerId,
-          nicknameDisplay: entry.nicknameDisplay,
-          rank: entry.rank,
-          xp: entry.xp,
-          isLeader: entry.isLeader,
-          status: entry.status,
-        }))
-      );
+      this.lastLeaderboard = payload.leaderboard.map((entry) => ({
+        playerId: entry.playerId,
+        nicknameDisplay: entry.nicknameDisplay,
+        rank: entry.rank,
+        xp: entry.xp,
+        isLeader: entry.isLeader,
+        status: entry.status,
+      }));
+      this.sidebar.updateLeaderboard(this.lastLeaderboard);
 
       // Check if current player is the leader
       const selfEntry = payload.leaderboard.find((entry) => entry.playerId === this.selfPlayerId);

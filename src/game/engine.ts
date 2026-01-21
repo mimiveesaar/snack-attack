@@ -6,8 +6,6 @@
 import { GameState, PlayerGameState, GameEvent, GameInput, GameUpdate, GameResult } from "../shared/game";
 import { LeaderboardEntry } from "../shared/game-session";
 
-
-
 export class GameEngine {
   private sessionId: string;
   private lobbyId: string;

@@ -282,11 +282,28 @@ export class GameController {
    * Handle disconnect
    */
   private handleDisconnect(socket: Socket<GameClientToServerEvents, GameServerToClientEvents>): void {
-    const playerId = this.socketToPlayerId.get(socket.id);
-    if (!playerId) return;
+    const playerId = this.socketToPlayerId.get(socket.id) ?? socket.data.playerId;
+    const sessionId = socket.data.sessionId;
+    if (!playerId || !sessionId) return;
 
     console.log(`GameController: Socket ${socket.id} (player ${playerId}) disconnected`);
     this.socketToPlayerId.delete(socket.id);
+
+    const session = getGameSession(sessionId);
+    if (!session) return;
+
+    const state = session.getState();
+    const player = state.players.find((p: { id: string; }) => p.id === playerId);
+    if (!player || player.status === 'quit') return;
+
+    session.markPlayerQuit(playerId);
+
+    this.gameNamespace.to(sessionId).emit('game:player-disconnected', {
+      playerId,
+      nicknameDisplay: player.nicknameDisplay,
+      reason: 'quit',
+      timestamp: Date.now(),
+    });
   }
 }
 
