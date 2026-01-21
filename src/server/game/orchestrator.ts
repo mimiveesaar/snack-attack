@@ -1,7 +1,7 @@
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { createGameSession, getGameSession, deleteGameSession } from './sessionStore';
-import { createGameLoop, deleteGameLoop } from './loop';
+import { createGameSession, getGameSession, deleteGameSession } from '../feature/session/session-store';
+import { createGameLoop, deleteGameLoop } from './loop-store';
 
 export interface GamePlayerInit {
   id: string;

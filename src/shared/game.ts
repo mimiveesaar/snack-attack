@@ -1,5 +1,4 @@
-import type { Player, Gamemode, Difficulty } from './lobby';
-import type { GameSession, LeaderboardEntry } from './game-session';
+import type { LeaderboardEntry } from './game-session';
 
 export interface Vec2D {
   x: number;

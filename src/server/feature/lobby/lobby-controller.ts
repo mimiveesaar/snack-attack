@@ -1,8 +1,8 @@
 import type { Namespace } from 'socket.io';
 import type { ClientToServerEvents, ServerToClientEvents } from '../../../shared/types';
 import type { ActiveGameSnapshot } from '../../../shared/game-session';
-import { lobbyManager } from './lobbyManager';
-import { lobbyStore, type LobbyRecord } from './lobbyStore';
+import { lobbyManager } from './lobby-manager';
+import { lobbyStore, type LobbyRecord } from './lobby-store';
 import { BASE_URL  } from '../../../shared/config';
 
 export class LobbyController {
@@ -187,7 +187,7 @@ export class LobbyController {
   }
 
   private startWaitingBroadcast(
-    lobbyNs: Namespace<ClientToServerEvents, ServerToClientEvents>,
+    lobbyNamespace: Namespace<ClientToServerEvents, ServerToClientEvents>,
     gameSession: { getActiveGameSnapshot: (lobbyId: string) => ActiveGameSnapshot }
   ): void {
     if (this.waitingInterval) return;
@@ -195,7 +195,7 @@ export class LobbyController {
       for (const lobby of lobbyStore.list()) {
         if (lobby.waiting.length === 0) continue;
         for (const waitingPlayer of lobby.waiting) {
-          lobbyNs.to(waitingPlayer.id).emit('game:waiting', this.buildWaitingPayload(lobby, waitingPlayer.id, gameSession));
+          lobbyNamespace.to(waitingPlayer.id).emit('game:waiting', this.buildWaitingPayload(lobby, waitingPlayer.id, gameSession));
         }
       }
     }, 1000);
@@ -203,4 +203,4 @@ export class LobbyController {
 }
 
 export const lobbyController = new LobbyController();
-export type { LobbyRecord } from './lobbyStore';
+export type { LobbyRecord } from './lobby-store';

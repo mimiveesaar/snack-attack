@@ -1,8 +1,3 @@
-/**
- * Socket.IO event types and payloads for the /game namespace
- * Extends the shared types with game-specific events
- */
-
 import type { Vec2D, GameLeaderboardEntry } from './game';
 
 /**

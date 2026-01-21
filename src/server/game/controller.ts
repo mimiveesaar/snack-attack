@@ -1,6 +1,6 @@
 import type { Socket, Namespace } from 'socket.io';
 
-import { getGameSession, getAllGameSessions } from './sessionStore';
+import { getGameSession, getAllGameSessions } from '../feature/session/session-store';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 
 export class GameController {

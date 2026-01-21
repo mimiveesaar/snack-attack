@@ -1,17 +1,6 @@
-/**
- * Game Loop - Server-side 60 Hz fixed timestep game loop
- *
- * Responsibilities:
- * - Tick at 60 Hz (16.67ms per tick)
- * - Process collisions, physics, state updates
- * - Broadcast state updates every 10 Hz (every 6 ticks)
- * - Update timer every tick
- * - Handle game end condition
- */
-
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { getGameSession } from './sessionStore';
+import { getGameSession } from '../feature/session/session-store';
 import { collisionDetector } from '../feature/collision';
 import { NPCManager } from '../feature/npc/npc-manager';
 import { PlayerManager } from '../feature/player/player-manager';
@@ -234,30 +223,4 @@ export class GameLoop {
 
     this.gameNamespace.to(this.sessionId).emit('game:ended', payload);
   }
-}
-
-/**
- * Global game loop store
- */
-const loopStore = new Map<string, GameLoop>();
-
-export function createGameLoop(
-  sessionId: string,
-  gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>
-): GameLoop {
-  const loop = new GameLoop(sessionId, gameNamespace);
-  loopStore.set(sessionId, loop);
-  return loop;
-}
-
-export function getGameLoop(sessionId: string): GameLoop | undefined {
-  return loopStore.get(sessionId);
-}
-
-export function deleteGameLoop(sessionId: string): void {
-  const loop = loopStore.get(sessionId);
-  if (loop) {
-    loop.stop();
-  }
-  loopStore.delete(sessionId);
 }

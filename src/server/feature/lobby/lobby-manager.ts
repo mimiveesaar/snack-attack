@@ -2,11 +2,16 @@ import { randomUUID } from 'node:crypto';
 
 import type { Player, GameSession, Gamemode, Difficulty } from '../../../shared/types';
 import { MULTIPLAYER_CAP, SINGLEPLAYER_CAP, SESSION_DURATION_MS, NICKNAME_REGEX } from '../../../shared/config';
-import type { LobbyRecord } from './lobbyStore';
+import { lobbyStore, type LobbyRecord } from './lobby-store';
+import { LOBBY_CLEANUP_INTERVAL_MS } from '../../config';
 import { dedupeNickname } from './utils/nickname';
 import { deriveShareUrl } from './utils/url';
 
 export class LobbyManager {
+
+  constructor() {
+    setInterval(() => lobbyStore.cleanupEmptyLobbies(), LOBBY_CLEANUP_INTERVAL_MS);
+  }
 
  public createLobby(params: {
     playerId: string;

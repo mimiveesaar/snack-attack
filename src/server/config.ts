@@ -1,5 +1,7 @@
 import { PowerupSpawnConfig } from "../shared/game";
 
+export const LOBBY_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
 export const NPC_SPAWN_CONFIG = {
 	types: {
 		pink: {

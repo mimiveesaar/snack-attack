@@ -2,7 +2,7 @@ import { PlayerGrowthConfig, PowerupSpawnConfig } from "./game";
 
 export const MULTIPLAYER_CAP = 4;
 export const SINGLEPLAYER_CAP = 1;
-export const SESSION_DURATION_MS = 60_000;
+export const SESSION_DURATION_MS = 10000;
 export const NICKNAME_REGEX = /^[A-Za-z0-9]{1,31}$/;
 export const CLIENT_ORIGIN = 'http://localhost:5173';
 export const BASE_URL = CLIENT_ORIGIN;

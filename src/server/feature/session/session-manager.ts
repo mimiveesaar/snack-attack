@@ -1,13 +1,13 @@
-import { lobbyStore } from '../feature/lobby/lobbyStore';
-import { lobbyManager } from '../feature/lobby/lobbyManager';
+import { lobbyStore } from '../lobby/lobby-store';
+import { lobbyManager } from '../lobby/lobby-manager';
 import type { Namespace, Server } from 'socket.io';
 
-import { gameOrchestrator } from './orchestrator';
-import { getGameSession } from './sessionStore';
-import { ClientToServerEvents, ServerToClientEvents } from '../../shared/events';
-import { ActiveGameSnapshot } from '../../shared/game-session';
-import { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
-import { SESSION_DURATION_MS } from '../../shared/config';
+import { gameOrchestrator } from '../../game/orchestrator';
+import { getGameSession } from './session-store';
+import { ClientToServerEvents, ServerToClientEvents } from '../../../shared/events';
+import { ActiveGameSnapshot } from '../../../shared/game-session';
+import { GameClientToServerEvents, GameServerToClientEvents } from '../../../shared/game-events';
+import { SESSION_DURATION_MS } from '../../../shared/config';
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();
@@ -109,4 +109,5 @@ export class GameSessionManager {
   }
 }
 
+// Export a singleton instance
 export const gameSessionManager = new GameSessionManager();

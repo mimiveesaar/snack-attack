@@ -1,5 +1,5 @@
-import { GameSessionState } from './state';
-import type { GamePlayerInit } from './state';
+import { GameSessionState } from '../../game/state';
+import type { GamePlayerInit } from '../../game/state';
 
 /**
  * Global game session store (in-memory)
