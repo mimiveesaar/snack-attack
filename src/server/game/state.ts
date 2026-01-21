@@ -16,18 +16,19 @@ export class GameSessionState {
   private state: GameState;
   private pendingEvents: any[] = [];
 
+
   constructor(sessionId: string, lobbyId: string, players: GamePlayerInit[]) {
     const gamePlayers: GamePlayer[] = players.map((p, idx) => ({
       id: p.id,
       nicknameDisplay: p.nicknameDisplay,
       color: p.color,
       isLeader: p.isLeader || idx === 0,
-      position: { x: 250 + (idx % 2) * 50, y: 250 + Math.floor(idx / 2) * 50 },
+      position: this.getInitialPlayerSpawnPosition(idx),
       velocity: { x: 0, y: 0 },
       xp: 0,
       growthPhase: 1,
-      collisionRadius: 7.5, // Phase 1 collision radius
-      visualSize: 0.45,     // Phase 1 visual size
+      collisionRadius: 7.5, 
+      visualSize: 0.45,     
       status: 'alive' as const,
       respawnTimeMs: null,
       graceEndTimeMs: null,
@@ -55,6 +56,10 @@ export class GameSessionState {
       powerups: [],
       leaderboard: this.computeLeaderboard(gamePlayers),
     };
+  }
+
+  private getInitialPlayerSpawnPosition(index: number): { x: number; y: number } {
+    return { x: 250 + (index % 2) * 50, y: 250 + Math.floor(index / 2) * 50 }
   }
 
   private getGrowthPhase(xp: number): 1 | 2 | 3 {
