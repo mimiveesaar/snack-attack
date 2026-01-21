@@ -147,5 +147,3 @@ export class NPCSpawner {
     return null; 
   }
 }
-
-export const npcSpawner = new NPCSpawner();

@@ -13,8 +13,8 @@ import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { GameSessionState, getGameSession } from './state';
 import { collisionDetector } from '../feature/collision';
-import { npcSpawner } from '../feature/npc/npc-spawner';
 import { powerupSpawner } from './powerup-spawner';
+import { NPCManager } from '../feature/npc/npc-manager';
 
 const TICK_RATE_HZ = 60;
 const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
@@ -26,6 +26,7 @@ const TIMER_TICK_INTERVAL_TICKS = TICK_RATE_HZ; // Every 60 ticks = 1 second
 
 export class GameLoop {
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>;
+  private npcManager: NPCManager;
   private sessionId: string;
   private intervalId: NodeJS.Timeout | null = null;
   private tickCount: number = 0;
@@ -37,6 +38,7 @@ export class GameLoop {
   ) {
     this.sessionId = sessionId;
     this.gameNamespace = gameNamespace;
+    this.npcManager = new NPCManager(TICK_INTERVAL_MS);
   }
 
   /**
@@ -110,7 +112,7 @@ export class GameLoop {
     this.updatePlayers(session);
 
     // Update NPCs (spawning, positioning)
-    this.updateNPCs(session);
+    this.npcManager.tick(session);
 
     // Update power-ups
     this.updatePowerUps(session);
@@ -219,52 +221,6 @@ export class GameLoop {
       x: BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER),
       y: BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER),
     };
-  }
-
-  /**
-   * Update NPC states (spawning, position updates)
-   */
-  private updateNPCs(session: any): void {
-    const state = session.getState();
-    
-    // Spawn new NPCs via spawner tick
-    npcSpawner.tick(session);
-
-    // Update NPC positions (horizontal swimming behavior)
-    for (const npc of state.npcs) {
-      // Initialize velocity if not set
-      if (npc.velocity.x === 0 && npc.velocity.y === 0) {
-        const direction = Math.random() < 0.5 ? 1 : -1; // Random left or right
-        const speed = 5 + Math.random() * 3; // 5-8 pixels per second
-        npc.velocity.x = direction * (speed / 1000) * TICK_INTERVAL_MS;
-        npc.velocity.y = (Math.random() - 0.5) * 2 * (speed / 1000) * TICK_INTERVAL_MS * 0.3; // Small vertical drift
-      }
-
-      // Move in current direction
-      npc.position.x += npc.velocity.x * TICK_INTERVAL_MS;
-      npc.position.y += npc.velocity.y * TICK_INTERVAL_MS;
-
-      // Occasionally change direction (2% chance per tick for smooth movement)
-      if (Math.random() < 0.02) {
-        // Prefer horizontal movement (80% horizontal, 20% more varied)
-        if (Math.random() < 0.8) {
-          // Mostly horizontal swimming
-          const direction = Math.random() < 0.5 ? 1 : -1;
-          const speed = 5 + Math.random() * 3; // 5-8 pixels per second
-          npc.velocity.x = direction * (speed / 1000) * TICK_INTERVAL_MS;
-          npc.velocity.y = (Math.random() - 0.5) * 2 * (speed / 1000) * TICK_INTERVAL_MS * 0.3;
-        } else {
-          // Occasionally swim in other directions
-          const angle = Math.random() * Math.PI * 2;
-          const speed = 5 + Math.random() * 3;
-          npc.velocity.x = Math.cos(angle) * (speed / 1000) * TICK_INTERVAL_MS;
-          npc.velocity.y = Math.sin(angle) * (speed / 1000) * TICK_INTERVAL_MS;
-        }
-      }
-    }
-
-    // Clean up old despawned NPCs
-    state.npcs = state.npcs.filter((npc: any) => npc.status !== 'destroyed');
   }
 
   /**
