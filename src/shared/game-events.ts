@@ -1,4 +1,5 @@
-import type { Vec2D, GameLeaderboardEntry } from './game';
+import type { Vec2D, GameLeaderboardEntry, PowerUpType, PowerUpStatus } from './game';
+
 
 /**
  * Client → Server Events
@@ -43,7 +44,7 @@ export interface GamePlayerStateUpdate {
   growthPhase: 1 | 2 | 3;
   visualSize: number;
   status: 'alive' | 'respawning' | 'spectating' | 'quit';
-  powerups: ('speed-boost' | 'double-xp' | 'invincibility')[];
+  powerups: PowerUpType[];
   powerupEndTimeMs?: number | null;
   color: string;
   nicknameDisplay: string;
@@ -59,8 +60,10 @@ export interface GameNPCStateUpdate {
 
 export interface GamePowerUpStateUpdate {
   id: string;
-  type: 'speed-boost' | 'double-xp';
+  type: PowerUpType;
   position: Vec2D;
+  status: PowerUpStatus;
+  collisionRadius: number;
 }
 
 export interface GameLeaderboardEntryPayload {
@@ -116,7 +119,7 @@ export interface GameCollisionPayload {
     playerLostXp?: number;
     powerId?: string;
     collectedByPlayerId?: string;
-    powerupType?: 'speed-boost' | 'double-xp';
+    powerupType?: PowerUpType;
     respawnedPlayerId?: string;
     respawnPosition?: Vec2D;
   };

@@ -1,11 +1,12 @@
 import type { Namespace } from 'socket.io';
-import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
+import type { GameClientToServerEvents, GameServerToClientEvents, GameStateUpdatePayload } from '../../shared/game-events';
 import { getGameSession } from '../feature/session/session-store';
 import { collisionDetector } from '../feature/collision';
 import { NPCManager } from '../feature/npc/npc-manager';
 import { PlayerManager } from '../feature/player/player-manager';
 import { PowerupManager } from '../feature/powerup/powerup-manager';
 import { FixedStepEngine } from './engine';
+import { GameSessionState } from './state';
 
 const TICK_RATE_HZ = 60;
 const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
@@ -119,12 +120,12 @@ export class GameLoop {
   /**
    * Broadcast state update to all players
    */
-  private broadcastStateUpdate(session: any, events: any[] = []): void {
+  private broadcastStateUpdate(session: GameSessionState, events: any[] = []): void {
     const state = session.getState();
-    const payload = {
+    const payload : GameStateUpdatePayload = {
       serverTick: state.serverTick,
       timestamp: Date.now(),
-      players: state.players.map((p: any) => ({
+      players: state.players.map((p) => ({
         playerId: p.id,
         position: p.position,
         velocity: p.velocity,
@@ -137,14 +138,14 @@ export class GameLoop {
         color: p.color,
         nicknameDisplay: p.nicknameDisplay,
       })),
-      npcs: state.npcs.map((n: any) => ({
+      npcs: state.npcs.map((n) => ({
         id: n.id,
         type: n.type,
         position: n.position,
         velocity: n.velocity,
         visualSize: n.visualSize,
       })),
-      powerups: state.powerups.map((p: any) => ({
+      powerups: state.powerups.map((p) => ({
         id: p.id,
         type: p.type,
         position: p.position,

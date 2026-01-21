@@ -1,27 +1,16 @@
-/**
- * GameManager - Client-side game session coordinator
- *
- * Responsibilities:
- * - Initialize all game systems (engine, renderers, input)
- * - Subscribe to game:state-update events from server
- * - Coordinate between server state and client rendering
- * - Handle game lifecycle (start, pause, end)
- * - Clean up resources on game end
- */
-
 import { io, Socket } from 'socket.io-client';
 import type { GameStateUpdatePayload, GameServerToClientEvents, GameClientToServerEvents } from '@shared/game-events';
 import { getGameEngine } from './engine';
 import { destroyInputController, getInputController } from './input-controller';
 import { PlayerRenderer } from './managers/player-renderer';
 import { HostileRenderer } from './managers/hostile-renderer';
-import { getPowerupRenderer, clearPowerupRenderer } from './powerup-renderer';
 import { GameHUD } from './components/game-hud';
 import { GameSidebar } from './components/sidebar';
 import { getSceneController } from './scene-controller';
 import { resetLobbyUrl } from '@client/state/router';
 import { lobbyClient } from '@client/state/lobby-state';
 import { soundManager } from '@client/utils/sound-manager';
+import { PowerupRenderer } from './managers/powerup-renderer';
 
 const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
 
@@ -39,7 +28,7 @@ export class GameManager {
   private hostileRenderer: HostileRenderer | null = null;
   private hud: GameHUD | null = null;
   private sidebar: GameSidebar | null = null;
-  private powerupRenderer: any = null;
+  private powerupRenderer: PowerupRenderer | null = null;
   private sessionId: string | null = null;
   private selfPlayerId: string | null = null;
   private running: boolean = false;
@@ -119,8 +108,7 @@ export class GameManager {
     this.hostileRenderer = new HostileRenderer();
     this.hostileRenderer.initialize(gameCanvas);
 
-    // Initialize PowerupRenderer
-    this.powerupRenderer = getPowerupRenderer();
+    this.powerupRenderer = new PowerupRenderer();
     this.powerupRenderer.initialize(gameCanvas);
 
     // Initialize HUD
@@ -302,7 +290,8 @@ export class GameManager {
     // Render powerups
     if (this.powerupRenderer && payload.powerups) {
       console.log('[GameManager] Updating powerups:', payload.powerups.length, 'powerups');
-      this.powerupRenderer.updateAll(payload.powerups);
+
+      this.powerupRenderer.updateAll(<any>payload.powerups);
     }
 
     // Update sidebar with player score and leaderboard
