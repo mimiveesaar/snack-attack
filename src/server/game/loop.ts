@@ -95,6 +95,7 @@ export class GameLoop {
       console.log(`GameLoop: Game ending with ${timeRemaining}ms remaining`);
       state.status = 'ended';
       this.broadcastGameEnded(session);
+      this.broadcastTimerTick(session);
       this.stop();
       return;
     }
