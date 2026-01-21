@@ -16,5 +16,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      // Socket.IO (namespaces like /lobby and /game still use the /socket.io transport path)
+      '/socket.io': {
+        target: 'http://localhost:3001',
+        ws: true,
+        changeOrigin: true,
+      },
+    },
   },
 });

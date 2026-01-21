@@ -12,7 +12,8 @@ import { lobbyClient } from '@client/lobby/lobby-manager';
 import { soundManager } from '@client/utils/sound-manager';
 import { PowerupRenderer } from './managers/powerup-renderer';
 
-const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER || 'http://localhost:3001';
+// Default to same-origin so Vite can proxy to the backend in dev.
+const SOCKET_SERVER = import.meta.env.VITE_SOCKET_SERVER ?? '';
 
 export class GameManager {
   private lastLeaderboard: Array<{

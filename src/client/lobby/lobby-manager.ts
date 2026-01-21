@@ -21,7 +21,8 @@ export interface ClientState {
   selfId: string | null;
 }
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:3001';
+// Default to same-origin so Vite can proxy to the backend in dev.
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? '';
 
 class LobbyManager {
   private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
