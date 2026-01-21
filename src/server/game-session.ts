@@ -1,4 +1,5 @@
-import { lobbyStore } from './lobby-store';
+import { lobbyStore } from '../feature/lobby/lobbyStore';
+import { lobbyManager } from '../feature/lobby/lobbyManager';
 import type { Namespace, Server } from 'socket.io';
 
 import { gameOrchestrator } from './game/orchestrator';
@@ -6,8 +7,7 @@ import { getGameSession } from './game/state';
 import { ClientToServerEvents, ServerToClientEvents } from '../shared/events';
 import { ActiveGameSnapshot } from '../shared/game-session';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../shared/game-events';
-
-const SESSION_DURATION_MS = 30_000; // 30 seconds total game time
+import { SESSION_DURATION_MS } from '../shared/game-config';
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();
@@ -21,7 +21,7 @@ export class GameSessionManager {
   }
 
   getActiveGameSnapshot(lobbyId: string): ActiveGameSnapshot {
-    const lobby = lobbyStore.getState(lobbyId);
+    const lobby = lobbyStore.get(lobbyId);
     if (!lobby || lobby.status !== 'active' || !lobby.activeSession) {
       return { hasActiveGame: false, timerRemainingMs: null, leaderboard: [] };
     }
@@ -51,10 +51,10 @@ export class GameSessionManager {
     io: Server<ClientToServerEvents, ServerToClientEvents> | Namespace<ClientToServerEvents, ServerToClientEvents>
   ): void {
     this.stop(lobbyId);
-    const lobby = lobbyStore.getState(lobbyId);
+    const lobby = lobbyStore.get(lobbyId);
     if (!lobby || !lobby.activeSession) return;
 
-    // Use the session ID created by lobby-store
+    // Use the session ID created by lobby manager
     const sessionId = lobby.activeSession.sessionId;
 
     // Convert lobby players to game player format
@@ -84,19 +84,19 @@ export class GameSessionManager {
       // Stop game session via orchestrator
       gameOrchestrator.stopSession(sessionId);
 
-      const result = lobbyStore.endGame(lobbyId, lobby.maxPlayers - lobby.players.length);
-      const endedSession = result.lobby?.activeSession || lobby.activeSession;
-      if (result.lobby && endedSession) {
+      lobbyManager.endGame(lobby, lobby.maxPlayers - lobby.players.length);
+      const endedSession = lobby.activeSession;
+      if (endedSession) {
         io.to(lobbyId).emit('game:ended', endedSession);
         io.to(lobbyId).emit('lobby:state', {
-          lobbyId: result.lobby.lobbyId,
-          players: result.lobby.players,
-          gamemode: result.lobby.gamemode,
-          difficulty: result.lobby.difficulty,
-          maxPlayers: result.lobby.maxPlayers,
-          status: result.lobby.status,
-          shareUrl: result.lobby.shareUrl,
-          createdAt: result.lobby.createdAt,
+          lobbyId: lobby.lobbyId,
+          players: lobby.players,
+          gamemode: lobby.gamemode,
+          difficulty: lobby.difficulty,
+          maxPlayers: lobby.maxPlayers,
+          status: lobby.status,
+          shareUrl: lobby.shareUrl,
+          createdAt: lobby.createdAt,
         });
       }
       this.stop(lobbyId);
