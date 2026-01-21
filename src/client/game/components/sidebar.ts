@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { PLAYER_GROWTH_CONFIG } from '@shared/game-config';
+import { PLAYER_GROWTH_CONFIG } from '@shared/config';
 
 interface LeaderboardEntry {
   playerId: string;

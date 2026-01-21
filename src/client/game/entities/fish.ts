@@ -10,7 +10,7 @@
 
 import { VisualEntity, type EntityStatus } from './visual-entity';
 import type { Vec2D } from '../../../shared/game';
-import { PLAYER_GROWTH_CONFIG } from '@shared/game-config';
+import { PLAYER_GROWTH_CONFIG } from '@shared/config';
 
 export type FishType = 'player' | 'npc-pink' | 'npc-grey' | 'npc-brown';
 
@@ -217,11 +217,11 @@ export class Fish extends VisualEntity {
     const svgRoot = (this.element as SVGGraphicsElement | null)?.ownerSVGElement;
     if (svgRoot) {
       if (this.haloGradientId) {
-        const grad = svgRoot.querySelector(`#${this.haloGradientId}`);
+        const grad = svgRoot.querySelector(`#${CSS.escape(this.haloGradientId)}`);
         grad?.remove();
       }
       if (this.haloFilterId) {
-        const filt = svgRoot.querySelector(`#${this.haloFilterId}`);
+        const filt = svgRoot.querySelector(`#${CSS.escape(this.haloFilterId)}`);
         filt?.remove();
       }
     }

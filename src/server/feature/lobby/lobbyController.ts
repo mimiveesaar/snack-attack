@@ -3,7 +3,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from '../../../shared
 import type { ActiveGameSnapshot } from '../../../shared/game-session';
 import { lobbyManager } from './lobbyManager';
 import { lobbyStore, type LobbyRecord } from './lobbyStore';
-import { BASE_URL  } from '../../../shared/game-config';
+import { BASE_URL  } from '../../../shared/config';
 
 export class LobbyController {
   private waitingInterval: NodeJS.Timeout | null = null;

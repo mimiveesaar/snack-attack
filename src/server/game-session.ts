@@ -7,7 +7,7 @@ import { getGameSession } from './game/state';
 import { ClientToServerEvents, ServerToClientEvents } from '../shared/events';
 import { ActiveGameSnapshot } from '../shared/game-session';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../shared/game-events';
-import { SESSION_DURATION_MS } from '../shared/game-config';
+import { SESSION_DURATION_MS } from '../shared/config';
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();

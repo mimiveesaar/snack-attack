@@ -1,6 +1,6 @@
 import type { GameSessionState } from '../../../game/state';
 
-import { GAME_BOUNDARY } from '../../../../shared/game-config';
+import { GAME_BOUNDARY } from '../../../../shared/config';
 
 export const isBoundaryCollision = (x: number, y: number, radius: number): boolean =>
   x - radius < GAME_BOUNDARY.buffer ||

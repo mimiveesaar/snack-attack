@@ -1,4 +1,4 @@
-import { PlayerGrowthConfig } from "./game";
+import { PlayerGrowthConfig, PowerupSpawnConfig } from "./game";
 
 export const MULTIPLAYER_CAP = 4;
 export const SINGLEPLAYER_CAP = 1;
@@ -33,3 +33,4 @@ export const PLAYER_GROWTH_CONFIG: PlayerGrowthConfig = {
 		visualSize: 1.5,
 	},
 } as const;
+

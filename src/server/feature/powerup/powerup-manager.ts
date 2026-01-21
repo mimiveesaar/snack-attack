@@ -11,8 +11,6 @@ export class PowerupManager {
 
     public tick(session: GameSessionState): void {
         session.cleanupExpiredPlayerPowerups();
-        this.powerupSpawner.cleanupExpiredPowerups(session);
-
         this.powerupSpawner.tick(session);
     }
 }

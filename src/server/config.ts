@@ -1,3 +1,5 @@
+import { PowerupSpawnConfig } from "../shared/game";
+
 export const NPC_SPAWN_CONFIG = {
 	types: {
 		pink: {
@@ -43,4 +45,13 @@ export const NPC_SPAWN_CONFIG = {
 		},
 		maxAttempts: 10,
 	},
+} as const;
+
+export const POWERUP_SPAWN_CONFIG: PowerupSpawnConfig = {
+  spawnIntervalMs: 5000,
+  maxConcurrentPowerups: 2,
+  powerupLifetimeMs: 10000,
+  spawnDistance: 50,
+  despawnGraceMs: 500,
+  collisionRadius: 12,
 } as const;

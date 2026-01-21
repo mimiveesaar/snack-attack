@@ -1,5 +1,5 @@
 import type { GameState, GamePlayer, GameLeaderboardEntry, Vec2D } from "../../shared/game";
-import { PLAYER_GROWTH_CONFIG } from "../../shared/game-config";
+import { PLAYER_GROWTH_CONFIG } from "../../shared/config";
 
 export interface GamePlayerInit {
   id: string;

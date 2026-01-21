@@ -1,5 +1,5 @@
 import { GameSessionState } from "../../game/state";
-import { GAME_BOUNDARY } from "../../../shared/game-config";
+import { GAME_BOUNDARY } from "../../../shared/config";
 
 export class PlayerManager {
 

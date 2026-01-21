@@ -1,35 +1,19 @@
-/**
- * Powerup Spawner - Server-side powerup spawning logic
- *
- * Responsibilities:
- * - Spawn powerups at 10-second intervals
- * - Enforce powerup count cap (max 3 concurrent)
- * - Find safe spawn locations away from players
- * - Log powerup spawn events
- */
-
 import type { GameSessionState } from '../../game/state';
-
-const SPAWN_INTERVAL = 2000; // 2 seconds between powerups (spawn frequently)
-const MAX_CONCURRENT_POWERUPS = 3; // cap powerups on the field at once
-const POWERUP_LIFETIME = 30000; // 30 seconds before despawning
-
-const SPAWN_DISTANCE = 50; // pixels away from any player
-const BOUNDARY_BUFFER = 20;
-const GAME_WIDTH = 600;
-const GAME_HEIGHT = 600;
+import { GAME_BOUNDARY} from '../../../shared/config';
+import { POWERUP_SPAWN_CONFIG } from '../../config';
 
 export class PowerupSpawner {
   private lastSpawnTime: number = 0;
   private spawnCounter = 0;
 
-  /**
-   * Try to spawn a powerup for a session
-   */
   tick(session: GameSessionState): void {
+
+    // Clean up expired powerups first.
+    this.cleanupExpiredPowerups(session);
+
     const now = Date.now();
 
-    if (now - this.lastSpawnTime < SPAWN_INTERVAL) {
+    if (now - this.lastSpawnTime < POWERUP_SPAWN_CONFIG.spawnIntervalMs) {
       return; // Not yet time to spawn
     }
 
@@ -37,7 +21,7 @@ export class PowerupSpawner {
 
     // Count current available powerups
     const currentCount = state.powerups.filter((p) => p.status === 'available').length;
-    if (currentCount >= MAX_CONCURRENT_POWERUPS) {
+    if (currentCount >= POWERUP_SPAWN_CONFIG.maxConcurrentPowerups) {
       return; // At capacity
     }
 
@@ -62,7 +46,7 @@ export class PowerupSpawner {
       id: powerupId,
       type,
       position: spawnPos,
-      collisionRadius: 12,
+      collisionRadius: POWERUP_SPAWN_CONFIG.collisionRadius,
       spawnTimeMs: now,
       status: 'available' as const,
     };
@@ -77,16 +61,13 @@ export class PowerupSpawner {
     });
   }
 
-  /**
-   * Clean up expired powerups
-   */
   cleanupExpiredPowerups(session: GameSessionState): void {
     const state = session.getState();
     const now = Date.now();
 
     const expiredPowerups = state.powerups.filter((p) => {
       const age = now - p.spawnTimeMs;
-      return p.status === 'available' && age > POWERUP_LIFETIME;
+      return p.status === 'available' && age > POWERUP_SPAWN_CONFIG.powerupLifetimeMs;
     });
 
     if (expiredPowerups.length > 0) {
@@ -100,22 +81,19 @@ export class PowerupSpawner {
     state.powerups = state.powerups.filter((p) => {
       if (p.status === 'despawning') {
         const despawnAge = now - p.spawnTimeMs;
-        return despawnAge <= POWERUP_LIFETIME + 500;
+        return despawnAge <= POWERUP_SPAWN_CONFIG.powerupLifetimeMs + POWERUP_SPAWN_CONFIG.despawnGraceMs;
       }
       return true;
     });
   }
 
-  /**
-   * Find a safe spawn location (away from all players)
-   */
   private findSafeSpawnLocation(session: GameSessionState): { x: number; y: number } | null {
     const state = session.getState();
     const attempts = 10;
 
     for (let i = 0; i < attempts; i++) {
-      const x = BOUNDARY_BUFFER + Math.random() * (GAME_WIDTH - 2 * BOUNDARY_BUFFER);
-      const y = BOUNDARY_BUFFER + Math.random() * (GAME_HEIGHT - 2 * BOUNDARY_BUFFER);
+      const x = GAME_BOUNDARY.buffer + Math.random() * (GAME_BOUNDARY.width - 2 * GAME_BOUNDARY.buffer);
+      const y = GAME_BOUNDARY.buffer + Math.random() * (GAME_BOUNDARY.height - 2 * GAME_BOUNDARY.buffer);
 
       // Check distance to all players
       let safe = true;
@@ -124,7 +102,7 @@ export class PowerupSpawner {
         const dy = y - player.position.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < SPAWN_DISTANCE) {
+        if (dist < POWERUP_SPAWN_CONFIG.spawnDistance) {
           safe = false;
           break;
         }

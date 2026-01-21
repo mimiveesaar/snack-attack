@@ -16,6 +16,16 @@ export type PlayerGrowthConfig = Record<
   }
 >;
 
+export type PowerupSpawnConfig = {
+  spawnIntervalMs: number;
+  maxConcurrentPowerups: number;
+  powerupLifetimeMs: number;
+  spawnDistance: number;
+  despawnGraceMs: number;
+  collisionRadius: number;
+};
+
+
 /**
  * Game-specific player state during active gameplay
  */

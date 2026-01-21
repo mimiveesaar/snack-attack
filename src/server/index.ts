@@ -8,7 +8,7 @@ import { ClientToServerEvents, ServerToClientEvents, GameClientToServerEvents, G
 import { GameController } from './game/controller';
 
 import { createGameOrchestrator } from './game/orchestrator';
-import { CLIENT_ORIGIN } from '../shared/game-config';
+import { CLIENT_ORIGIN } from '../shared/config';
 
 const PORT = Number(process.env.SOCKET_PORT || 3001);
 
