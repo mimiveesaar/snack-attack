@@ -1,8 +1,3 @@
-/**
- * Sound Manager - Manages background music and sound effects
- * Uses Web Audio API for sound effects and HTML5 Audio for background music
- */
-
 export class SoundManager {
   private static instance: SoundManager;
   private soundEnabled: boolean = true;
@@ -39,9 +34,6 @@ export class SoundManager {
     return SoundManager.instance;
   }
 
-  /**
-   * Initialize audio context and sounds
-   */
   initialize(): void {
     try {
       // Initialize AudioContext
@@ -63,9 +55,6 @@ export class SoundManager {
     }
   }
 
-  /**
-   * Load crunch sound buffer
-   */
   private async loadCrunchBuffer(): Promise<void> {
     if (!this.audioContext || this.crunchBuffer) return;
     if (this.crunchLoadPromise) {
@@ -92,9 +81,6 @@ export class SoundManager {
     }
   }
 
-  /**
-   * Start background music - plays MeltdownTheme.wav
-   */
   private startBackgroundMusic(): void {
     if (this.backgroundMusic) {
       // Resume if already loaded
@@ -114,30 +100,7 @@ export class SoundManager {
     });
   }
 
-  /**
-   * Play a note using oscillator
-   */
-  private playOscillatorNote(frequency: number, startTime: number, duration: number): void {
-    if (!this.audioContext || !this.masterGain) return;
 
-    const osc = this.audioContext.createOscillator();
-    const gain = this.audioContext.createGain();
-
-    osc.frequency.value = frequency;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.1, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-
-    osc.connect(gain);
-    gain.connect(this.masterGain);
-
-    osc.start(startTime);
-    osc.stop(startTime + duration);
-  }
-
-  /**
-   * Play a sound effect
-   */
   playSound(soundType: string): void {
     if (!this.soundEnabled || !this.audioContext || !this.masterGain) {
       console.warn('[SoundManager] Cannot play sound:', {
@@ -211,9 +174,6 @@ export class SoundManager {
     console.log(`[SoundManager] Sound scheduled: ${soundType} will stop at ${now + duration}`);
   }
 
-  /**
-   * Toggle sound on/off
-   */
   toggleSound(): boolean {
     this.soundEnabled = !this.soundEnabled;
     localStorage.setItem('snack-attack-sound-enabled', JSON.stringify(this.soundEnabled));
@@ -244,24 +204,15 @@ export class SoundManager {
     return this.soundEnabled;
   }
 
-  /**
-   * Check if sound is enabled
-   */
   isSoundEnabled(): boolean {
     return this.soundEnabled;
   }
 
-  /**
-   * Stop background music
-   */
   stopMusic(): void {
     if (!this.audioContext || !this.masterGain) return;
     this.masterGain.gain.value = 0;
   }
 
-  /**
-   * Resume background music
-   */
   resumeMusic(): void {
     if (!this.audioContext || !this.masterGain) return;
     if (this.soundEnabled) {
@@ -348,30 +299,19 @@ export class SoundManager {
     });
   }
 
-  /**
-   * Play sound when powerup is collected
-   */
+
   playPowerupSound(): void {
     this.playSound('powerup');
   }
 
-  /**
-   * Play sound when player respawns
-   */
   playRespawnSound(): void {
     this.playSound('respawn');
   }
 
-  /**
-   * Play sound when game ends
-   */
   playGameOverSound(): void {
     this.playSound('game-over');
   }
 
-  /**
-   * Play sound when fish is selected
-   */
   playFishSelectSound(): void {
     this.playSound('fish-select');
   }
