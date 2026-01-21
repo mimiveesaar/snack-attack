@@ -1,5 +1,5 @@
-import { lobbyStore } from '../feature/lobby/lobbyStore';
-import { lobbyManager } from '../feature/lobby/lobbyManager';
+import { lobbyStore } from './feature/lobby/lobbyStore';
+import { lobbyManager } from './feature/lobby/lobbyManager';
 import type { Namespace, Server } from 'socket.io';
 
 import { gameOrchestrator } from './game/orchestrator';

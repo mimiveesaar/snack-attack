@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import type { Player, GameSession, Gamemode, Difficulty } from '../../shared/types';
-import { MULTIPLAYER_CAP, SINGLEPLAYER_CAP, SESSION_DURATION_MS, NICKNAME_REGEX } from '../../shared/game-config';
+import type { Player, GameSession, Gamemode, Difficulty } from '../../../shared/types';
+import { MULTIPLAYER_CAP, SINGLEPLAYER_CAP, SESSION_DURATION_MS, NICKNAME_REGEX } from '../../../shared/game-config';
 import type { LobbyRecord } from './lobbyStore';
 import { dedupeNickname } from './utils/nickname';
 import { deriveShareUrl } from './utils/url';

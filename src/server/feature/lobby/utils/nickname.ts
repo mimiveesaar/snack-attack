@@ -1,4 +1,4 @@
-import { Player } from "../../../shared/lobby";
+import { Player } from "../../../../shared/lobby";
 
 export function dedupeNickname(players: Player[], nicknameBase: string): string {
   let maxSuffix = 0;

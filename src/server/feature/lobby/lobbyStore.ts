@@ -1,4 +1,4 @@
-import type { LobbyState, Player, GameSession } from '../../shared/types';
+import type { LobbyState, Player, GameSession } from '../../../shared/types';
 
 export interface LobbyRecord extends LobbyState {
   players: Player[];
