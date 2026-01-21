@@ -221,7 +221,7 @@ export class LobbyEntry extends LitElement {
 
   private getFishAssetPath(color: string): string {
     const asset = colorToFishAsset[color] || "fish_green";
-    return `/assets/Vector/${asset}.svg`;
+    return `/assets/vector/${asset}.svg`;
   }
 
   private getFishLabel(color: string): string {

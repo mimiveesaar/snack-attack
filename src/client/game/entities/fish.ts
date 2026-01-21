@@ -267,7 +267,7 @@ export class Fish extends VisualEntity {
     }
 
     const assetName = getfishAssetName(this.color);
-    const assetPath = `/assets/Vector/${assetName}.svg`;
+    const assetPath = `/assets/vector/${assetName}.svg`;
 
     console.log(`Fish.render(): Loading ${assetName} from ${assetPath}`);
 

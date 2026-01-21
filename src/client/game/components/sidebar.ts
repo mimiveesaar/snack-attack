@@ -550,13 +550,13 @@ export class GameSidebar extends LitElement {
           <div class="fish-o-meter-content">
             <div class="fish-levels">
               <div class="fish-icon" title="Brown Fish - Phase 3">
-                <img src="/assets/Vector/fish_brown.svg" alt="Brown fish" />
+                <img src="/assets/vector/fish_brown.svg" alt="Brown fish" />
               </div>
               <div class="fish-icon" title="Grey Fish - Phase 2">
-                <img src="/assets/Vector/fish_grey.svg" alt="Grey fish" />
+                <img src="/assets/vector/fish_grey.svg" alt="Grey fish" />
               </div>
               <div class="fish-icon" title="Pink Fish - Phase 1">
-                <img src="/assets/Vector/fish_pink.svg" alt="Pink fish" />
+                <img src="/assets/vector/fish_pink.svg" alt="Pink fish" />
               </div>
             </div>
             <div class="progress-column">
