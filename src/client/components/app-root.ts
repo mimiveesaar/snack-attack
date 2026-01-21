@@ -28,6 +28,7 @@ export class AppRoot extends LitElement {
   }
 
   private handleEntrySubmit = (event: CustomEvent<{ nickname: string; color: string }>) => {
+    soundManager.playCrunchSound();
     const lobbyId = getLobbyIdFromUrl();
     if (lobbyId) {
       lobbyClient.joinLobby(event.detail.nickname, event.detail.color);
@@ -41,6 +42,7 @@ export class AppRoot extends LitElement {
   };
 
   private handleStartGame = (event: CustomEvent<{ lobbyId: string }>) => {
+    soundManager.playCrunchSound();
     lobbyClient.startGame(event.detail.lobbyId);
   };
 
