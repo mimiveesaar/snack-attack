@@ -1,12 +1,26 @@
 import { defineConfig } from 'vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import path from 'node:path';
 
 export default defineConfig({
   root: path.resolve(__dirname, 'src/client'),
+  publicDir: path.resolve(__dirname, 'src/client/assets'),
   build: {
     outDir: path.resolve(__dirname, 'dist/client'),
     emptyOutDir: true,
+    assetsDir: 'assets',
+    copyPublicDir: false,
   },
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'assets/*',
+          dest: 'assets'
+        }
+      ]
+    }),
+  ],
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'src/shared'),
