@@ -17,6 +17,7 @@ Singleton service that manages all audio playback with these features:
 
 **Sound effects included:**
 - 🐟 **eat** - When a player eats a fish (collision)
+- 🦴 **crunch** - Plays `small-crunch.mp3` when any fish is eaten
 - ⚡ **powerup** - When a player collects a powerup
 - 🔄 **respawn** - When a player respawns
 - ❌ **game-over** - When the game ends
@@ -36,7 +37,7 @@ UI button component with:
 - Provides audio feedback during lobby setup
 
 ### 2. **Game Events** (game-manager.ts)
-- **Fish eaten collisions**: Plays `eat` sound
+- **Fish eaten collisions**: Plays crunch sound (`small-crunch.mp3`)
 - **Powerup collection**: Plays `powerup` sound
 - **Player respawns**: Plays `respawn` sound
 - Triggered by `game:state-update` events from server

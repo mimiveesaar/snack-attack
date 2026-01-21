@@ -86,7 +86,7 @@ export class GameLoop {
     if (state.isPaused) {
       // Still broadcast state so clients can see pause state
       if (this.tickCount % BROADCAST_INTERVAL_TICKS === 0) {
-        this.broadcastStateUpdate(session);
+        this.broadcastStateUpdate(session, session.drainEvents());
       }
       this.tickCount++;
       return;
@@ -117,10 +117,11 @@ export class GameLoop {
 
     // Process collisions (eating, boundary) and collect events
     const collisionEvents = this.processCollisions(session);
+    session.queueEvents(collisionEvents);
 
     // Broadcast state update every BROADCAST_INTERVAL_TICKS
     if (this.tickCount % BROADCAST_INTERVAL_TICKS === 0) {
-      this.broadcastStateUpdate(session, collisionEvents);
+      this.broadcastStateUpdate(session, session.drainEvents());
     }
 
     // Broadcast timer tick every TIMER_TICK_INTERVAL_TICKS

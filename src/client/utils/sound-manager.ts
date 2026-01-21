@@ -11,6 +11,20 @@ export class SoundManager {
   private gainNodes: GainNode[] = [];
   private audioContext: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private crunchBuffer: AudioBuffer | null = null;
+  private crunchLoadPromise: Promise<void> | null = null;
+  private crunchSources: AudioBufferSourceNode[] = [];
+  private readonly crunchUrl = new URL('@client/assets/sound/sfx/small-crunch.mp3', import.meta.url).href;
+  private crunchResumePromise: Promise<void> | null = null;
+  private crunchDebugStats = {
+    attempts: 0,
+    skippedSoundDisabled: 0,
+    skippedNoContext: 0,
+    queuedLoad: 0,
+    skippedNoBuffer: 0,
+    resumedContext: 0,
+    started: 0,
+  };
 
   private constructor() {
     // Load persistent sound preference
@@ -37,6 +51,8 @@ export class SoundManager {
       this.masterGain.connect(this.audioContext.destination);
       this.masterGain.gain.value = this.soundEnabled ? 0.3 : 0;
 
+      void this.loadCrunchBuffer();
+
       console.log('SoundManager: AudioContext initialized');
 
       if (this.soundEnabled) {
@@ -44,6 +60,35 @@ export class SoundManager {
       }
     } catch (e) {
       console.error('SoundManager: Failed to initialize AudioContext', e);
+    }
+  }
+
+  /**
+   * Load crunch sound buffer
+   */
+  private async loadCrunchBuffer(): Promise<void> {
+    if (!this.audioContext || this.crunchBuffer) return;
+    if (this.crunchLoadPromise) {
+      await this.crunchLoadPromise;
+      return;
+    }
+    try {
+      this.crunchLoadPromise = (async () => {
+        const response = await fetch(this.crunchUrl);
+        if (!response.ok) {
+          console.warn('[SoundManager] Crunch fetch failed', response.status);
+          return;
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        this.crunchBuffer = await this.audioContext!.decodeAudioData(arrayBuffer);
+        console.log('[SoundManager] Crunch buffer loaded');
+      })();
+      await this.crunchLoadPromise;
+    } catch {
+      this.crunchBuffer = null;
+      console.warn('[SoundManager] Crunch buffer load failed');
+    } finally {
+      this.crunchLoadPromise = null;
     }
   }
 
@@ -229,7 +274,78 @@ export class SoundManager {
    * Play sound when fish is eaten
    */
   playEatSound(): void {
-    this.playSound('eat');
+    this.playCrunchSound();
+  }
+
+  /**
+   * Play crunch sound when fish is eaten
+   */
+  playCrunchSound(): void {
+    this.crunchDebugStats.attempts += 1;
+    if (!this.soundEnabled || !this.audioContext || !this.masterGain) {
+      console.debug('[SoundManager] Crunch skipped: sound/context missing', {
+        soundEnabled: this.soundEnabled,
+        hasAudioContext: !!this.audioContext,
+        hasMasterGain: !!this.masterGain,
+        stats: { ...this.crunchDebugStats },
+      });
+      return;
+    }
+    if (!this.crunchBuffer) {
+      this.crunchDebugStats.queuedLoad += 1;
+      this.loadCrunchBuffer()
+        .then(() => {
+          if (!this.crunchBuffer) return;
+          this.playCrunchSound();
+        })
+        .catch(() => {});
+      if (!this.audioContext || !this.masterGain) {
+        this.crunchDebugStats.skippedNoContext += 1;
+      } else if (!this.soundEnabled) {
+        this.crunchDebugStats.skippedSoundDisabled += 1;
+      } else {
+        this.crunchDebugStats.skippedNoBuffer += 1;
+      }
+      console.debug('[SoundManager] Crunch queued (no buffer yet)', { ...this.crunchDebugStats });
+      return;
+    }
+    if (this.audioContext.state === 'suspended') {
+      if (!this.crunchResumePromise) {
+        this.crunchResumePromise = this.audioContext.resume()
+          .then(() => {
+            this.crunchDebugStats.resumedContext += 1;
+          })
+          .catch(() => {})
+          .finally(() => {
+            this.crunchResumePromise = null;
+          });
+      }
+      this.crunchResumePromise.then(() => this.playCrunchSound()).catch(() => {});
+      return;
+    }
+
+    const source = this.audioContext.createBufferSource();
+    source.buffer = this.crunchBuffer;
+
+    const gain = this.audioContext.createGain();
+    gain.gain.value = 0.35;
+
+    source.connect(gain);
+    gain.connect(this.masterGain);
+
+    this.crunchSources.push(source);
+    source.addEventListener('ended', () => {
+      this.crunchSources = this.crunchSources.filter((active) => active !== source);
+      source.disconnect();
+      gain.disconnect();
+    });
+
+    source.start();
+    this.crunchDebugStats.started += 1;
+    console.debug('[SoundManager] Crunch started', {
+      state: this.audioContext.state,
+      stats: { ...this.crunchDebugStats },
+    });
   }
 
   /**

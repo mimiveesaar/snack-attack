@@ -19,6 +19,7 @@ export interface GamePlayerInit {
  */
 export class GameSessionState {
   private state: GameState;
+  private pendingEvents: any[] = [];
 
   constructor(sessionId: string, lobbyId: string, players: GamePlayerInit[]) {
     const gamePlayers: GamePlayer[] = players.map((p, idx) => ({
@@ -253,6 +254,23 @@ export class GameSessionState {
   updateLeaderboard(): GameLeaderboardEntry[] {
     this.state.leaderboard = this.computeLeaderboard(this.state.players);
     return this.state.leaderboard;
+  }
+
+  /**
+   * Queue events for next broadcast
+   */
+  queueEvents(events: any[]): void {
+    if (!events.length) return;
+    this.pendingEvents.push(...events);
+  }
+
+  /**
+   * Drain queued events
+   */
+  drainEvents(): any[] {
+    const queued = this.pendingEvents;
+    this.pendingEvents = [];
+    return queued;
   }
 
   /**

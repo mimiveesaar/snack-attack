@@ -40,6 +40,7 @@ export class GameManager {
   private powerupCollectionTime: number = 0;
   private powerupDuration: number = 10000; // 10 seconds
   private powerupUpdateInterval: NodeJS.Timeout | null = null;
+  private fishEatenEventCount: number = 0;
   leaderboard: any;
 
   /**
@@ -366,7 +367,14 @@ export class GameManager {
       payload.events.forEach((event, idx) => {
         console.log(`[GameManager] Event ${idx + 1}:`, event.type, event);
         if (event.type === 'fish-eaten') {
-          console.log('[GameManager] Playing eat sound');
+          this.fishEatenEventCount += 1;
+          console.debug('[GameManager] Fish-eaten event count', {
+            count: this.fishEatenEventCount,
+            tick: event.tick,
+            eatenFishId: event.data.eatenFishId,
+            eatenPlayerId: event.data.eatenPlayerId,
+            eatenByPlayerId: event.data.eatenByPlayerId,
+          });
           soundManager.playEatSound();
         } else if (event.type === 'powerup-collected') {
           console.log('[GameManager] Powerup collected - playing sound', {

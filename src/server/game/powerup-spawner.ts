@@ -38,7 +38,6 @@ export class PowerupSpawner {
     // Count current available powerups
     const currentCount = state.powerups.filter((p) => p.status === 'available').length;
     if (currentCount >= MAX_CONCURRENT_POWERUPS) {
-      console.log(`[Powerup Spawner] Max concurrent powerups reached (${currentCount}/${MAX_CONCURRENT_POWERUPS})`);
       return; // At capacity
     }
 
