@@ -2,6 +2,8 @@ import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { copyToClipboard } from '@client/utils/clipboard';
 
+
+
 @customElement('share-url')
 export class ShareUrl extends LitElement {
   @property({ type: String }) url = '';
@@ -26,7 +28,10 @@ export class ShareUrl extends LitElement {
   render() {
     return html`
       <div class="stack">
-        <button type="button" @click=${this.onCopy}>Share URL</button>
+        <button type="button" @click=${this.onCopy}>
+          Share URL
+          <img class="share-icon" src="/assets/vector/share-link.svg" alt="Share Icon" />
+        </button>
         ${this.feedback ? html`<div class="clipboard-feedback">${this.feedback}</div>` : null}
       </div>
     `;

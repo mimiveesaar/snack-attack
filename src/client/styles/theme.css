@@ -35,18 +35,25 @@ body {
   min-height: 100vh;
 }
 
+.sound-toggle {
+  cursor: pointer;
+  background: #daaed8;
+  padding: 6px 10px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+}
+
 .lobby-shell {
   width: 500px;
   height: 500px;
   border: 2px solid var(--border);
   border-radius: 4px;
   background: var(--bg-inner);
-  box-shadow: 0 6px 14px var(--shadow);
   display: flex;
   flex-direction: column;
   padding: 18px;
-  gap: 12px;
   align-items: center;
+  
 }
 
 .panel {
@@ -73,6 +80,7 @@ body {
 .lobby-shell label {
   text-align: center;
   width: 100%;
+  margin-top: 12px;
 }
 
 .lobby-shell input[type="text"] {
@@ -81,6 +89,8 @@ body {
 
 .lobby-shell .count-indicator {
   align-self: center;
+  margin: 3px;
+  
 }
 
 lobby-entry,
@@ -153,12 +163,13 @@ input[type="text"] {
     0 6px 12px var(--shadow);
 }
 
-button {
+.button {
   border: 2px solid var(--border);
   background: var(--accent-primary);
   color: black;
   padding: 8px 12px;
   margin: 3px;
+  margin-bottom: 30px;
   cursor: pointer;
   box-shadow:
     -2px 3px 0 var(--accent-dark),
@@ -172,11 +183,6 @@ button:active {
     0 4px 8px var(--shadow);
 }
 
-button.secondary {
-  background: var(--muted);
-  color: var(--text);
-}
-
 button.warn {
   background: var(--accent-warm);
   color: #1b0f00;
@@ -184,10 +190,58 @@ button.warn {
 
 .fish-button {
   background: #8d9e8e !important;
+  border: 2px solid var(--border);
+  margin: 3px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
 }
 
 .fish-button:hover {
   background: #9ac99e !important;
+}
+
+.fish-selection-container {
+  margin-top: 20px;
+}
+
+.create-lobby-button {
+  margin-top: auto;
+  background: #8d9e8e;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  box-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
+  margin: 20px 0;
+  padding: 8px 12px;
+}
+
+.lobby-header-wrapper {
+  height: 50px;
+}
+
+.lobby-header {
+  display: flex;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 10px;
+}
+
+.close-button {
+  position: relative;
+  bottom: 40px;
+  left: 200px;
+  padding: 4px 10px;
+  background: var(--accent-primary);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  box-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
 }
 
 .inline-error {
@@ -196,16 +250,25 @@ button.warn {
   margin-top: 6px;
 }
 
-.row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
 .stack {
   display: flex;
   flex-direction: column;
+  margin: auto;
+}
+
+.player-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
+  padding: 8px;
+  padding-bottom: 15px;
+  margin-bottom: 12px;
+}
+
+.player-grid .count-indicator {
+  justify-self: center;
+  max-width: 60px;
+  grid-column: 1 / -1; /* span across both columns */
 }
 
 .player-badge {
@@ -214,15 +277,16 @@ button.warn {
   gap: 8px;
   padding: 6px 8px;
   border: 2px solid var(--border);
-  background: #fff;
+  border-radius: 2px;
+  background: #758c76;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
-.color-swatch {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--border);
-  box-shadow: 0 1px 2px var(--shadow);
+.player-fish-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  filter: drop-shadow(0 1px 1px var(--shadow));
 }
 
 .leader-flag {
@@ -234,13 +298,9 @@ button.warn {
 }
 
 .count-indicator {
-  align-self: flex-end;
-  font-weight: 700;
-  background: #fff;
-  border: 2px solid var(--border);
-  padding: 4px 8px;
-  box-shadow: 0 2px 6px var(--shadow);
-}
+  font-size: large;
+  font-weight: 900;
+
 
 .waiting-view {
   text-align: center;
@@ -256,3 +316,4 @@ button.warn {
   font-size: 0.95rem;
   color: var(--success);
 }
+};

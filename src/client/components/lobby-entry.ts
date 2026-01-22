@@ -17,196 +17,33 @@ export class LobbyEntry extends LitElement {
   @state() private color: string | null = null;
   @state() private validationMessage: string | null = null;
   @state() private clickedColor: string | null = null;
+  private soundActivated = false;
 
-  static styles = css`
-    .fish-selection {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
+  private handleFirstInteraction = () => {
+    if (this.soundActivated) return;
+    this.soundActivated = true;
+    if (!soundManager.isSoundEnabled()) {
+      soundManager.toggleSound();
     }
-
-    .fish-button {
-      background: #c0d0c0 !important;
-      border: 3px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 100px;
-      font: inherit;
-      opacity: 1;
-    }
-
-    .fish-button:not(.selected) {
-      opacity: 0.8;
-    }
-
-    .fish-button:hover {
-      background: #a8bfa8 !important;
-      transform: scale(1.05);
-    }
-
-    .fish-button.clicked {
-      animation: clickPulse 0.3s ease;
-    }
-
-    @keyframes clickPulse {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(0.95);
-        background: #81c784;
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .fish-button.selected {
-      background: #8d9e8e !important;
-      border: 4px solid #000;
-      border-radius: 12px;
-      box-shadow:
-        0 0 15px rgba(0, 0, 0, 0.3),
-        inset 0 0 20px rgba(0, 0, 0, 0.1),
-        0 8px 16px rgba(0, 0, 0, 0.2);
-      transform: scale(1.15);
-      position: relative;
-      opacity: 1;
-    }
-
-    .fish-button.selected::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 2px solid rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      pointer-events: none;
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-      0%,
-      100% {
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
-      }
-      50% {
-        box-shadow: 0 0 0 8px rgba(0, 0, 0, 0);
-      }
-    }
-
-    .fish-icon {
-      width: 70px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .fish-button.selected .fish-icon {
-      background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(0, 0, 0, 0.05) 100%
-      );
-      box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.2),
-        inset 0 1px 3px rgba(255, 255, 255, 0.5);
-    }
-
-    .fish-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.1));
-      transition: filter 0.3s ease;
-    }
-
-    .fish-button.selected .fish-icon img {
-      filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.25));
-    }
-
-    .fish-selection-label {
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .fish-label {
-      font-size: 12px;
-      font-weight: bold;
-      text-align: center;
-      color: #666;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
-      display: none;
-    }
-
-    .fish-button.selected .fish-label {
-      display: block;
-      color: #1b5e20;
-      font-size: 14px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .selected-indicator {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 0.25rem;
-      color: #1b5e20;
-      animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @keyframes scaleIn {
-      0% {
-        opacity: 0;
-        transform: scale(0);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(2);
-      }
-    }
-
-    .panel {
-      align-self: center;
-      position: relative;
-    }
-
-    .terrain {
-      outline: 2px solid red;
-    }
-
-    .terrain img {
-      display: block;
-      flex-shrink: 0;
-      height: auto;
-      width: auto;
-    }
-
-    .terrain img:first-child {
-      margin-left: 0;
-    }
-  `;
+  };
 
   createRenderRoot() {
     return this; // use light DOM to inherit global styles
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener("pointerdown", this.handleFirstInteraction, {
+      once: true,
+      capture: true,
+    });
+  }
+
+  disconnectedCallback(): void {
+    this.removeEventListener("pointerdown", this.handleFirstInteraction, {
+      capture: true,
+    });
+    super.disconnectedCallback();
   }
 
   private onSubmit(event: Event) {
@@ -253,7 +90,7 @@ export class LobbyEntry extends LitElement {
   render() {
     return html`
       <div class="stack panel">
-        <h1>Snack Attack</h1>
+        <h1>Snack Attack!</h1>
         <form class="stack" @submit=${this.onSubmit}>
           <div>
             <label for="nickname">Nickname</label>
@@ -280,7 +117,7 @@ export class LobbyEntry extends LitElement {
             }
           </div>
 
-          <div class="stack">
+          <div class="fish-selection-container">
             <label class="fish-selection-label">Choose Your Fish</label>
             <div class="fish-selection">
               ${playerColors.map(
@@ -309,42 +146,10 @@ export class LobbyEntry extends LitElement {
             </div>
           </div>
 
-          <button type="submit">
+          <button type="submit" class="create-lobby-button">
             ${this.mode === "create" ? "Create Lobby" : "Join Lobby"}
           </button>
         </form>
-        <div class="terrain">
-          <img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_a.svg"
-            alt=""
-            aria-hidden="true"
-          /><img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_b.svg"
-            alt=""
-            aria-hidden="true"
-          /><img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_e.svg"
-            alt=""
-            aria-hidden="true"
-          /><img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_f.svg"
-            alt=""
-            aria-hidden="true"
-          /><img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_g.svg"
-            alt=""
-            aria-hidden="true"
-          /><img
-            class="lobby-sand"
-            src="/assets/Vector/terrain_dirt_top_f.svg"
-            alt=""
-            aria-hidden="true"
-          /></div>
         </div>
       </div>
     `;
