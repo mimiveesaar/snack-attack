@@ -5,8 +5,8 @@ export const LOBBY_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 export const NPC_SPAWN_CONFIG = {
 	types: {
 		pink: {
-			intervalMs: 2500,
-			maxConcurrent: 15,
+			intervalMs: 1500,
+			maxConcurrent: 35,
 			xp: 10,
 			collisionRadius: 6,
 			visualSize: 0.4,
@@ -16,19 +16,19 @@ export const NPC_SPAWN_CONFIG = {
 			},
 		},
 		grey: {
-			intervalMs: 5000,
-			maxConcurrent: 5,
+			intervalMs: 2000,
+			maxConcurrent: 20,
 			xp: 25,
 			collisionRadius: 9,
-			visualSize: 1.2,
+			visualSize: 0.8,
 			swarm: {
 				size: 1,
 				radius: 0,
 			},
 		},
 		brown: {
-			intervalMs: 10000,
-			maxConcurrent: 3,
+			intervalMs: 5000,
+			maxConcurrent: 16,
 			xp: 50,
 			collisionRadius: 12,
 			visualSize: 0.95,

@@ -47,8 +47,9 @@ export class GameSidebar extends LitElement {
       flex-direction: column;
       height: 100%;
       gap: 1rem;
-      font-family: 'Courier New', monospace;
-      background:#ADC8AF
+      font-family: "Jersey 10", system-ui, sans-serif;
+      background:#ADC8AF;
+
     }
 
     .sidebar-header {
@@ -60,21 +61,21 @@ export class GameSidebar extends LitElement {
     .help-button {
       width: 30px;
       height: 30px;
-      background: #4a90e2;
-      color: white;
-      border: 2px solid black;
-      border-radius: 50%;
+      color: black;
+      background: none;
+      border: none;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 30px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: background 0.2s;
+      font-family: "Jersey 10", system-ui, sans-serif;
     }
 
     .help-button:hover {
-      background: #357abd;
+      transform: scale(1.1);
     }
 
     .control-buttons {
@@ -83,20 +84,21 @@ export class GameSidebar extends LitElement {
     }
 
     .pause-button, .quit-button {
+      font-family: "Jersey 10", system-ui, sans-serif;
       padding: 0.25rem 0.75rem;
-      background: #4a90e2;
-      color: white;
+      color: black;
       border: 2px solid black;
-      border-radius: 4px;
+      border-radius: 2px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 18px;
       font-weight: bold;
       transition: background 0.2s;
+      box-shadow: -4px 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .pause-button:hover:not(:disabled),
     .quit-button:hover {
-      background: #357abd;
+      background: #c0392b;
     }
 
     .pause-button:disabled {
@@ -106,11 +108,11 @@ export class GameSidebar extends LitElement {
     }
 
     .quit-button {
-      background: #e74c3c;
+      background: #567d5c;
     }
 
     .quit-button:hover {
-      background: #c0392b;
+      background: #ea5d4d;
     }
 
     .score-section {
@@ -216,7 +218,7 @@ export class GameSidebar extends LitElement {
       bottom: 0;
       left: 0;
       right: 0;
-      background: linear-gradient(180deg, #4CAF50 0%, #45a049 100%);
+      background: #435d44;
       transition: height 0.3s ease;
     }
 
@@ -318,20 +320,21 @@ export class GameSidebar extends LitElement {
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.4);
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       z-index: 1000;
     }
 
     .help-content {
-      background: white;
+      background: #ADC8AF;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 4px;
       max-width: 500px;
       max-height: 80vh;
       overflow-y: auto;
+      margin-top: 3rem;
     }
 
     .help-content h2 {
@@ -506,10 +509,10 @@ export class GameSidebar extends LitElement {
               @click=${this.handlePause}
               title=${this.isLeader ? (this.isPaused ? 'Resume Game' : 'Pause Game') : 'Only leader can pause'}
             >
-              ${this.isPaused ? 'RESUME' : 'PAUSE'}
+              ${this.isPaused ? 'RESUME' : 'II'}
             </button>
             <button class="quit-button" @click=${this.handleQuit}>
-              QUIT
+              X
             </button>
           </div>
         </div>
@@ -598,9 +601,8 @@ export class GameSidebar extends LitElement {
       ${this.showHelp ? html`
         <div class="help-overlay" @click=${this.closeHelp}>
           <div class="help-content" @click=${(e: Event) => e.stopPropagation()}>
-            <h2>🐟 Snack Attack - Game Rules</h2>
+            <h2>Game Rules</h2>
             
-            <h3>Objective</h3>
             <p>Eat other fish to gain XP and become the biggest fish in 30 seconds!</p>
 
             <h3>How to Play</h3>
@@ -614,17 +616,7 @@ export class GameSidebar extends LitElement {
             <h3>Eating Rules</h3>
             <ul>
               <li>You can only eat fish with less XP than you</li>
-              <li>Pink NPCs: 10 XP (easiest)</li>
-              <li>Grey NPCs: 25 XP (medium)</li>
-              <li>Brown NPCs: 50 XP (hardest)</li>
               <li>If eaten, you respawn at base size</li>
-            </ul>
-
-            <h3>Growth Phases</h3>
-            <ul>
-              <li>Phase 1: 0-50 XP (small)</li>
-              <li>Phase 2: 50-150 XP (medium)</li>
-              <li>Phase 3: 150+ XP (large)</li>
             </ul>
 
             <h3>Power-ups</h3>

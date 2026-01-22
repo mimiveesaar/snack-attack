@@ -296,19 +296,6 @@ export class Fish extends VisualEntity {
 
       console.log('Created group element:', g);
       
-      // Add collision radius visualization circle (drawn first, so it appears behind the fish)
-      const collisionCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      collisionCircle.setAttribute('cx', '0');
-      collisionCircle.setAttribute('cy', '0');
-      collisionCircle.setAttribute('r', String(this.collisionRadius / this.size)); // Adjust for scale
-      collisionCircle.setAttribute('fill', 'none');
-      collisionCircle.setAttribute('stroke', 'rgba(255, 0, 0, 0.3)');
-      collisionCircle.setAttribute('stroke-width', String(2 / this.size)); // Adjust stroke width for scale
-      collisionCircle.setAttribute('class', 'collision-radius');
-      collisionCircle.setAttribute('vector-effect', 'non-scaling-stroke'); // Keep stroke consistent
-      g.appendChild(collisionCircle);
-      
-
       // Clone the SVG content into the group (drawn after circle, appears on top)
       const content = svgElement.querySelector('g');
       console.log('Found content <g>?', content);

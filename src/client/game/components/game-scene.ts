@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import './game-hud';
+import './sidebar';
 
 /**
  * GameScene - Main game canvas component
@@ -25,6 +27,10 @@ export class GameScene extends LitElement {
   }
 
   render() {
+    // const devPreview =
+    //   import.meta.env.DEV &&
+    //   new URLSearchParams(window.location.search).get('devScene') === 'game';
+
     return html`
       <style>
         game-scene {
@@ -39,12 +45,13 @@ export class GameScene extends LitElement {
 
         .game-container {
           position: relative;
-          width: 600px;
-          height: 600px;
+          width: 70vw;
+          height: 90%;
           background: linear-gradient(180deg, #b4c3b5 0%, #49534a 100%);
           border: 3px solid black;
           overflow: hidden;
           flex-shrink: 0;
+          font-family: "Jersey 10", system-ui, sans-serif;
         }
 
         #game-canvas {
@@ -70,13 +77,12 @@ export class GameScene extends LitElement {
 
         #sidebar {
           width: 200px;
-          height: 750px;
-          background-color: #f0f0f0;
+          height: 90%;
+          background-color: #ADC8AF;
           border: 3px solid black;
-          border-radius: 8px;
           padding: 1rem;
           box-sizing: border-box;
-          font-family: 'Courier New', monospace;
+          font-family: "Jersey 10", system-ui, sans-serif;
           overflow-y: auto;
         }
       </style>
@@ -91,12 +97,14 @@ export class GameScene extends LitElement {
 
         <!-- HUD overlay: timer, pause button, end screen -->
         <div id="game-overlay">
+         
           <!-- game-hud component will mount here -->
         </div>
       </div>
 
       <!-- Sidebar: score, Fish-O-Meter, leaderboard, controls -->
       <div id="sidebar">
+        
         <!-- leaderboard component will mount here -->
       </div>
     `;

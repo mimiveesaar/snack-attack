@@ -30,11 +30,10 @@ export class GameHUD extends LitElement {
       position: absolute;
       top: 10px;
       left: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: 16px;
+      font-family: "Jersey 10", system-ui, sans-serif;
+      font-size: 32px;
       font-weight: bold;
       color: black;
-      background: rgba(255, 255, 255, 0.8);
       padding: 4px 8px;
       border-radius: 4px;
       z-index: 101;
@@ -46,13 +45,16 @@ export class GameHUD extends LitElement {
       right: 1rem;
       z-index: 9999;
       pointer-events: auto;
+      
     }
 
     sound-toggle .sound-toggle {
       border: 2px solid var(--border);
-      background: var(--accent-primary);
+      border-radius: 4px;
+      background: #daaed8;
       color: #000000;
-      box-shadow: 0 3px 0 var(--accent-dark), 0 6px 12px var(--shadow);
+      font-family: "Jersey 10", system-ui, sans-serif;
+      font-size: 18px;
     }
 
     sound-toggle .sound-toggle:active {
@@ -106,12 +108,12 @@ export class GameHUD extends LitElement {
     }
 
     .end-screen {
-      background: white;
+      background: #ADC8AF;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 4px;
       text-align: center;
-      font-family: 'Courier New', monospace;
-      max-width: 400px;
+      font-family: "Jersey 10", system-ui, sans-serif;
+      min-width: 400px;
       pointer-events: auto;
     }
 
@@ -292,7 +294,7 @@ export class GameHUD extends LitElement {
       ${this.isGameEnded && this.gameEndResults
         ? html`<div class="end-screen-overlay">
             <div class="end-screen">
-              <h1>🐟 GAME FINISHED! 🐟</h1>
+              <h1>GAME FINISHED!</h1>
 
               ${(() => {
                 // Check if it's a draw
