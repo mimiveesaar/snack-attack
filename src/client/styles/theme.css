@@ -1,8 +1,8 @@
 :root {
   --bg-outer: #8d9e8e;
-  --bg-inner: #A4B9A5;
-  --accent-primary: #d8e3da;
-  --accent-dark: #2f4a35;
+  --bg-inner: #a4b9a5;
+  --accent-primary: #8d9e8e;
+  --accent-dark: #65826c;
   --accent-warm: #d9a15f;
   --text: #0f1a12;
   --shadow: rgba(0, 0, 0, 0.35);
@@ -10,7 +10,7 @@
   --muted: #e1e7df;
   --error: #c0392b;
   --success: #2e8b57;
-  --panel: #ADC8AF;
+  --panel: #adc8af;
   font-family: "Jersey 10", system-ui, sans-serif;
   color: #000000;
   background-color: #8d9e8e;
@@ -29,7 +29,6 @@ body {
   margin: 0;
   background: var(--bg-outer);
   color: #000000;
-  font-family: "Jersey 10", system-ui, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,6 +39,7 @@ body {
   width: 500px;
   height: 500px;
   border: 2px solid var(--border);
+  border-radius: 4px;
   background: var(--bg-inner);
   box-shadow: 0 6px 14px var(--shadow);
   display: flex;
@@ -52,11 +52,10 @@ body {
 .panel {
   background: var(--panel);
   border: 2px solid var(--border);
+  border-radius: 4px;
   box-shadow: 0 4px 10px var(--shadow);
-  padding: 12px;
   width: 100%;
   height: 100%;
-  max-width: 460px;
 }
 
 .lobby-shell .panel {
@@ -76,7 +75,7 @@ body {
   width: 100%;
 }
 
-.lobby-shell input[type='text'] {
+.lobby-shell input[type="text"] {
   text-align: center;
 }
 
@@ -101,25 +100,29 @@ lobby-entry .panel {
   width: 100%;
   height: 100%;
   flex: 1;
-  padding: 20px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 lobby-entry .stack {
-  gap: 14px;
-  justify-content: space-between;
   height: 100%;
 }
 
 lobby-entry .stack > form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
   flex: 1;
 }
 
-h1,
+h1 {
+  font-size: 40px;
+  text-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
+}
+
 h2,
 h3 {
   margin: 0 0 8px;
@@ -137,14 +140,17 @@ input,
 select,
 button {
   font: inherit;
+  border-radius: 2px;
 }
 
-input[type='text'] {
+input[type="text"] {
   width: 100%;
   padding: 8px 10px;
   border: 2px solid var(--border);
-  background: #8D9E8E;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #8d9e8e;
+  box-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
 }
 
 button {
@@ -152,13 +158,18 @@ button {
   background: var(--accent-primary);
   color: black;
   padding: 8px 12px;
+  margin: 3px;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--accent-dark), 0 6px 12px var(--shadow);
+  box-shadow:
+    -2px 3px 0 var(--accent-dark),
+    0 6px 12px var(--shadow);
 }
 
 button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--accent-dark), 0 4px 8px var(--shadow);
+  transform: translateY(8px);
+  box-shadow:
+    0 1px 0 var(--accent-dark),
+    0 4px 8px var(--shadow);
 }
 
 button.secondary {
@@ -176,7 +187,7 @@ button.warn {
 }
 
 .fish-button:hover {
-  background: #8d9e8e !important;
+  background: #9ac99e !important;
 }
 
 .inline-error {

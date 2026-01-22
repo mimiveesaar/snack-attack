@@ -28,7 +28,7 @@ export class LobbyEntry extends LitElement {
     }
 
     .fish-button {
-      background: #8d9e8e !important;
+      background: #c0d0c0 !important;
       border: 3px solid #ddd;
       border-radius: 8px;
       padding: 1rem;
@@ -40,15 +40,15 @@ export class LobbyEntry extends LitElement {
       gap: 0.5rem;
       min-width: 100px;
       font: inherit;
+      opacity: 1;
     }
 
     .fish-button:not(.selected) {
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     .fish-button:hover {
-      border-color: #999;
-      background: #8d9e8e !important;
+      background: #a8bfa8 !important;
       transform: scale(1.05);
     }
 
@@ -70,15 +70,16 @@ export class LobbyEntry extends LitElement {
     }
 
     .fish-button.selected {
-      border: 4px solid #2e7d32;
+      background: #8d9e8e !important;
+      border: 4px solid #000;
       border-radius: 12px;
-      background: #81c784;
       box-shadow:
-        0 0 15px rgba(46, 125, 50, 0.4),
-        inset 0 0 20px rgba(0, 0, 0, 0.05),
-        0 8px 16px rgba(0, 0, 0, 0.15);
+        0 0 15px rgba(0, 0, 0, 0.3),
+        inset 0 0 20px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.2);
       transform: scale(1.15);
       position: relative;
+      opacity: 1;
     }
 
     .fish-button.selected::before {
@@ -139,6 +140,11 @@ export class LobbyEntry extends LitElement {
       filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.25));
     }
 
+    .fish-selection-label {
+      font-weight: bold;
+      text-align: center;
+    }
+
     .fish-label {
       font-size: 12px;
       font-weight: bold;
@@ -174,12 +180,28 @@ export class LobbyEntry extends LitElement {
       }
       100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(2);
       }
     }
 
     .panel {
       align-self: center;
+      position: relative;
+    }
+
+    .terrain {
+      outline: 2px solid red;
+    }
+
+    .terrain img {
+      display: block;
+      flex-shrink: 0;
+      height: auto;
+      width: auto;
+    }
+
+    .terrain img:first-child {
+      margin-left: 0;
     }
   `;
 
@@ -230,7 +252,7 @@ export class LobbyEntry extends LitElement {
 
   render() {
     return html`
-      <div class="panel stack">
+      <div class="stack panel">
         <h1>Snack Attack</h1>
         <form class="stack" @submit=${this.onSubmit}>
           <div>
@@ -244,16 +266,22 @@ export class LobbyEntry extends LitElement {
                 (this.nickname = (e.target as HTMLInputElement).value)}
               placeholder="Enter nickname"
             />
-            ${this.validationMessage
-              ? html`<div class="inline-error">${this.validationMessage}</div>`
-              : null}
-            ${this.error
-              ? html`<div class="inline-error">${this.error}</div>`
-              : null}
+            ${
+              this.validationMessage
+                ? html`<div class="inline-error">
+                    ${this.validationMessage}
+                  </div>`
+                : null
+            }
+            ${
+              this.error
+                ? html`<div class="inline-error">${this.error}</div>`
+                : null
+            }
           </div>
 
           <div class="stack">
-            <label>Choose Your Fish</label>
+            <label class="fish-selection-label">Choose Your Fish</label>
             <div class="fish-selection">
               ${playerColors.map(
                 (c) => html`
@@ -285,6 +313,39 @@ export class LobbyEntry extends LitElement {
             ${this.mode === "create" ? "Create Lobby" : "Join Lobby"}
           </button>
         </form>
+        <div class="terrain">
+          <img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_a.svg"
+            alt=""
+            aria-hidden="true"
+          /><img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_b.svg"
+            alt=""
+            aria-hidden="true"
+          /><img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_e.svg"
+            alt=""
+            aria-hidden="true"
+          /><img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_f.svg"
+            alt=""
+            aria-hidden="true"
+          /><img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_g.svg"
+            alt=""
+            aria-hidden="true"
+          /><img
+            class="lobby-sand"
+            src="/assets/Vector/terrain_dirt_top_f.svg"
+            alt=""
+            aria-hidden="true"
+          /></div>
+        </div>
       </div>
     `;
   }

@@ -21,10 +21,8 @@ export class AppRoot extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center; /* vertical centering */
+      justify-content: center;
       text-align: center;
-      padding: 2rem;
-      box-sizing: border-box;
     }
   `;
 
