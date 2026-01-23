@@ -11,7 +11,7 @@ Snack Attack is a small multiplayer browser game, inspired by Feeding Frenzy, wh
 ## Getting Started
 
 ### Prerequisites
-- Node.js 22+
+- Node.js 20+
 - pnpm
 
 ### Install
@@ -42,6 +42,15 @@ pnpm build:server
 pnpm start:server
 pnpm start:client
 ```
+
+### Docker Preview
+```bash
+sudo docker build -t snack-attack .
+```
+```bash
+sudo docker run snack-attack
+```
+
 
 ## Configuration
 Shared runtime configuration lives in src/shared/config.ts (client origin, game bounds, session settings, etc.). Server-specific settings are in src/server/config.ts.
