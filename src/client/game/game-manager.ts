@@ -410,7 +410,7 @@ export class GameManager {
   private onEngineTick(deltaMs: number, tickNumber: number): void {
     if (!this.running) return;
 
-    this.updateFPS(deltaMs);
+    this.updateFPS();
 
     // Don't send input or update animations when paused
     if (this.isPaused) return;
