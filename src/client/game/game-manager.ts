@@ -154,8 +154,8 @@ export class GameManager {
     console.log('GameManager: HostileRenderer container:', this.hostileRenderer?.['container']);
 
     // Handle window resize for responsive gameplay
-    this.resizeHandler = () => this.onWindowResize();
-    window.addEventListener('resize', this.resizeHandler);
+    // this.resizeHandler = () => this.onWindowResize();
+    // window.addEventListener('resize', this.resizeHandler);
   }
 
   /**
@@ -289,8 +289,6 @@ export class GameManager {
 
     // Render powerups
     if (this.powerupRenderer && payload.powerups) {
-      console.log('[GameManager] Updating powerups:', payload.powerups.length, 'powerups');
-
       this.powerupRenderer.updateAll(<any>payload.powerups);
     }
 

@@ -457,7 +457,6 @@ export class GameSidebar extends LitElement {
 
 
   private getFishOMeterProgress(): number {
-    console.log('Calculating Fish-o-meter progress for XP:', this.playerXP);
     if (this.playerXP <= PLAYER_GROWTH_CONFIG[1].xpThreshold) {
       return (this.playerXP / PLAYER_GROWTH_CONFIG[1].xpThreshold > 0 ? PLAYER_GROWTH_CONFIG[1].xpThreshold : 1) * 33.33;
     } else if (this.playerXP <= PLAYER_GROWTH_CONFIG[2].xpThreshold) {

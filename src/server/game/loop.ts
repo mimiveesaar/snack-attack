@@ -14,7 +14,7 @@ const TICK_INTERVAL_MS = 1000 / TICK_RATE_HZ; // ~16.67ms
 const BROADCAST_RATE_HZ = 20;
 const BROADCAST_INTERVAL_TICKS = TICK_RATE_HZ / BROADCAST_RATE_HZ; // 6 ticks
 
-const TIMER_TICK_INTERVAL_TICKS = TICK_RATE_HZ; // Every 60 ticks = 1 second
+const TIMER_TICK_INTERVAL_TICKS = 5; // Every 60 ticks = 1 second
 
 export class GameLoop {
   private gameNamespace: Namespace<GameClientToServerEvents, GameServerToClientEvents>;

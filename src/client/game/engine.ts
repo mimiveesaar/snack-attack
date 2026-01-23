@@ -3,7 +3,7 @@ export interface EngineTickListener {
 }
 
 export class GameEngine {
-  private tickRate: number = 60;
+  private tickRate: number;
   private lastTickTimeMs: number = 0;
   private tickNumber: number = 0;
   private running: boolean = false;
@@ -40,7 +40,10 @@ export class GameEngine {
     if (!this.running) return;
 
     const nowMs = Date.now();
-    const deltaMs = nowMs - this.lastTickTimeMs;
+    const rawDeltaMs = nowMs - this.lastTickTimeMs;
+    //Clamp to 10 frames. 
+    const maxDeltaMs = (1000 / this.tickRate) * 2;
+    const deltaMs = Math.min(rawDeltaMs, maxDeltaMs);
     this.lastTickTimeMs = nowMs;
 
     // Notify listeners of tick
