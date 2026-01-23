@@ -49,7 +49,9 @@ export class GameSessionManager {
   ): void {
     this.stop(lobbyId);
     const lobby = lobbyStore.get(lobbyId);
-    if (!lobby || !lobby.activeSession) return;
+    if (!lobby || !lobby.activeSession) {
+      return;
+    } 
 
     // Use the session ID created by lobby manager
     const sessionId = lobby.activeSession.sessionId;
@@ -104,7 +106,9 @@ export class GameSessionManager {
 
   stop(lobbyId: string): void {
     const timer = this.timers.get(lobbyId);
-    if (timer) clearTimeout(timer);
+    if (timer) {
+      clearTimeout(timer);
+    }     
     this.timers.delete(lobbyId);
   }
 }

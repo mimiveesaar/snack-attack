@@ -1,7 +1,7 @@
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { createGameSession, getGameSession, deleteGameSession } from '../feature/session/session-store';
-import { createGameLoop, deleteGameLoop } from './loop-store';
+import { createGameLoop, deleteGameLoop, getGameLoop } from './loop-store';
 
 export interface GamePlayerInit {
   id: string;
@@ -58,6 +58,12 @@ export class GameOrchestrator {
     console.log(`GameOrchestrator: Stopping session ${sessionId}`);
 
     try {
+
+      const loop = getGameLoop(sessionId);
+      if (loop) {
+        loop.end();
+      }
+
       // Stop game loop
       deleteGameLoop(sessionId);
 

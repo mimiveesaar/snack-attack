@@ -57,6 +57,25 @@ export class GameLoop {
     this.engine.stop();
   }
 
+  end(): void {
+
+    const session = getGameSession(this.sessionId);
+    if (!session) {
+      this.stop();
+      return;
+    }
+
+      const state = session.getState();
+
+      console.log(`GameLoop: Game ending `);
+      state.status = 'ended';
+      session.setTimeRemainingMs(0);
+      this.broadcastStateUpdate(session, session.drainEvents());
+      this.broadcastGameEnded(session);
+      this.stop();
+      return;
+  }
+
   // Main game loop.
   private tick(): void {
     const session = getGameSession(this.sessionId);
@@ -80,14 +99,14 @@ export class GameLoop {
 
     // Check if game has ended (time limit reached) AFTER pause check
     // Use a small threshold (100ms) to avoid race conditions with remaining time display
-    const timeRemaining = session.getTimeRemainingMs();
-    if (timeRemaining <= 100 && state.status !== 'ended') {
-      console.log(`GameLoop: Game ending with ${timeRemaining}ms remaining`);
-      state.status = 'ended';
-      this.broadcastGameEnded(session);
-      this.stop();
-      return;
-    }
+    // const timeRemaining = session.getTimeRemainingMs();
+    // if (timeRemaining <= 100 && state.status !== 'ended') {
+    //   console.log(`GameLoop: Game ending with ${timeRemaining}ms remaining`);
+    //   state.status = 'ended';
+    //   this.broadcastGameEnded(session);
+    //   this.stop();
+    //   return;
+    // }
 
     // Update player state.
     this.playerManager.tick(session);

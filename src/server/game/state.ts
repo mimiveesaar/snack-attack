@@ -247,6 +247,12 @@ export class GameSessionState {
     return remaining;
   }
 
+  public setTimeRemainingMs(remainingMs: number): void {
+    const now = Date.now();
+    const elapsed = this.state.gameTimerDurationMs - remainingMs;
+    this.state.timerStartMs = now - elapsed - this.state.pausedElapsedMs;
+  }
+
   pauseGame(leaderId: string): boolean {
     if (this.state.isPaused) return false;
     console.log(`[PAUSE] Game paused by leader ${leaderId} at ${Date.now()}, pausedElapsedMs: ${this.state.pausedElapsedMs}`);
