@@ -410,23 +410,7 @@ export class GameManager {
   private onEngineTick(deltaMs: number, tickNumber: number): void {
     if (!this.running) return;
 
-    // Update FPS using engine ticks
-    if (this.fpsSampleStartMs === 0) {
-      this.fpsSampleStartMs = performance.now();
-      this.fpsFrameCount = 0;
-    }
-
-    this.fpsFrameCount += 1;
-    const nowMs = performance.now();
-    const elapsedMs = nowMs - this.fpsSampleStartMs;
-    if (elapsedMs >= this.fpsSampleWindowMs) {
-      const fps = (this.fpsFrameCount * 1000) / elapsedMs;
-      if (this.hud) {
-        this.hud.updateFps(fps);
-      }
-      this.fpsSampleStartMs = nowMs;
-      this.fpsFrameCount = 0;
-    }
+    this.updateFPS(deltaMs);
 
     // Don't send input or update animations when paused
     if (this.isPaused) return;
@@ -452,6 +436,25 @@ export class GameManager {
 
     if (this.hostileRenderer) {
       this.hostileRenderer.updateFrame(deltaMs);
+    }
+  }
+
+  private updateFPS(): void {
+    if (this.fpsSampleStartMs === 0) {
+      this.fpsSampleStartMs = performance.now();
+      this.fpsFrameCount = 0;
+    }
+
+    this.fpsFrameCount += 1;
+    const nowMs = performance.now();
+    const elapsedMs = nowMs - this.fpsSampleStartMs;
+    if (elapsedMs >= this.fpsSampleWindowMs) {
+      const fps = (this.fpsFrameCount * 1000) / elapsedMs;
+      if (this.hud) {
+        this.hud.updateFps(fps);
+      }
+      this.fpsSampleStartMs = nowMs;
+      this.fpsFrameCount = 0;
     }
   }
 
