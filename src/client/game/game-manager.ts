@@ -42,6 +42,9 @@ export class GameManager {
   private endScreenCountdownInterval: number | null = null;
   private fishEatenEventCount: number = 0;
   private resizeHandler: (() => void) | null = null;
+  private fpsSampleStartMs: number = 0;
+  private fpsFrameCount: number = 0;
+  private fpsSampleWindowMs: number = 500;
   leaderboard: any;
 
 
@@ -406,6 +409,24 @@ export class GameManager {
    */
   private onEngineTick(deltaMs: number, tickNumber: number): void {
     if (!this.running) return;
+
+    // Update FPS using engine ticks
+    if (this.fpsSampleStartMs === 0) {
+      this.fpsSampleStartMs = performance.now();
+      this.fpsFrameCount = 0;
+    }
+
+    this.fpsFrameCount += 1;
+    const nowMs = performance.now();
+    const elapsedMs = nowMs - this.fpsSampleStartMs;
+    if (elapsedMs >= this.fpsSampleWindowMs) {
+      const fps = (this.fpsFrameCount * 1000) / elapsedMs;
+      if (this.hud) {
+        this.hud.updateFps(fps);
+      }
+      this.fpsSampleStartMs = nowMs;
+      this.fpsFrameCount = 0;
+    }
 
     // Don't send input or update animations when paused
     if (this.isPaused) return;

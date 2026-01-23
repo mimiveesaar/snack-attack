@@ -14,6 +14,7 @@ import '../../components/sound-toggle';
 @customElement('game-hud')
 export class GameHUD extends LitElement {
   @state() timerRemainingMs: number = 30000; // 30 seconds
+  @state() fps: number = 0;
   @state() isPaused: boolean = false;
   @state() pausedByLeaderNickname: string | null = null;
   @state() isGameEnded: boolean = false;
@@ -35,6 +36,19 @@ export class GameHUD extends LitElement {
       font-weight: bold;
       color: black;
       padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 101;
+    }
+
+    .fps {
+      position: absolute;
+      top: 48px;
+      left: 10px;
+      font-family: "Jersey 10", system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      color: black;
+      padding: 2px 6px;
       border-radius: 4px;
       z-index: 101;
     }
@@ -226,6 +240,13 @@ export class GameHUD extends LitElement {
   }
 
   /**
+   * Update FPS display
+   */
+  updateFps(fps: number): void {
+    this.fps = fps;
+  }
+
+  /**
    * Update pause state
    */
   updatePauseState(isPaused: boolean, pausedByLeaderNickname: string | null): void {
@@ -273,6 +294,7 @@ export class GameHUD extends LitElement {
     return html`
       <!-- Timer -->
       <div class="timer">${this.formatTime(this.timerRemainingMs)}</div>
+      <div class="fps">${Math.round(this.fps)} FPS</div>
 
       <!-- Sound Toggle -->
       <div class="sound-toggle-container">
