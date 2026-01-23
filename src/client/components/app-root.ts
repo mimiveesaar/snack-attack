@@ -140,6 +140,7 @@ export class AppRoot extends LitElement {
                   .lobbyId=${lobby.lobbyId}
                   .gamemode=${lobby.gamemode}
                   .difficulty=${lobby.difficulty}
+                  .playerCount=${lobby.players.length}
                   .isLeader=${lobby.players.some(
                     (p) => p.isLeader && p.id === this.clientState.selfId,
                   )}

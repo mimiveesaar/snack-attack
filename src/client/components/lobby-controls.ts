@@ -9,6 +9,7 @@ export class LobbyControls extends LitElement {
   @property({ type: String }) difficulty: Difficulty = "easy";
   @property({ type: Boolean }) isLeader = false;
   @property({ type: String }) shareUrl = "";
+  @property({ type: Number }) playerCount = 0;
 
   static styles = css`
     .row {
@@ -162,7 +163,10 @@ export class LobbyControls extends LitElement {
   }
 
   private startGame() {
-    if (!this.isLeader) return;
+    const canStart =
+      this.isLeader &&
+      !(this.gamemode === "multiplayer" && this.playerCount < 2);
+    if (!canStart) return;
     this.dispatchEvent(
       new CustomEvent("start-game", {
         detail: { lobbyId: this.lobbyId },
@@ -173,6 +177,9 @@ export class LobbyControls extends LitElement {
   }
 
   render() {
+    const startDisabled =
+      !this.isLeader ||
+      (this.gamemode === "multiplayer" && this.playerCount < 2);
     return html`
       <div class="stack">
         <div class="left-box">
@@ -229,8 +236,9 @@ export class LobbyControls extends LitElement {
           ${this.isLeader
             ? html`<button
                 type="button"
-                class="start-game-button"
+                class=${`start-game-button ${startDisabled ? "locked" : ""}`}
                 @click=${this.startGame}
+                ?disabled=${startDisabled}
               >
                 Start Game
               </button>`
