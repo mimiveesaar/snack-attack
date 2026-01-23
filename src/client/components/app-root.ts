@@ -143,7 +143,7 @@ export class AppRoot extends LitElement {
                   .isLeader=${lobby.players.some(
                     (p) => p.isLeader && p.id === this.clientState.selfId,
                   )}
-                  .shareUrl=${lobby.shareUrl}
+                  .shareUrl=${window.location.href}
                   @change-settings=${this.handleSettingsChange}
                   @start-game=${this.handleStartGame}
                 ></lobby-controls>

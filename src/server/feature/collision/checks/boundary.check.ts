@@ -18,6 +18,7 @@ export const processBoundaryCollisions = (session: GameSessionState): void => {
 
   for (const player of state.players) {
     if (isBoundaryCollision(player.position.x, player.position.y, player.collisionRadius)) {
+      console.log(`Boundary collision detected for player ${player.id} at position (${player.position.x}, ${player.position.y})`);
       const clamped = clampToBoundary(player.position.x, player.position.y, player.collisionRadius);
       player.position = clamped;
     }

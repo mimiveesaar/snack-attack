@@ -165,7 +165,6 @@ export class GameManager {
     const gameCanvas = document.getElementById('game-canvas');
     if (gameCanvas instanceof SVGElement) {
       // Force renderer redraw on next tick
-      // The SVG viewBox stays at 800x800, but physical size changes
       console.log('GameManager: Window resized, canvas size:', {
         width: gameCanvas.clientWidth,
         height: gameCanvas.clientHeight,

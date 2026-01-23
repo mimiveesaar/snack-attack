@@ -30,6 +30,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: true,
     proxy: {
       // Socket.IO (namespaces like /lobby and /game still use the /socket.io transport path)
       '/socket.io': {

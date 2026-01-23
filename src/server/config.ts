@@ -16,8 +16,8 @@ export const NPC_SPAWN_CONFIG = {
 			},
 		},
 		grey: {
-			intervalMs: 2000,
-			maxConcurrent: 20,
+			intervalMs: 5000,
+			maxConcurrent: 10,
 			xp: 25,
 			collisionRadius: 9,
 			visualSize: 0.8,
@@ -27,8 +27,8 @@ export const NPC_SPAWN_CONFIG = {
 			},
 		},
 		brown: {
-			intervalMs: 5000,
-			maxConcurrent: 16,
+			intervalMs: 10000,
+			maxConcurrent: 8,
 			xp: 50,
 			collisionRadius: 12,
 			visualSize: 0.95,

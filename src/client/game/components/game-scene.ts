@@ -45,8 +45,8 @@ export class GameScene extends LitElement {
 
         .game-container {
           position: relative;
-          width: 70vw;
-          height: 90%;
+          width: 800px;
+          height: 600px;
           background: linear-gradient(180deg, #b4c3b5 0%, #49534a 100%);
           border: 3px solid black;
           overflow: hidden;
@@ -77,7 +77,7 @@ export class GameScene extends LitElement {
 
         #sidebar {
           width: 200px;
-          height: 90%;
+          height: 600px;
           background-color: #ADC8AF;
           border: 3px solid black;
           padding: 1rem;
@@ -88,7 +88,7 @@ export class GameScene extends LitElement {
       </style>
       <div class="game-container">
         <!-- SVG canvas - renderers will mount here -->
-        <svg id="game-canvas" width="600" height="600" viewBox="0 0 600 600">
+        <svg id="game-canvas" >
           <!-- Player renderer will render here -->
           <!-- Hostile renderer will render here -->
           <!-- Powerup renderer will render here -->

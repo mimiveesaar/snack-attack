@@ -1,15 +1,3 @@
-/**
- * Client Game Engine - Main game loop using requestAnimationFrame
- *
- * Responsibilities:
- * - Tick at ~60 FPS using requestAnimationFrame
- * - Collect input and send to server
- * - Update local state from server broadcasts
- * - Call render callbacks
- */
-
-import { getInputController } from './input-controller';
-
 export interface EngineTickListener {
   onTick(deltaMs: number, tickNumber: number): void;
 }
