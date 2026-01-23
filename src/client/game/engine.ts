@@ -39,12 +39,15 @@ export class GameEngine {
   private tick = (): void => {
     if (!this.running) return;
 
-    const nowMs = Date.now();
+    const nowMs = performance.now();
     const rawDeltaMs = nowMs - this.lastTickTimeMs;
     //Clamp to 10 frames. 
-    const maxDeltaMs = (1000 / this.tickRate) * 2;
+    const maxDeltaMs = (1000 / this.tickRate) * 5;
     const deltaMs = Math.min(rawDeltaMs, maxDeltaMs);
     this.lastTickTimeMs = nowMs;
+
+    const fps = deltaMs > 0 ? 1000 / deltaMs : 0;
+    console.log(`GameEngine: FPS ${fps.toFixed(1)}`);
 
     // Notify listeners of tick
     this.listeners.forEach((listener) => {

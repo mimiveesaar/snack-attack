@@ -198,7 +198,6 @@ export interface GameServerToClientEvents {
   'game:state-update': (payload: GameStateUpdatePayload) => void;
   'game:collision': (payload: GameCollisionPayload) => void;
   'game:player-disconnected': (payload: GamePlayerDisconnectedPayload) => void;
-  'game:timer-tick': (payload: GameTimerTickPayload) => void;
   'game:paused': (payload: GamePausedPayload) => void;
   'game:resumed': (payload: GameResumedPayload) => void;
   'game:ended': (payload: GameEndedPayload) => void;

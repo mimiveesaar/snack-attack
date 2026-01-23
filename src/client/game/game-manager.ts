@@ -152,25 +152,8 @@ export class GameManager {
     console.log('GameManager: Canvas element exists?', !!gameCanvas);
     console.log('GameManager: PlayerRenderer container:', this.playerRenderer?.['container']);
     console.log('GameManager: HostileRenderer container:', this.hostileRenderer?.['container']);
-
-    // Handle window resize for responsive gameplay
-    // this.resizeHandler = () => this.onWindowResize();
-    // window.addEventListener('resize', this.resizeHandler);
   }
 
-  /**
-   * Handle window resize - triggers renderer updates if needed
-   */
-  private onWindowResize(): void {
-    const gameCanvas = document.getElementById('game-canvas');
-    if (gameCanvas instanceof SVGElement) {
-      // Force renderer redraw on next tick
-      console.log('GameManager: Window resized, canvas size:', {
-        width: gameCanvas.clientWidth,
-        height: gameCanvas.clientHeight,
-      });
-    }
-  }
 
   /**
    * Setup Socket.IO event listeners
@@ -186,13 +169,6 @@ export class GameManager {
     // State updates from server
     this.socket.on('game:state-update', (payload) => {
       this.onStateUpdate(payload);
-    });
-
-    // Timer ticks
-    this.socket.on('game:timer-tick', (payload) => {
-      if (this.hud) {
-        this.hud.updateTimer(payload.timerRemainingMs);
-      }
     });
 
     // Game paused
