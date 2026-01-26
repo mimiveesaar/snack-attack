@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import type { Difficulty, Gamemode } from "@shared/types";
+import { customElement, property, state } from "lit/decorators.js";
+import type { Difficulty, Gamemode, LobbyState, OpponentSlot } from "@shared/types";
+import "./opponent-overlay";
 
 @customElement("lobby-controls")
 export class LobbyControls extends LitElement {
@@ -10,6 +11,10 @@ export class LobbyControls extends LitElement {
   @property({ type: Boolean }) isLeader = false;
   @property({ type: String }) shareUrl = "";
   @property({ type: Number }) playerCount = 0;
+  @property({ attribute: false })
+  singleplayerSettings?: LobbyState["singleplayerSettings"];
+
+  @state() private showOpponentOverlay = false;
 
   static styles = css`
     .row {
@@ -140,6 +145,7 @@ export class LobbyControls extends LitElement {
           gamemode: mode,
           difficulty: this.difficulty,
           lobbyId: this.lobbyId,
+          singleplayerSettings: this.singleplayerSettings,
         },
         bubbles: true,
         composed: true,
@@ -155,6 +161,42 @@ export class LobbyControls extends LitElement {
           gamemode: this.gamemode,
           difficulty: level,
           lobbyId: this.lobbyId,
+          singleplayerSettings: this.singleplayerSettings,
+        },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private cycleDifficulty() {
+    if (!this.isLeader) return;
+    const order: Difficulty[] = ["easy", "medium", "hard"];
+    const currentIndex = order.indexOf(this.difficulty);
+    const next = order[(currentIndex + 1) % order.length];
+    this.setDifficulty(next);
+  }
+
+  private openOpponentOverlay() {
+    if (!this.isLeader) return;
+    this.showOpponentOverlay = true;
+  }
+
+  private closeOpponentOverlay() {
+    this.showOpponentOverlay = false;
+  }
+
+  private handleOpponentsChange(event: CustomEvent<{ opponents: OpponentSlot[] }>) {
+    if (!this.isLeader) return;
+    this.dispatchEvent(
+      new CustomEvent("change-settings", {
+        detail: {
+          gamemode: this.gamemode,
+          difficulty: this.difficulty,
+          lobbyId: this.lobbyId,
+          singleplayerSettings: {
+            opponents: event.detail.opponents,
+          },
         },
         bubbles: true,
         composed: true,
@@ -206,7 +248,9 @@ export class LobbyControls extends LitElement {
               >
                 Multiplayer
               </button>
-              <share-url .url=${this.shareUrl}></share-url>
+              ${this.gamemode === "multiplayer"
+                ? html`<share-url .url=${this.shareUrl}></share-url>`
+                : null}
             </div>
           </div>
 
@@ -215,19 +259,37 @@ export class LobbyControls extends LitElement {
               <span class="label">Difficulty:</span>
 
               <div class="row">
-                ${(["easy", "medium", "hard"] as Difficulty[]).map(
-                  (lvl) => html`
-                    <button
-                      type="button"
-                      class="difficulty ${lvl} ${this.difficulty === lvl
-                        ? "selected"
-                        : "secondary"} ${!this.isLeader ? "locked" : ""}"
-                      @click=${() => this.setDifficulty(lvl)}
-                    >
-                      ${lvl[0].toUpperCase() + lvl.slice(1)}
-                    </button>
-                  `,
-                )}
+                ${this.gamemode === "singleplayer"
+                  ? html`
+                      <button
+                        type="button"
+                        class=${`${!this.isLeader ? "locked" : ""}`}
+                        @click=${this.cycleDifficulty}
+                      >
+                        ${this.difficulty[0].toUpperCase() +
+                        this.difficulty.slice(1)}
+                      </button>
+                      <button
+                        type="button"
+                        class=${`${!this.isLeader ? "locked" : ""}`}
+                        @click=${this.openOpponentOverlay}
+                      >
+                        Manage Opponents
+                      </button>
+                    `
+                  : (["easy", "medium", "hard"] as Difficulty[]).map(
+                      (lvl) => html`
+                        <button
+                          type="button"
+                          class="difficulty ${lvl} ${this.difficulty === lvl
+                            ? "selected"
+                            : "secondary"} ${!this.isLeader ? "locked" : ""}"
+                          @click=${() => this.setDifficulty(lvl)}
+                        >
+                          ${lvl[0].toUpperCase() + lvl.slice(1)}
+                        </button>
+                      `,
+                    )}
               </div>
             </div>
           </div>
@@ -244,6 +306,13 @@ export class LobbyControls extends LitElement {
               </button>`
             : html`<div>Waiting for leader to start...</div>`}
         </div>
+        <opponent-overlay
+          ?open=${this.showOpponentOverlay}
+          .opponents=${this.singleplayerSettings?.opponents ?? []}
+          .canEdit=${this.isLeader}
+          @opponents-change=${this.handleOpponentsChange}
+          @overlay-close=${this.closeOpponentOverlay}
+        ></opponent-overlay>
       </div>
     `;
   }

@@ -44,6 +44,7 @@ export class AppRoot extends LitElement {
       gamemode: LobbyState["gamemode"];
       difficulty: LobbyState["difficulty"];
       lobbyId: string;
+      singleplayerSettings?: LobbyState["singleplayerSettings"];
     }>,
   ) => {
     lobbyClient.updateSettings(event.detail);
@@ -140,6 +141,7 @@ export class AppRoot extends LitElement {
                   .lobbyId=${lobby.lobbyId}
                   .gamemode=${lobby.gamemode}
                   .difficulty=${lobby.difficulty}
+                  .singleplayerSettings=${lobby.singleplayerSettings}
                   .playerCount=${lobby.players.length}
                   .isLeader=${lobby.players.some(
                     (p) => p.isLeader && p.id === this.clientState.selfId,

@@ -6,6 +6,7 @@ export interface GamePlayerInit {
   nicknameDisplay: string;
   color: string;
   isLeader?: boolean;
+  isBot?: boolean;
 }
 
 /**

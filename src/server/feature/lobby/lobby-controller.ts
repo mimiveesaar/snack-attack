@@ -90,6 +90,7 @@ export class LobbyController {
           leaderId: socket.id,
           gamemode: payload.gamemode,
           difficulty: payload.difficulty,
+          singleplayerSettings: payload.singleplayerSettings,
         });
 
         if (result.error) {

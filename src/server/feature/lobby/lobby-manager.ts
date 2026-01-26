@@ -41,6 +41,9 @@ export class LobbyManager {
         players: [player],
         gamemode: 'multiplayer',
         difficulty: 'easy',
+        singleplayerSettings: {
+          opponents: [],
+        },
         maxPlayers: MULTIPLAYER_CAP,
         status: 'waiting',
         shareUrl,
@@ -102,12 +105,20 @@ export class LobbyManager {
 
   public updateSettings(
     lobby: LobbyRecord,
-    params: { leaderId: string; gamemode: Gamemode; difficulty: Difficulty }
+    params: {
+      leaderId: string;
+      gamemode: Gamemode;
+      difficulty: Difficulty;
+      singleplayerSettings?: LobbyRecord['singleplayerSettings'];
+    }
   ): { kicked: Player[]; error?: string } {
     if (!this.isLeader(lobby, params.leaderId)) return { kicked: [], error: 'Not leader' };
 
     lobby.gamemode = params.gamemode;
     lobby.difficulty = params.difficulty;
+    if (params.singleplayerSettings) {
+      lobby.singleplayerSettings = params.singleplayerSettings;
+    }
     lobby.maxPlayers = params.gamemode === 'singleplayer' ? SINGLEPLAYER_CAP : MULTIPLAYER_CAP;
 
     const kicked: Player[] = [];

@@ -21,7 +21,15 @@ export interface ErrorPayload {
 export interface ClientToServerEvents {
   'lobby:create': (payload: { nickname: string; color: string }, callback: (state: LobbyState) => void) => void;
   'lobby:join': (payload: { lobbyId: string; nickname: string; color: string }, callback: (state: LobbyState | null) => void) => void;
-  'lobby:updateSettings': (payload: { lobbyId: string; gamemode: LobbyState['gamemode']; difficulty: LobbyState['difficulty'] }, callback: (state: LobbyState | null) => void) => void;
+  'lobby:updateSettings': (
+    payload: {
+      lobbyId: string;
+      gamemode: LobbyState['gamemode'];
+      difficulty: LobbyState['difficulty'];
+      singleplayerSettings?: LobbyState['singleplayerSettings'];
+    },
+    callback: (state: LobbyState | null) => void
+  ) => void;
   'lobby:start': (payload: { lobbyId: string }, callback: (session: GameSession | null) => void) => void;
   'lobby:leave': (payload: { lobbyId: string }) => void;
 }

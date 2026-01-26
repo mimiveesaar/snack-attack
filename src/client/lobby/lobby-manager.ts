@@ -79,7 +79,12 @@ class LobbyManager {
     });
   }
 
-  updateSettings(payload: { gamemode: LobbyState['gamemode']; difficulty: LobbyState['difficulty']; lobbyId: string }): void {
+  updateSettings(payload: {
+    gamemode: LobbyState['gamemode'];
+    difficulty: LobbyState['difficulty'];
+    lobbyId: string;
+    singleplayerSettings?: LobbyState['singleplayerSettings'];
+  }): void {
     this.socket.emit('lobby:updateSettings', payload, (state: LobbyState | null) => {
       if (state) this.setState({ lobby: state, view: 'lobby', waiting: null });
     });

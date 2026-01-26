@@ -7,6 +7,7 @@ export interface GamePlayerInit {
   id: string;
   nicknameDisplay: string;
   color: string;
+  isBot?: boolean;
 }
 
 export class GameOrchestrator {

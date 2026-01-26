@@ -101,6 +101,10 @@ waiting-view {
   width: 100%;
 }
 
+opponent-overlay {
+  width: 100%;
+}
+
 lobby-entry {
   flex: 1;
   align-items: stretch;

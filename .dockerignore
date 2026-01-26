@@ -1,0 +1,27 @@
+# Node / build artifacts
+node_modules/
+dist/
+build/
+coverage/
+*.log*
+
+# Environment
+.env*
+
+# VCS
+.git/
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Tooling
+.pnpm-store/
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/

@@ -64,6 +64,22 @@ export class GameSessionManager {
       isLeader: player.isLeader || idx === 0,
     }));
 
+    const opponentSlots = lobby.gamemode === 'singleplayer'
+      ? (lobby.singleplayerSettings?.opponents ?? [])
+      : [];
+    const opponentPlayers = opponentSlots
+      .filter((slot) => slot.isActive)
+      .slice(0, 3)
+      .map((slot) => ({
+        id: `bot-${lobby.lobbyId}-${slot.slotId}`,
+        nicknameDisplay: slot.name?.trim() || `Opponent ${slot.slotId}`,
+        color: slot.color,
+        isLeader: false,
+        isBot: true,
+      }));
+
+    gameOrchestrationPlayers.push(...opponentPlayers);
+
     // Start the game session via orchestrator (if game namespace is available)
     if (this.gameNamespace) {
       console.log(`GameSessionManager: Starting game session ${sessionId} with ${gameOrchestrationPlayers.length} players`);
@@ -92,6 +108,7 @@ export class GameSessionManager {
           players: lobby.players,
           gamemode: lobby.gamemode,
           difficulty: lobby.difficulty,
+          singleplayerSettings: lobby.singleplayerSettings,
           maxPlayers: lobby.maxPlayers,
           status: lobby.status,
           shareUrl: lobby.shareUrl,
