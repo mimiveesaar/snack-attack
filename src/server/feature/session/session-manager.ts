@@ -73,7 +73,7 @@ export class GameSessionManager {
       .map((slot) => ({
         id: `bot-${lobby.lobbyId}-${slot.slotId}`,
         nicknameDisplay: slot.name?.trim() || `Opponent ${slot.slotId}`,
-        color: slot.color,
+        color: this.mapOpponentColor(slot.color),
         isLeader: false,
         isBot: true,
       }));
@@ -119,6 +119,21 @@ export class GameSessionManager {
     }, SESSION_DURATION_MS);
 
     this.timers.set(lobbyId, timeout);
+  }
+
+  private mapOpponentColor(color: string): string {
+    switch (color) {
+      case 'red':
+        return '#FF6347';
+      case 'blue':
+        return '#4169E1';
+      case 'green':
+        return '#228B22';
+      case 'orange':
+        return '#FFA500';
+      default:
+        return '#FF6347';
+    }
   }
 
   stop(lobbyId: string): void {
