@@ -263,7 +263,7 @@ export class LobbyControls extends LitElement {
                   ? html`
                       <button
                         type="button"
-                        class=${`${!this.isLeader ? "locked" : ""}`}
+                        class=${`difficulty ${this.difficulty} ${!this.isLeader ? "locked" : ""}`}
                         @click=${this.cycleDifficulty}
                       >
                         ${this.difficulty[0].toUpperCase() +

@@ -3,6 +3,12 @@ import { customElement, property, state } from "lit/decorators.js";
 import type { OpponentColor, OpponentSlot } from "@shared/types";
 
 const COLOR_OPTIONS: OpponentColor[] = ["red", "blue", "green", "orange"];
+const FISH_ICON_BY_COLOR: Record<OpponentColor, string> = {
+  red: "fish_red",
+  blue: "fish_blue",
+  green: "fish_green",
+  orange: "fish_orange",
+};
 
 @customElement("opponent-overlay")
 export class OpponentOverlay extends LitElement {
@@ -87,10 +93,17 @@ export class OpponentOverlay extends LitElement {
     }
 
     .swatch {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      border: 2px solid #222;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .swatch img {
+      width: 24px;
+      height: 24px;
+      image-rendering: pixelated;
     }
 
     .slot input {
@@ -283,7 +296,12 @@ export class OpponentOverlay extends LitElement {
               ? this.draft.map(
                   (slot) => html`
                     <div class="slot">
-                      <div class="swatch" style="background: ${slot.color}"></div>
+                      <div class="swatch">
+                        <img
+                          src=${`/assets/vector/${FISH_ICON_BY_COLOR[slot.color]}.svg`}
+                          alt=${`${slot.color} fish`}
+                        />
+                      </div>
                       <input
                         type="text"
                         .value=${slot.name}
