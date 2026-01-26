@@ -5,7 +5,7 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     difficulty: 'easy',
     reactionIntervalMs: 900,
     targetSwitchIntervalMs: 6000,
-    riskTolerance: 0.2,
+    riskTolerance: 0.8,
     jitterStrength: 0.6,
   },
   medium: {
@@ -19,7 +19,7 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     difficulty: 'hard',
     reactionIntervalMs: 350,
     targetSwitchIntervalMs: 3000,
-    riskTolerance: 0.8,
+    riskTolerance: 0.2,
     jitterStrength: 0.2,
   },
 };
