@@ -2,6 +2,7 @@ import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents, GameStateUpdatePayload } from '../../shared/game-events';
 import { getGameSession } from '../feature/session/session-store';
 import { collisionDetector } from '../feature/collision';
+import { botManager } from '../feature/bot/bot-manager';
 import { NPCManager } from '../feature/npc/npc-manager';
 import { PlayerManager } from '../feature/player/player-manager';
 import { PowerupManager } from '../feature/powerup/powerup-manager';
@@ -109,6 +110,7 @@ export class GameLoop {
     // }
 
     // Update player state.
+    botManager.tick(session);
     this.playerManager.tick(session);
 
     // Update NPCs (spawning, positioning)
@@ -150,6 +152,7 @@ export class GameLoop {
         powerupEndTimeMs: p.powerups.length > 0 ? (p.powerupEndTimes?.get(p.powerups[0]) ?? null) : null,
         color: p.color,
         nicknameDisplay: p.nicknameDisplay,
+        isBot: p.isBot ?? false,
       })),
       npcs: state.npcs.map((n) => ({
         id: n.id,

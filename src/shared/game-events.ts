@@ -48,6 +48,7 @@ export interface GamePlayerStateUpdate {
   powerupEndTimeMs?: number | null;
   color: string;
   nicknameDisplay: string;
+  isBot?: boolean;
 }
 
 export interface GameNPCStateUpdate {

@@ -24,6 +24,7 @@ export class GameSessionState {
       nicknameDisplay: p.nicknameDisplay,
       color: p.color,
       isLeader: p.isLeader || idx === 0,
+      isBot: p.isBot ?? false,
       position: this.getInitialPlayerSpawnPosition(idx),
       velocity: { x: 0, y: 0 },
       xp: 0,
@@ -287,4 +288,26 @@ export class GameSessionState {
     player.velocity.y = 0;
     return true;
   }
+}
+
+export interface VirtualOpponentProfile {
+  difficulty: 'easy' | 'medium' | 'hard';
+  reactionIntervalMs: number;
+  targetSwitchIntervalMs: number;
+  riskTolerance: number;
+  jitterStrength: number;
+}
+
+export interface VirtualOpponentState {
+  playerId: string;
+  profile: VirtualOpponentProfile;
+  currentTargetId: string | null;
+  lastDecisionAt: number;
+  nextDecisionAt: number;
+  lastDirectionChangeAt: number;
+  seed: number;
+}
+
+export interface BotRoster {
+  byPlayerId: Record<string, VirtualOpponentState>;
 }

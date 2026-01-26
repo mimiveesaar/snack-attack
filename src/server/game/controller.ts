@@ -124,6 +124,11 @@ export class GameController {
       return;
     }
 
+    const player = session.getState().players.find((p) => p.id === playerId);
+    if (player?.isBot) {
+      return;
+    }
+
     // Apply player input to game state
     session.applyPlayerInput(playerId, direction);
   }
@@ -158,8 +163,10 @@ export class GameController {
       return;
     }
 
-    const state = session.getState();
-    const player = state.players.find((p: { id: string; }) => p.id === playerId);
+    const player = session.getState().players.find((p) => p.id === playerId);
+    if (player?.isBot) {
+      return;
+    }
 
     if (!player) {
       socket.emit('game:error', {
@@ -228,8 +235,10 @@ export class GameController {
       return;
     }
 
-    const state = session.getState();
-    const player = state.players.find((p: { id: string; }) => p.id === playerId);
+    const player = session.getState().players.find((p) => p.id === playerId);
+    if (player?.isBot) {
+      return;
+    }
 
     if (!player) {
       socket.emit('game:error', {

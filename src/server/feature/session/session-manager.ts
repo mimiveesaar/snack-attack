@@ -8,6 +8,7 @@ import { ClientToServerEvents, ServerToClientEvents } from '../../../shared/even
 import { ActiveGameSnapshot } from '../../../shared/game-session';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../../../shared/game-events';
 import { SESSION_DURATION_MS } from '../../../shared/config';
+import { botManager } from '../bot/bot-manager';
 
 export class GameSessionManager {
   private timers = new Map<string, NodeJS.Timeout>();
@@ -94,6 +95,10 @@ export class GameSessionManager {
       }
     }
 
+    if (lobby.gamemode === 'singleplayer') {
+      botManager.initializeSession(sessionId, lobby.difficulty);
+    }
+
     lobby.activeSession.timerRemainingMs = SESSION_DURATION_MS;
     const timeout = setTimeout(() => {
       // Stop game session via orchestrator
@@ -142,6 +147,12 @@ export class GameSessionManager {
       clearTimeout(timer);
     }     
     this.timers.delete(lobbyId);
+
+    const lobby = lobbyStore.get(lobbyId);
+    const sessionId = lobby?.activeSession?.sessionId;
+    if (sessionId) {
+      botManager.clearSession(sessionId);
+    }
   }
 }
 

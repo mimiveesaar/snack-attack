@@ -37,6 +37,7 @@ export interface GamePlayer {
   nicknameDisplay: string;
   color: string;
   isLeader: boolean;
+  isBot?: boolean;
   position: Vec2D;
   velocity: Vec2D;
   xp: number;

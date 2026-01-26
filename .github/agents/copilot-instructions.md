@@ -9,6 +9,7 @@ Auto-generated from all feature plans. Last updated: 2026-01-17
 - In-memory Maps on the Node server for lobby/game session state (no persistence) (004-pvp-fish-eating)
 - localStorage (existing sound-enabled preference) (006-fish-eat-sfx)
 - In-memory lobby state on server; client-side component state (no new persistence) (007-customize-singleplayer-lobby)
+- In-memory game session state; no new persistence (008-virtual-opponent-movement)
 
 - TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time), pnpm-managed; prefer DOM/Web APIs (001-lobby-system)
 
@@ -29,9 +30,9 @@ npm test && npm run lint
 TypeScript (strict mode) on Node.js (current LTS): Follow standard conventions
 
 ## Recent Changes
+- 008-virtual-opponent-movement: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 - 007-customize-singleplayer-lobby: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 - 006-fish-eat-sfx: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
-- 005-waiting-lobby: Added TypeScript (strict mode) on Node.js (current LTS) + Lit (web components), Socket.IO (real-time communication) + minimal justified additions
 
 
 <!-- MANUAL ADDITIONS START -->
