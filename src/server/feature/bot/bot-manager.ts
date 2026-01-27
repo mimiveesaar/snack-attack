@@ -78,7 +78,9 @@ export class BotManager {
     const currentTarget = this.getTargetFromId(state, botState.currentTargetId);
     let targetRef = currentTarget;
 
-    if (now >= botState.nextDecisionAt) {
+    const shouldEvaluateTarget = !currentTarget || now >= botState.nextDecisionAt;
+
+    if (shouldEvaluateTarget) {
       botState.lastDecisionAt = now;
       botState.nextDecisionAt = now + botState.profile.reactionIntervalMs;
 
@@ -129,8 +131,14 @@ export class BotManager {
     const lastDirection = botState.lastInputDirection;
     const canChangeDirection =
       now - botState.lastInputChangeAt >= botState.profile.directionChangeCooldownMs;
+    const isThreatened = this.isImmediateThreat(session, self);
 
-    if (lastDirection && !this.isSameDirection(lastDirection, desiredDirection) && !canChangeDirection) {
+    if (
+      lastDirection &&
+      !this.isSameDirection(lastDirection, desiredDirection) &&
+      !canChangeDirection &&
+      !isThreatened
+    ) {
       session.applyPlayerInput(botId, lastDirection);
       return;
     }
@@ -264,11 +272,11 @@ export class BotManager {
   ): number {
     switch (difficulty) {
       case 'easy':
-        return 20;
+        return 1.2;
       case 'medium':
-        return 50;
+        return 2;
       case 'hard':
-        return 60;
+        return 3;
       default:
         return 1;
     }
@@ -404,6 +412,41 @@ export class BotManager {
     }
 
     return hazards;
+  }
+
+  private isImmediateThreat(
+    session: GameSessionState,
+    self: { id: string; position: { x: number; y: number }; xp: number; collisionRadius: number },
+  ): boolean {
+    const state = session.getState();
+    const panicBuffer = 30;
+
+    for (const player of state.players) {
+      if (player.id === self.id || player.status !== 'alive') continue;
+      if (player.xp <= self.xp) continue;
+      if (session.isPlayerInGrace(player.id)) continue;
+
+      const dx = player.position.x - self.position.x;
+      const dy = player.position.y - self.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance <= player.collisionRadius + self.collisionRadius + panicBuffer) {
+        return true;
+      }
+    }
+
+    for (const npc of state.npcs) {
+      if (npc.status !== 'alive') continue;
+      if (!canEat(npc.collisionRadius, self.collisionRadius)) continue;
+
+      const dx = npc.position.x - self.position.x;
+      const dy = npc.position.y - self.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance <= npc.collisionRadius + self.collisionRadius + panicBuffer) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private boundaryAvoidance(x: number, y: number): Direction | null {

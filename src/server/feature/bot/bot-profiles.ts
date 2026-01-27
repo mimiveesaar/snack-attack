@@ -23,9 +23,9 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
   },
   hard: {
     difficulty: 'hard',
-    reactionIntervalMs: 100,
+    reactionIntervalMs: 10,
     targetSwitchIntervalMs: 3000,
-    targetUpgradeCooldownMs: 200,
+    targetUpgradeCooldownMs: 100,
     directionChangeCooldownMs: 250,
     playerTargetCooldownMs: 2000,
     riskTolerance: 0.2,
