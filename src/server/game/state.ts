@@ -1,3 +1,4 @@
+import type { Difficulty } from "../../shared/lobby";
 import type { GameState, GamePlayer, GameLeaderboardEntry, Vec2D } from "../../shared/game";
 import { PLAYER_GROWTH_CONFIG, SESSION_DURATION_MS } from "../../shared/config";
 
@@ -18,7 +19,7 @@ export class GameSessionState {
   private pendingEvents: any[] = [];
 
 
-  constructor(sessionId: string, lobbyId: string, players: GamePlayerInit[]) {
+  constructor(sessionId: string, lobbyId: string, players: GamePlayerInit[], difficulty: Difficulty) {
     const gamePlayers: GamePlayer[] = players.map((p, idx) => ({
       id: p.id,
       nicknameDisplay: p.nicknameDisplay,
@@ -43,6 +44,7 @@ export class GameSessionState {
     this.state = {
       sessionId,
       lobbyId,
+      difficulty,
       createdAt: Date.now(),
       startedAt: Date.now(),
       status: 'active',

@@ -1,4 +1,5 @@
 import type { LeaderboardEntry } from './game-session';
+import type { Difficulty } from './lobby';
 
 export interface Vec2D {
   x: number;
@@ -89,6 +90,7 @@ export interface GameLeaderboardEntry {
 export interface GameState {
   sessionId: string;
   lobbyId: string;
+  difficulty: Difficulty;
   createdAt: number;
   startedAt: number;
   status: 'active' | 'paused' | 'ended';

@@ -88,7 +88,8 @@ export class GameSessionManager {
         gameOrchestrator.startSession(
           sessionId,
           lobbyId,
-          gameOrchestrationPlayers
+          gameOrchestrationPlayers,
+          lobby.difficulty
         );
       } catch (error) {
         console.error(`GameSessionManager: Failed to start game session: ${error}`);
@@ -96,7 +97,7 @@ export class GameSessionManager {
     }
 
     if (lobby.gamemode === 'singleplayer') {
-      botManager.initializeSession(sessionId, lobby.difficulty);
+      botManager.initializeSession(sessionId);
     }
 
     lobby.activeSession.timerRemainingMs = SESSION_DURATION_MS;

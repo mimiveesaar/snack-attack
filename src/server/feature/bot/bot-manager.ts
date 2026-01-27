@@ -11,16 +11,13 @@ type TargetRef = {
 
 export class BotManager {
   private rosters = new Map<string, BotRoster>();
-  private difficulties = new Map<string, 'easy' | 'medium' | 'hard'>();
 
-  initializeSession(sessionId: string, difficulty: 'easy' | 'medium' | 'hard'): void {
-    this.difficulties.set(sessionId, difficulty);
+  initializeSession(sessionId: string): void {
     this.rosters.set(sessionId, { byPlayerId: {} });
   }
 
   clearSession(sessionId: string): void {
     this.rosters.delete(sessionId);
-    this.difficulties.delete(sessionId);
   }
 
   tick(session: GameSessionState): void {
@@ -28,7 +25,7 @@ export class BotManager {
     const roster = this.rosters.get(state.sessionId);
     if (!roster) return;
 
-    const difficulty = this.difficulties.get(state.sessionId) ?? 'medium';
+    const difficulty = state.difficulty;
     const profile = BOT_PROFILES[difficulty];
     const now = Date.now();
 

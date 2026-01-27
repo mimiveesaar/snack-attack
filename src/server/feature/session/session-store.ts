@@ -1,4 +1,5 @@
 import { GameSessionState } from '../../game/state';
+import type { Difficulty } from '../../../shared/lobby';
 import type { GamePlayerInit } from '../../game/state';
 
 /**
@@ -6,8 +7,13 @@ import type { GamePlayerInit } from '../../game/state';
  */
 const sessionStore = new Map<string, GameSessionState>();
 
-export function createGameSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): GameSessionState {
-  const session = new GameSessionState(sessionId, lobbyId, players);
+export function createGameSession(
+  sessionId: string,
+  lobbyId: string,
+  players: GamePlayerInit[],
+  difficulty: Difficulty,
+): GameSessionState {
+  const session = new GameSessionState(sessionId, lobbyId, players, difficulty);
   sessionStore.set(sessionId, session);
   return session;
 }

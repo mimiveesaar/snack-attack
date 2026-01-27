@@ -1,6 +1,7 @@
 import type { Namespace } from 'socket.io';
 import type { GameClientToServerEvents, GameServerToClientEvents } from '../../shared/game-events';
 import { createGameSession, getGameSession, deleteGameSession } from '../feature/session/session-store';
+import type { Difficulty } from '../../shared/lobby';
 import { createGameLoop, deleteGameLoop, getGameLoop } from './loop-store';
 
 export interface GamePlayerInit {
@@ -18,7 +19,7 @@ export class GameOrchestrator {
     this.gameNamespace = gameNamespace;
   }
 
-  startSession(sessionId: string, lobbyId: string, players: GamePlayerInit[]): boolean {
+  startSession(sessionId: string, lobbyId: string, players: GamePlayerInit[], difficulty: Difficulty): boolean {
     if (this.activeSessions.has(sessionId)) {
       console.warn(`GameOrchestrator: Session ${sessionId} already active`);
       return false;
@@ -29,7 +30,7 @@ export class GameOrchestrator {
 
     try {
       // Create game state
-      const session = createGameSession(sessionId, lobbyId, players);
+      const session = createGameSession(sessionId, lobbyId, players, difficulty);
       console.log(`GameOrchestrator: Game session created and stored with sessionId: ${sessionId}`);
 
 
