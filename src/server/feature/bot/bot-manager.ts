@@ -8,7 +8,7 @@ type Direction = { x: -1 | 0 | 1; y: -1 | 0 | 1 };
 
 type TargetRef = {
   id: string;
-  type: 'player' | 'npc';
+  type: 'player' | 'npc' | 'powerup';
 };
 
 export class BotManager {
@@ -173,7 +173,11 @@ export class BotManager {
       .filter((npc) => npc.status === 'alive')
       .map((npc) => ({ id: npc.id, type: 'npc' as const }));
 
-    const targets = [...playerTargets, ...npcTargets];
+    const powerupTargets = state.powerups
+      .filter((powerup) => powerup.status === 'available')
+      .map((powerup) => ({ id: powerup.id, type: 'powerup' as const }));
+
+    const targets = [...playerTargets, ...npcTargets, ...powerupTargets];
 
     let bestTarget: TargetRef | null = null;
     let bestScore = 0;
@@ -213,7 +217,7 @@ export class BotManager {
     const canEatTarget = this.canEatTarget(session, self, target);
     if (!canEatTarget) return 0;
 
-    const baseValue = this.getTargetBaseValue(state, target, botState);
+    const baseValue = this.getTargetBaseValue(state, self, target, botState);
     if (baseValue <= 0) return 0;
 
     const dx = targetPosition.x - self.position.x;
@@ -226,12 +230,34 @@ export class BotManager {
 
   private getTargetBaseValue(
     state: ReturnType<GameSessionState['getState']>,
+    self: { powerups: string[] },
     target: TargetRef,
     botState: VirtualOpponentState,
   ): number {
     if (target.type === 'npc') {
       const npc = state.npcs.find((n) => n.id === target.id);
       return npc ? npc.xp : 0;
+    }
+
+    if (target.type === 'powerup') {
+      const powerup = state.powerups.find((p) => p.id === target.id);
+      if (!powerup || powerup.status !== 'available') return 0;
+
+      const hasPowerup = self.powerups.includes(powerup.type);
+
+      //Base value
+
+      const getBaseValue = () => {
+        switch (powerup.type) {
+            case 'speed-boost': return 120; 
+            case 'double-xp': return 130; 
+            case 'invincibility': return 120;        
+          }
+      }
+
+
+      const baseValue = getBaseValue();
+      return hasPowerup ? baseValue * 0.4 : baseValue;
     }
 
     const player = state.players.find((p) => p.id === target.id);
@@ -248,6 +274,7 @@ export class BotManager {
       id: string;
       xp: number;
       collisionRadius: number;
+      powerups: string[];
     },
     target: TargetRef,
   ): boolean {
@@ -256,6 +283,11 @@ export class BotManager {
       const npc = state.npcs.find((n) => n.id === target.id);
       if (!npc || npc.status !== 'alive') return false;
       return canEat(self.collisionRadius, npc.collisionRadius);
+    }
+
+    if (target.type === 'powerup') {
+      const powerup = state.powerups.find((p) => p.id === target.id);
+      return Boolean(powerup && powerup.status === 'available');
     }
 
     const player = state.players.find((p) => p.id === target.id);
@@ -303,6 +335,9 @@ export class BotManager {
     if (target.type === 'npc') {
       return state.npcs.find((n) => n.id === target.id)?.position ?? null;
     }
+    if (target.type === 'powerup') {
+      return state.powerups.find((p) => p.id === target.id)?.position ?? null;
+    }
     return state.players.find((p) => p.id === target.id)?.position ?? null;
   }
 
@@ -312,7 +347,7 @@ export class BotManager {
   ): TargetRef | null {
     if (!targetId) return null;
     const [type, id] = targetId.split(':');
-    if (type !== 'player' && type !== 'npc') return null;
+    if (type !== 'player' && type !== 'npc' && type !== 'powerup') return null;
     const targetRef: TargetRef = { type, id } as TargetRef;
     const exists = this.getTargetPosition(state, targetRef);
     return exists ? targetRef : null;
