@@ -296,6 +296,7 @@ export interface VirtualOpponentProfile {
   difficulty: 'easy' | 'medium' | 'hard';
   reactionIntervalMs: number;
   targetSwitchIntervalMs: number;
+  playerTargetCooldownMs: number;
   riskTolerance: number;
   jitterStrength: number;
 }
@@ -308,6 +309,7 @@ export interface VirtualOpponentState {
   nextDecisionAt: number;
   lastDirectionChangeAt: number;
   seed: number;
+  ignoredPlayerUntil: Record<string, number>;
 }
 
 export interface BotRoster {

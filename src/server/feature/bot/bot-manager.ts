@@ -53,6 +53,7 @@ export class BotManager {
         nextDecisionAt: now,
         lastDirectionChangeAt: now,
         seed: Math.floor(Math.random() * 100000),
+        ignoredPlayerUntil: {},
       };
     }
 
@@ -75,12 +76,19 @@ export class BotManager {
     if (!self) return;
 
     const currentTarget = this.getTargetFromId(state, botState.currentTargetId);
-    const shouldSwitchTarget =
-      !currentTarget ||
+    const isPlayerTarget = currentTarget?.type === 'player';
+    const switchDueToInterval =
+      isPlayerTarget &&
       now - botState.lastDirectionChangeAt >= botState.profile.targetSwitchIntervalMs;
+    const shouldSwitchTarget = !currentTarget || switchDueToInterval;
+
+    if (switchDueToInterval && currentTarget?.type === 'player') {
+      botState.ignoredPlayerUntil[currentTarget.id] =
+        now + botState.profile.playerTargetCooldownMs;
+    }
 
     const targetRef = shouldSwitchTarget
-      ? this.selectTarget(session, self, botState)
+      ? this.selectTarget(session, self, botState, now)
       : currentTarget;
 
     if (shouldSwitchTarget) {
@@ -102,6 +110,7 @@ export class BotManager {
       powerups: string[];
     },
     botState: VirtualOpponentState,
+    now: number,
   ): TargetRef | null {
     const state = session.getState();
 
@@ -119,7 +128,7 @@ export class BotManager {
     let bestScore = 0;
 
     for (const target of targets) {
-      const score = this.getTargetScore(session, self, target, botState);
+      const score = this.getTargetScore(session, self, target, botState, now);
       if (score > bestScore) {
         bestScore = score;
         bestTarget = target;
@@ -140,7 +149,12 @@ export class BotManager {
     },
     target: TargetRef,
     botState: VirtualOpponentState,
+    now: number,
   ): number {
+    if (target.type === 'player' && this.isPlayerIgnored(botState, target.id, now)) {
+      return 0;
+    }
+
     const state = session.getState();
     const targetPosition = this.getTargetPosition(state, target);
     if (!targetPosition) return 0;
@@ -215,6 +229,20 @@ export class BotManager {
       default:
         return 1;
     }
+  }
+
+  private isPlayerIgnored(
+    botState: VirtualOpponentState,
+    playerId: string,
+    now: number,
+  ): boolean {
+    const ignoredUntil = botState.ignoredPlayerUntil[playerId];
+    if (!ignoredUntil) return false;
+    if (now >= ignoredUntil) {
+      delete botState.ignoredPlayerUntil[playerId];
+      return false;
+    }
+    return true;
   }
 
   private getTargetPosition(
