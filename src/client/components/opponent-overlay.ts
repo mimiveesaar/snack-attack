@@ -318,7 +318,7 @@ export class OpponentOverlay extends LitElement {
                           )}
                       />
                       <select
-                        .value=${slot.color}
+                        .value=${slot.color ?? "red"}
                         ?disabled=${!this.canEdit}
                         @change=${(event: Event) =>
                           this.handleColorChange(
@@ -329,7 +329,10 @@ export class OpponentOverlay extends LitElement {
                       >
                         ${COLOR_OPTIONS.map(
                           (color) => html`
-                            <option value=${color}>
+                            <option
+                              value=${color}
+                              ?selected=${slot.color === color}
+                            >
                               ${color[0].toUpperCase() + color.slice(1)}
                             </option>
                           `,
