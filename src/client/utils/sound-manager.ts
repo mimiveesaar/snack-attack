@@ -9,7 +9,7 @@ export class SoundManager {
   private crunchBuffer: AudioBuffer | null = null;
   private crunchLoadPromise: Promise<void> | null = null;
   private crunchSources: AudioBufferSourceNode[] = [];
-  private readonly crunchUrl = new URL('/assets/sound/sfx/small-crunch.mp3', import.meta.url).href;
+  private readonly crunchUrl = this.getPublicAssetUrl('sound/sfx/small-crunch.mp3');
   private crunchResumePromise: Promise<void> | null = null;
   private crunchDebugStats = {
     attempts: 0,
@@ -25,6 +25,13 @@ export class SoundManager {
     // Load persistent sound preference
     const saved = localStorage.getItem('snack-attack-sound-enabled');
     this.soundEnabled = saved !== null ? JSON.parse(saved) : true;
+  }
+
+  private getPublicAssetUrl(assetPath: string): string {
+    const baseUrl = import.meta.env.BASE_URL ?? '/';
+    const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+    const normalizedPath = assetPath.replace(/^\/+/, '');
+    return `${normalizedBase}assets/${normalizedPath}`;
   }
 
   static getInstance(): SoundManager {
@@ -91,7 +98,7 @@ export class SoundManager {
     }
 
     // Create and initialize background music audio element
-    this.backgroundMusic = new Audio(new URL('/assets/sound/soundtrack/MeltdownTheme.wav', import.meta.url).href);
+    this.backgroundMusic = new Audio(this.getPublicAssetUrl('sound/soundtrack/MeltdownTheme.wav'));
     this.backgroundMusic.loop = true;
     this.backgroundMusic.volume = 0.3;
 
