@@ -299,6 +299,7 @@ export interface VirtualOpponentProfile {
   targetUpgradeCooldownMs: number;
   directionChangeCooldownMs: number;
   opponentTargetCooldownMs: number;
+  panicBuffer: number;
 }
 
 export interface VirtualOpponentState {

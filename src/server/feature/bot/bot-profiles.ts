@@ -8,6 +8,7 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     targetUpgradeCooldownMs: 400,
     directionChangeCooldownMs: 300,
     opponentTargetCooldownMs: 5000,
+    panicBuffer: 5,
   },
   medium: {
     difficulty: 'medium',
@@ -16,6 +17,7 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     targetUpgradeCooldownMs: 500,
     directionChangeCooldownMs: 350,
     opponentTargetCooldownMs: 2500,
+    panicBuffer: 10,
   },
   hard: {
     difficulty: 'hard',
@@ -24,5 +26,6 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     targetUpgradeCooldownMs: 100,
     directionChangeCooldownMs: 250,
     opponentTargetCooldownMs: 2000,
+    panicBuffer: 30,
   },
 };

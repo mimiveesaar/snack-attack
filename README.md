@@ -115,11 +115,13 @@ If there are not targets, the bot moves randomly.
  export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentProfile> = {
   easy: {
     difficulty: 'easy',
-    reactionIntervalMs: 200, //Slower reaction makes the bot more stupid.
+    reactionIntervalMs: 200, //Slower targeting makes the bot more stupid.
     targetSwitchIntervalMs: 3000,
     targetUpgradeCooldownMs: 400,
     directionChangeCooldownMs: 300,
     opponentTargetCooldownMs: 3000,
+    panicBuffer: 5 //Distance from where the bot will go into flee mode.
+
   },
   medium: {
     difficulty: 'medium',
@@ -128,6 +130,7 @@ If there are not targets, the bot moves randomly.
     targetUpgradeCooldownMs: 500,
     directionChangeCooldownMs: 350,
     opponentTargetCooldownMs: 2500,
+    panicBuffer: 10 
   },
   hard: {
     difficulty: 'hard',
@@ -136,6 +139,7 @@ If there are not targets, the bot moves randomly.
     targetUpgradeCooldownMs: 100,
     directionChangeCooldownMs: 250,
     opponentTargetCooldownMs: 2000,
+    panicBuffer: 30 
   },
 };
 

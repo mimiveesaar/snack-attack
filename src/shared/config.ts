@@ -33,4 +33,3 @@ export const PLAYER_GROWTH_CONFIG: PlayerGrowthConfig = {
 		visualSize: 1.4,
 	},
 } as const;
-

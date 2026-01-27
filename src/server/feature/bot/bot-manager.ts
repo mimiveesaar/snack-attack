@@ -79,7 +79,7 @@ export class BotManager {
     const currentTarget = this.getTargetFromId(state, botState.currentTargetId);
     let targetRef = currentTarget;
 
-    //Makes bot more stupid.
+    //Makes bot targeting slower and less frequent.
     const shouldEvaluateTarget = !currentTarget || now >= botState.nextDecisionAt;
 
     if (shouldEvaluateTarget) {
@@ -133,7 +133,7 @@ export class BotManager {
     const lastDirection = botState.lastInputDirection;
     const canChangeDirection =
       now - botState.lastInputChangeAt >= botState.profile.directionChangeCooldownMs;
-    const isThreatened = this.isImmediateThreat(session, self);
+    const isThreatened = this.isImmediateThreat(session, self, botState);
 
     if (
       lastDirection &&
@@ -439,9 +439,10 @@ export class BotManager {
   private isImmediateThreat(
     session: GameSessionState,
     self: { id: string; position: { x: number; y: number }; xp: number; collisionRadius: number },
+    botState: VirtualOpponentState,
   ): boolean {
     const state = session.getState();
-    const panicBuffer = 30;
+    const panicBuffer = botState.profile.panicBuffer;
 
     for (const player of state.players) {
       if (player.id === self.id || player.status !== 'alive') continue;
@@ -472,11 +473,10 @@ export class BotManager {
   }
 
   private boundaryAvoidance(x: number, y: number): Direction | null {
-    const padding = 60;
-    if (x <= GAME_BOUNDARY.buffer + padding) return { x: 1, y: 0 };
-    if (x >= GAME_BOUNDARY.width - GAME_BOUNDARY.buffer - padding) return { x: -1, y: 0 };
-    if (y <= GAME_BOUNDARY.buffer + padding) return { x: 0, y: 1 };
-    if (y >= GAME_BOUNDARY.height - GAME_BOUNDARY.buffer - padding) return { x: 0, y: -1 };
+    if (x <= GAME_BOUNDARY.buffer) return { x: 1, y: 0 };
+    if (x >= GAME_BOUNDARY.width - GAME_BOUNDARY.buffer) return { x: -1, y: 0 };
+    if (y <= GAME_BOUNDARY.buffer) return { x: 0, y: 1 };
+    if (y >= GAME_BOUNDARY.height - GAME_BOUNDARY.buffer) return { x: 0, y: -1 };
     return null;
   }
 
