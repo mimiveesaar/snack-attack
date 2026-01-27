@@ -24,7 +24,7 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     reactionIntervalMs: 10,
     targetSwitchIntervalMs: 3000,
     targetUpgradeCooldownMs: 100,
-    directionChangeCooldownMs: 250,
+    directionChangeCooldownMs: 450,
     opponentTargetCooldownMs: 2000,
     panicBuffer: 30,
   },
