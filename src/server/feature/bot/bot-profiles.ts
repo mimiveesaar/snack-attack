@@ -3,13 +3,11 @@ import type { VirtualOpponentProfile } from '../../game/state';
 export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentProfile> = {
   easy: {
     difficulty: 'easy',
-    reactionIntervalMs: 200,
+    reactionIntervalMs: 500,
     targetSwitchIntervalMs: 3000,
     targetUpgradeCooldownMs: 400,
     directionChangeCooldownMs: 300,
-    opponentTargetCooldownMs: 3000,
-    riskTolerance: 0.2,
-    jitterStrength: 0.6,
+    opponentTargetCooldownMs: 5000,
   },
   medium: {
     difficulty: 'medium',
@@ -18,8 +16,6 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     targetUpgradeCooldownMs: 500,
     directionChangeCooldownMs: 350,
     opponentTargetCooldownMs: 2500,
-    riskTolerance: 0.5,
-    jitterStrength: 0.4,
   },
   hard: {
     difficulty: 'hard',
@@ -28,7 +24,5 @@ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentPro
     targetUpgradeCooldownMs: 100,
     directionChangeCooldownMs: 250,
     opponentTargetCooldownMs: 2000,
-    riskTolerance: 0.2,
-    jitterStrength: 0.2,
   },
 };

@@ -299,8 +299,6 @@ export interface VirtualOpponentProfile {
   targetUpgradeCooldownMs: number;
   directionChangeCooldownMs: number;
   opponentTargetCooldownMs: number;
-  riskTolerance: number;
-  jitterStrength: number;
 }
 
 export interface VirtualOpponentState {

@@ -79,6 +79,7 @@ export class BotManager {
     const currentTarget = this.getTargetFromId(state, botState.currentTargetId);
     let targetRef = currentTarget;
 
+    //Makes bot more stupid.
     const shouldEvaluateTarget = !currentTarget || now >= botState.nextDecisionAt;
 
     if (shouldEvaluateTarget) {
@@ -246,8 +247,6 @@ export class BotManager {
 
       const hasPowerup = self.powerups.includes(powerup.type);
 
-      //Base value
-
       const getBaseValue = () => {
         switch (powerup.type) {
             case 'speed-boost': return 120; 
@@ -256,7 +255,6 @@ export class BotManager {
           }
       }
 
-
       const baseValue = getBaseValue();
       return hasPowerup ? baseValue * 0.4 : baseValue;
     }
@@ -264,7 +262,7 @@ export class BotManager {
     const player = state.players.find((p) => p.id === target.id);
     if (!player) return 0;
 
-    const playerMultiplier = this.getPlayerValueMultiplier(state.difficulty, botState);
+    const playerMultiplier = this.getPlayerValueMultiplier(state.difficulty);
     const normalizedValue = Math.max(1, player.xp);
     return normalizedValue * playerMultiplier;
   }
@@ -301,7 +299,6 @@ export class BotManager {
 
   private getPlayerValueMultiplier(
     difficulty: ReturnType<GameSessionState['getState']>['difficulty'],
-    botState: VirtualOpponentState,
   ): number {
     switch (difficulty) {
       case 'easy':
@@ -395,15 +392,7 @@ export class BotManager {
       }
     }
 
-    if (this.roll(botState, botState.profile.jitterStrength)) {
-      if (this.roll(botState, 0.5)) {
-        xDir = this.randomAxis(botState);
-      } else {
-        yDir = this.randomAxis(botState);
-      }
-    }
-
-    if (xDir === 0 && yDir === 0) {
+        if (xDir === 0 && yDir === 0) {
       return this.randomDirection(botState);
     }
 
@@ -511,9 +500,6 @@ export class BotManager {
     return 1;
   }
 
-  private roll(botState: VirtualOpponentState, threshold: number): boolean {
-    return this.nextRandom(botState) < threshold;
-  }
 
   private nextRandom(botState: VirtualOpponentState): number {
     const next = (botState.seed * 9301 + 49297) % 233280;

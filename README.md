@@ -99,7 +99,7 @@ Bots select the best target based on the calculated score.
 Bots have a configurable time limit, how long they will try to chase the selected target. After failing to catch the opponent, they will switch to a new target and ignore the previous one for a confgiruable time. 
 
 ### Path Finding
-Game world is divided into a grid with a configurable size. Each grid has a cost, grids that surround dangerous opponents have a very high cost and are generally avoided by the algorithm. Grids that would result in death are blocked.Algorithm iterates until the best possible path is found or maxIterations is reached.
+Game world is divided into a grid with a configurable size. Each cell has a cost, grid cells that surround dangerous opponents have a very high cost and are generally avoided by the algorithm. Grid cells that would result in death are blocked. Algorithm iterates until the best possible path is found or maxIterations is reached.
 Grid gets translated back into world cordinates.
 Path gets recalculated on each tick due to the fast-paced and changing nature of the game.  
 If there are not targets, the bot moves randomly.
@@ -108,3 +108,36 @@ If there are not targets, the bot moves randomly.
 
  ### Game Rules
  Virtual opponents follow the same rules as real players, they are able to gain powerups, have grace period, nickname, gain same XP from npcs and lose XP on death.
+
+ ### Profiles
+ 
+ ```ts 
+ export const BOT_PROFILES: Record<'easy' | 'medium' | 'hard', VirtualOpponentProfile> = {
+  easy: {
+    difficulty: 'easy',
+    reactionIntervalMs: 200, //Slower reaction makes the bot more stupid.
+    targetSwitchIntervalMs: 3000,
+    targetUpgradeCooldownMs: 400,
+    directionChangeCooldownMs: 300,
+    opponentTargetCooldownMs: 3000,
+  },
+  medium: {
+    difficulty: 'medium',
+    reactionIntervalMs: 25,
+    targetSwitchIntervalMs: 4500,
+    targetUpgradeCooldownMs: 500,
+    directionChangeCooldownMs: 350,
+    opponentTargetCooldownMs: 2500,
+  },
+  hard: {
+    difficulty: 'hard',
+    reactionIntervalMs: 10,
+    targetSwitchIntervalMs: 3000,
+    targetUpgradeCooldownMs: 100,
+    directionChangeCooldownMs: 250,
+    opponentTargetCooldownMs: 2000,
+  },
+};
+
+ 
+ ```
