@@ -53,12 +53,16 @@ const heuristic = (a: GridNode, b: GridNode): number => {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-export const findPath = (
-  start: Vec2D,
-  goal: Vec2D,
-  hazards: Hazard[],
-  options: PathFindingOptions,
-): Vec2D[] => {
+type GridContext = {
+  gridWidth: number;
+  gridHeight: number;
+  maxX: number;
+  maxY: number;
+  toGrid: (pos: Vec2D) => GridNode;
+  toWorld: (node: GridNode) => Vec2D;
+};
+
+const buildGridContext = (options: PathFindingOptions): GridContext => {
   const gridWidth = Math.max(1, Math.floor((options.width - options.buffer * 2) / options.cellSize));
   const gridHeight = Math.max(1, Math.floor((options.height - options.buffer * 2) / options.cellSize));
   const maxX = gridWidth - 1;
@@ -75,16 +79,21 @@ export const findPath = (
     y: options.buffer + node.y * options.cellSize + options.cellSize / 2,
   });
 
-  const startNode = toGrid(start);
-  const goalNode = toGrid(goal);
+  return {
+    gridWidth,
+    gridHeight,
+    maxX,
+    maxY,
+    toGrid,
+    toWorld,
+  };
+};
 
-  if (startNode.x === goalNode.x && startNode.y === goalNode.y) {
-    return [goal];
-  }
-
-  const neighbors = options.allowDiagonal ? DIAGONAL_NEIGHBORS : ORTHO_NEIGHBORS;
-
-  const hazardCost = (node: GridNode): number => {
+const buildHazardCost = (
+  hazards: Hazard[],
+  toWorld: (node: GridNode) => Vec2D,
+): ((node: GridNode) => number) =>
+  (node: GridNode): number => {
     const point = toWorld(node);
     let cost = 0;
     for (const hazard of hazards) {
@@ -97,6 +106,64 @@ export const findPath = (
     }
     return cost;
   };
+
+const getNeighbors = (allowDiagonal: boolean): Neighbor[] =>
+  (allowDiagonal ? DIAGONAL_NEIGHBORS : ORTHO_NEIGHBORS);
+
+const pickLowestFScore = (
+  openSet: Map<string, GridNode>,
+  fScore: Map<string, number>,
+): { node: GridNode | null; key: string | null } => {
+  let current: GridNode | null = null;
+  let currentKey: string | null = null;
+  let bestF = Number.POSITIVE_INFINITY;
+
+  for (const [key, node] of openSet.entries()) {
+    const score = fScore.get(key) ?? Number.POSITIVE_INFINITY;
+    if (score < bestF) {
+      bestF = score;
+      current = node;
+      currentKey = key;
+    }
+  }
+
+  return { node: current, key: currentKey };
+};
+
+const reconstructPath = (
+  currentKey: string,
+  cameFrom: Map<string, string>,
+  toWorld: (node: GridNode) => Vec2D,
+  goal: Vec2D,
+): Vec2D[] => {
+  const path: Vec2D[] = [];
+  let traceKey: string | undefined = currentKey;
+  while (traceKey) {
+    const [x, y] = traceKey.split(',').map(Number);
+    path.unshift(toWorld({ x, y }));
+    traceKey = cameFrom.get(traceKey);
+  }
+  path.push(goal);
+  return path;
+};
+
+export const findPath = (
+  start: Vec2D,
+  goal: Vec2D,
+  hazards: Hazard[],
+  options: PathFindingOptions,
+): Vec2D[] => {
+  const { maxX, maxY, toGrid, toWorld } = buildGridContext(options);
+
+  const startNode = toGrid(start);
+  const goalNode = toGrid(goal);
+
+  if (startNode.x === goalNode.x && startNode.y === goalNode.y) {
+    return [goal];
+  }
+
+  const neighbors = getNeighbors(options.allowDiagonal);
+  const hazardCost = buildHazardCost(hazards, toWorld);
 
   const openSet = new Map<string, GridNode>();
   const cameFrom = new Map<string, string>();
@@ -113,31 +180,11 @@ export const findPath = (
   while (openSet.size > 0 && iterations < options.maxIterations) {
     iterations += 1;
 
-    let current: GridNode | null = null;
-    let currentKey: string | null = null;
-    let bestF = Number.POSITIVE_INFINITY;
-
-    for (const [key, node] of openSet.entries()) {
-      const score = fScore.get(key) ?? Number.POSITIVE_INFINITY;
-      if (score < bestF) {
-        bestF = score;
-        current = node;
-        currentKey = key;
-      }
-    }
-
+    const { node: current, key: currentKey } = pickLowestFScore(openSet, fScore);
     if (!current || !currentKey) break;
 
     if (current.x === goalNode.x && current.y === goalNode.y) {
-      const path: Vec2D[] = [];
-      let traceKey: string | undefined = currentKey;
-      while (traceKey) {
-        const [x, y] = traceKey.split(',').map(Number);
-        path.unshift(toWorld({ x, y }));
-        traceKey = cameFrom.get(traceKey);
-      }
-      path.push(goal);
-      return path;
+      return reconstructPath(currentKey, cameFrom, toWorld, goal);
     }
 
     openSet.delete(currentKey);

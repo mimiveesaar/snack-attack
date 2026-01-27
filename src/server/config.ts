@@ -2,6 +2,14 @@ import { PowerupSpawnConfig } from "../shared/game";
 
 export const LOBBY_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 
+export const BOT_PATHFINDING_CONFIG = {
+  cellSize: 20,
+  maxIterations: 2400,
+  allowDiagonal: true,
+  hazardPenalty: 6,
+} as const;
+
+
 export const NPC_SPAWN_CONFIG = {
 	types: {
 		pink: {

@@ -3,6 +3,7 @@ import { BOT_PROFILES } from './bot-profiles';
 import { GAME_BOUNDARY } from '../../../shared/config';
 import { canEat } from '../collision/rules';
 import { findPath, type Hazard } from './path-finding';
+import { BOT_PATHFINDING_CONFIG } from '../../config';
 
 type Direction = { x: -1 | 0 | 1; y: -1 | 0 | 1 };
 
@@ -58,7 +59,7 @@ export class BotManager {
         nextDecisionAt: now,
         lastDirectionChangeAt: now,
         seed: Math.floor(Math.random() * 100000),
-        ignoredPlayerUntil: {},
+        ignoreOpponentUntil: {},
       };
     }
 
@@ -108,9 +109,9 @@ export class BotManager {
         switchDueToInterval ||
         (bestScore > currentScore && canUpgradeTarget);
 
-      if (switchDueToInterval && currentTarget?.type === 'player') {
-        botState.ignoredPlayerUntil[currentTarget.id] =
-          now + botState.profile.playerTargetCooldownMs;
+      if (switchDueToInterval) {
+        botState.ignoreOpponentUntil[currentTarget.id] =
+          now + botState.profile.opponentTargetCooldownMs;
       }
 
       if (shouldSwitchTarget) {
@@ -206,7 +207,7 @@ export class BotManager {
     botState: VirtualOpponentState,
     now: number,
   ): number {
-    if (target.type === 'player' && this.isPlayerIgnored(botState, target.id, now)) {
+    if (target.type === 'player' && this.isOpponentIgnored(botState, target.id, now)) {
       return 0;
     }
 
@@ -314,15 +315,15 @@ export class BotManager {
     }
   }
 
-  private isPlayerIgnored(
+  private isOpponentIgnored(
     botState: VirtualOpponentState,
     playerId: string,
     now: number,
   ): boolean {
-    const ignoredUntil = botState.ignoredPlayerUntil[playerId];
+    const ignoredUntil = botState.ignoreOpponentUntil[playerId];
     if (!ignoredUntil) return false;
     if (now >= ignoredUntil) {
-      delete botState.ignoredPlayerUntil[playerId];
+      delete botState.ignoreOpponentUntil[playerId];
       return false;
     }
     return true;
@@ -375,10 +376,7 @@ export class BotManager {
       width: GAME_BOUNDARY.width,
       height: GAME_BOUNDARY.height,
       buffer: GAME_BOUNDARY.buffer,
-      cellSize: 20,
-      maxIterations: 1200,
-      allowDiagonal: true,
-      hazardPenalty: 6,
+      ...BOT_PATHFINDING_CONFIG,
     });
 
     const waypoint = path.length > 1 ? path[1] : path.length === 1 ? path[0] : targetPos;

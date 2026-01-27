@@ -71,3 +71,40 @@ The game features 3 different power-ups:
 The game can be played in Singleplayer mode.
 
 Interactive NPCs.
+
+
+## Virtual Opponents
+
+Virtual opponents implement a customized version of [A* pathfinding](https://en.wikipedia.org/wiki/A*_search_algorithm) and a dynamic value function. Steering Behavior was tested as an alternative, but caused the bots to quickly lose track of the targets they were pursuing and act in very robotic way.
+
+### Value Function
+
+Bots assign a numeric value to all possible targets.  
+**NPCs**: XP value.  
+**Players**: current XP * multiplier (easy - 1.2, medium - 2, hard - 3), this causes bots to target players more often on higher difficutly.   
+**Powerups**: static values.   
+
+Score is calculated by 
+```ts
+const distanceFactor = 1 / (1 + distance);
+return baseValue * distanceFactor;
+```
+
+This makes bots pefer lower value targets that are closer than higher value targets that are further away. 
+
+Bots also take into account opponents grace-period and powerups.
+
+### Targeting
+Bots select the best target based on the calculated score.
+Bots have a configurable time limit, how long they will try to chase the selected target. After failing to catch the opponent, they will switch to a new target and ignore the previous one for a confgiruable time. 
+
+### Path Finding
+Game world is divided into a grid with a configurable size. Each grid has a cost, grids that surround dangerous opponents have a very high cost and are generally avoided by the algorithm. Grids that would result in death are blocked.Algorithm iterates until the best possible path is found or maxIterations is reached.
+Grid gets translated back into world cordinates.
+Path gets recalculated on each tick due to the fast-paced and changing nature of the game.  
+If there are not targets, the bot moves randomly.
+
+ Bots also implement a immidiate threat function that causes them to flee from nearby enemies without using path finding as the movement of other opponents is hard to predict.
+
+ ### Game Rules
+ Virtual opponents follow the same rules as real players, they are able to gain powerups, have grace period, nickname, gain same XP from npcs and lose XP on death.

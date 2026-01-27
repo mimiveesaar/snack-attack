@@ -298,7 +298,7 @@ export interface VirtualOpponentProfile {
   targetSwitchIntervalMs: number;
   targetUpgradeCooldownMs: number;
   directionChangeCooldownMs: number;
-  playerTargetCooldownMs: number;
+  opponentTargetCooldownMs: number;
   riskTolerance: number;
   jitterStrength: number;
 }
@@ -315,7 +315,7 @@ export interface VirtualOpponentState {
   nextDecisionAt: number;
   lastDirectionChangeAt: number;
   seed: number;
-  ignoredPlayerUntil: Record<string, number>;
+  ignoreOpponentUntil: Record<string, number>;
 }
 
 export interface BotRoster {
