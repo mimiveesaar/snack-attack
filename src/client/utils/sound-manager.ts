@@ -9,7 +9,7 @@ export class SoundManager {
   private crunchBuffer: AudioBuffer | null = null;
   private crunchLoadPromise: Promise<void> | null = null;
   private crunchSources: AudioBufferSourceNode[] = [];
-  private readonly crunchUrl = new URL('@client/assets/sound/sfx/small-crunch.mp3', import.meta.url).href;
+  private readonly crunchUrl = new URL('/assets/sound/sfx/small-crunch.mp3', import.meta.url).href;
   private crunchResumePromise: Promise<void> | null = null;
   private crunchDebugStats = {
     attempts: 0,
@@ -91,7 +91,7 @@ export class SoundManager {
     }
 
     // Create and initialize background music audio element
-    this.backgroundMusic = new Audio(new URL('@client/assets/sound/soundtrack/MeltdownTheme.wav', import.meta.url).href);
+    this.backgroundMusic = new Audio(new URL('/assets/sound/soundtrack/MeltdownTheme.wav', import.meta.url).href);
     this.backgroundMusic.loop = true;
     this.backgroundMusic.volume = 0.3;
 
