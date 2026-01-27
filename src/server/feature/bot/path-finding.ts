@@ -30,10 +30,10 @@ const ORTHO_NEIGHBORS: Neighbor[] = [
 
 const DIAGONAL_NEIGHBORS: Neighbor[] = [
   ...ORTHO_NEIGHBORS,
-  { x: 1, y: 1, cost: 1.4 },
-  { x: 1, y: -1, cost: 1.4 },
-  { x: -1, y: 1, cost: 1.4 },
-  { x: -1, y: -1, cost: 1.4 },
+  { x: 1, y: 1, cost: 1.2},
+  { x: 1, y: -1, cost: 1.2 },
+  { x: -1, y: 1, cost: 1.2 },
+  { x: -1, y: -1, cost: 1.2 },
 ];
 
 const clamp = (value: number, min: number, max: number): number =>

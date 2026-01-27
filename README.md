@@ -100,11 +100,11 @@ Bots have a configurable time limit, how long they will try to chase the selecte
 
 ### Path Finding
 Game world is divided into a grid with a configurable size. Each cell has a cost, grid cells that surround dangerous opponents have a very high cost and are generally avoided by the algorithm. Grid cells that would result in death are blocked. Algorithm iterates until the best possible path is found or maxIterations is reached.
-Grid gets translated back into world cordinates.
+Grid gets translated back into world coordinates.
 Path gets recalculated on each tick due to the fast-paced and changing nature of the game.  
-If there are not targets, the bot moves randomly.
+If there are no targets, the bot moves randomly.
 
- Bots also implement a immidiate threat function that causes them to flee from nearby enemies without using path finding as the movement of other opponents is hard to predict.
+ Bots also implement a immidiate threat function that causes them to flee from nearby enemies. Immidiate threat radius is configurable.
 
  ### Game Rules
  Virtual opponents follow the same rules as real players, they are able to gain powerups, have grace period, nickname, gain same XP from npcs and lose XP on death.

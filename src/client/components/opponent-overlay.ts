@@ -1,5 +1,6 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { NICKNAME_REGEX } from "@shared/config";
 import type { OpponentColor, OpponentSlot } from "@shared/types";
 
 const COLOR_OPTIONS: OpponentColor[] = ["red", "blue", "green", "orange"];
@@ -255,7 +256,7 @@ export class OpponentOverlay extends LitElement {
       if (slot.slotId !== slotId) return slot;
       return {
         ...slot,
-        name: trimmed.length > 0 ? trimmed : `Opponent ${slotId}`,
+        name: NICKNAME_REGEX.test(trimmed) ? trimmed : `Opponent ${slotId}`,
       };
     });
     this.emitChange(next);
@@ -305,6 +306,7 @@ export class OpponentOverlay extends LitElement {
                       <input
                         type="text"
                         .value=${slot.name}
+                        maxlength="31"
                         ?disabled=${!this.canEdit}
                         @input=${(event: Event) =>
                           this.handleNameChange(

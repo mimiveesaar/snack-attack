@@ -7,7 +7,7 @@ import { getGameSession } from './session-store';
 import { ClientToServerEvents, ServerToClientEvents } from '../../../shared/events';
 import { ActiveGameSnapshot } from '../../../shared/game-session';
 import { GameClientToServerEvents, GameServerToClientEvents } from '../../../shared/game-events';
-import { SESSION_DURATION_MS } from '../../../shared/config';
+import { NICKNAME_REGEX, SESSION_DURATION_MS } from '../../../shared/config';
 import { botManager } from '../bot/bot-manager';
 
 export class GameSessionManager {
@@ -73,7 +73,7 @@ export class GameSessionManager {
       .slice(0, 3)
       .map((slot) => ({
         id: `bot-${lobby.lobbyId}-${slot.slotId}`,
-        nicknameDisplay: slot.name?.trim() || `Opponent ${slot.slotId}`,
+        nicknameDisplay: this.normalizeOpponentName(slot.slotId, slot.name),
         color: this.mapOpponentColor(slot.color),
         isLeader: false,
         isBot: true,
@@ -140,6 +140,14 @@ export class GameSessionManager {
       default:
         return '#FF6347';
     }
+  }
+
+  private normalizeOpponentName(slotId: number, name?: string): string {
+    const trimmed = name?.trim() ?? '';
+    if (NICKNAME_REGEX.test(trimmed)) {
+      return trimmed;
+    }
+    return `Opponent ${slotId}`;
   }
 
   stop(lobbyId: string): void {
