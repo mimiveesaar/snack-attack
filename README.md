@@ -75,7 +75,7 @@ Interactive NPCs.
 
 ## Virtual Opponents
 
-Virtual opponents implement a customized version of [A* pathfinding](https://en.wikipedia.org/wiki/A*_search_algorithm) and a dynamic value function. Steering Behavior was tested as an alternative, but caused the bots to quickly lose track of the targets they were pursuing and act in very robotic way.
+Virtual opponents implement a customized version of [A* pathfinding](https://en.wikipedia.org/wiki/A*_search_algorithm) and a dynamic value function. [Reactive planning](https://en.wikipedia.org/wiki/Reactive_planning) was tested as an alternative, but caused the bots to quickly lose track of the targets they were pursuing and act in a very robotic way.
 
 ### Value Function
 
@@ -86,7 +86,7 @@ Bots assign a numeric value to all possible targets.
 
 Score is calculated by 
 ```ts
-const distanceFactor = 1 / (1 + distance);
+const distanceFactor = 1 / (1 + distance * distance);
 return baseValue * distanceFactor;
 ```
 
@@ -96,10 +96,10 @@ Bots also take into account opponents grace-period and powerups.
 
 ### Targeting
 Bots select the best target based on the calculated score.
-Bots have a configurable time limit, how long they will try to chase the selected target. After failing to catch the opponent, they will switch to a new target and ignore the previous one for a confgiruable time. 
+Bots have a configurable time limit, that defines how long they will try to chase the selected target. After failing to catch the opponent, they will switch to a new target and ignore the previous one for configurable time. 
 
 ### Path Finding
-Game world is divided into a grid with a configurable size. Each cell has a cost, grid cells that surround dangerous opponents have a very high cost and are generally avoided by the algorithm. Grid cells that would result in death are blocked. Algorithm iterates until the best possible path is found or maxIterations is reached.
+Game world is divided into a grid with a configurable size. Each cell has a cost, grid cells that surround dangerous opponents have higher cost and are generally avoided by the algorithm. Grid cells that would result in certain death are blocked. Algorithm iterates until the best possible path is found or maxIterations is reached.
 Grid gets translated back into world coordinates.
 Path gets recalculated on each tick due to the fast-paced and changing nature of the game.  
 If there are no targets, the bot moves randomly.
