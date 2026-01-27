@@ -2,6 +2,7 @@ import type { GameSessionState, VirtualOpponentState, BotRoster } from '../../ga
 import { BOT_PROFILES } from './bot-profiles';
 import { GAME_BOUNDARY } from '../../../shared/config';
 import { canEat } from '../collision/rules';
+import { findPath, type Hazard } from './path-finding';
 
 type Direction = { x: -1 | 0 | 1; y: -1 | 0 | 1 };
 
@@ -49,6 +50,10 @@ export class BotManager {
         playerId,
         profile,
         currentTargetId: null,
+        currentTargetValue: 0,
+        nextTargetUpgradeAt: now,
+        lastInputDirection: null,
+        lastInputChangeAt: now,
         lastDecisionAt: now,
         nextDecisionAt: now,
         lastDirectionChangeAt: now,
@@ -66,38 +71,76 @@ export class BotManager {
     botState: VirtualOpponentState,
     now: number,
   ): void {
-    if (now < botState.nextDecisionAt) return;
-
-    botState.lastDecisionAt = now;
-    botState.nextDecisionAt = now + botState.profile.reactionIntervalMs;
-
     const state = session.getState();
     const self = state.players.find((p) => p.id === botId);
     if (!self) return;
 
     const currentTarget = this.getTargetFromId(state, botState.currentTargetId);
-    const isPlayerTarget = currentTarget?.type === 'player';
-    const switchDueToInterval =
-      isPlayerTarget &&
-      now - botState.lastDirectionChangeAt >= botState.profile.targetSwitchIntervalMs;
-    const shouldSwitchTarget = !currentTarget || switchDueToInterval;
+    let targetRef = currentTarget;
 
-    if (switchDueToInterval && currentTarget?.type === 'player') {
-      botState.ignoredPlayerUntil[currentTarget.id] =
-        now + botState.profile.playerTargetCooldownMs;
+    if (now >= botState.nextDecisionAt) {
+      botState.lastDecisionAt = now;
+      botState.nextDecisionAt = now + botState.profile.reactionIntervalMs;
+
+      const currentScore = currentTarget
+        ? this.getTargetScore(session, self, currentTarget, botState, now)
+        : 0;
+      const { target: bestTarget, score: bestScore } = this.selectTarget(
+        session,
+        self,
+        botState,
+        now,
+      );
+
+      const isPlayerTarget = currentTarget?.type === 'player';
+      const switchDueToInterval =
+        isPlayerTarget &&
+        now - botState.lastDirectionChangeAt >= botState.profile.targetSwitchIntervalMs;
+
+      const canUpgradeTarget =
+        bestScore > currentScore && now >= botState.nextTargetUpgradeAt;
+
+      const shouldSwitchTarget =
+        !currentTarget ||
+        currentScore <= 0 ||
+        switchDueToInterval ||
+        (bestScore > currentScore && canUpgradeTarget);
+
+      if (switchDueToInterval && currentTarget?.type === 'player') {
+        botState.ignoredPlayerUntil[currentTarget.id] =
+          now + botState.profile.playerTargetCooldownMs;
+      }
+
+      if (shouldSwitchTarget) {
+        targetRef = bestTarget;
+        botState.currentTargetId = targetRef ? `${targetRef.type}:${targetRef.id}` : null;
+        botState.currentTargetValue = targetRef ? bestScore : 0;
+        botState.lastDirectionChangeAt = now;
+
+        if (bestScore > currentScore) {
+          botState.nextTargetUpgradeAt = now + botState.profile.targetUpgradeCooldownMs;
+        }
+      } else {
+        botState.currentTargetValue = currentScore;
+      }
     }
 
-    const targetRef = shouldSwitchTarget
-      ? this.selectTarget(session, self, botState, now)
-      : currentTarget;
+    const desiredDirection = this.computeDirection(session, state, self, targetRef, botState);
+    const lastDirection = botState.lastInputDirection;
+    const canChangeDirection =
+      now - botState.lastInputChangeAt >= botState.profile.directionChangeCooldownMs;
 
-    if (shouldSwitchTarget) {
-      botState.currentTargetId = targetRef ? `${targetRef.type}:${targetRef.id}` : null;
-      botState.lastDirectionChangeAt = now;
+    if (lastDirection && !this.isSameDirection(lastDirection, desiredDirection) && !canChangeDirection) {
+      session.applyPlayerInput(botId, lastDirection);
+      return;
     }
 
-    const direction = this.computeDirection(state, self, targetRef, botState);
-    session.applyPlayerInput(botId, direction);
+    if (!lastDirection || !this.isSameDirection(lastDirection, desiredDirection)) {
+      botState.lastInputDirection = desiredDirection;
+      botState.lastInputChangeAt = now;
+    }
+
+    session.applyPlayerInput(botId, desiredDirection);
   }
 
   private selectTarget(
@@ -111,7 +154,7 @@ export class BotManager {
     },
     botState: VirtualOpponentState,
     now: number,
-  ): TargetRef | null {
+  ): { target: TargetRef | null; score: number } {
     const state = session.getState();
 
     const playerTargets = state.players
@@ -135,7 +178,7 @@ export class BotManager {
       }
     }
 
-    return bestTarget;
+    return { target: bestTarget, score: bestScore };
   }
 
   private getTargetScore(
@@ -221,11 +264,11 @@ export class BotManager {
   ): number {
     switch (difficulty) {
       case 'easy':
-        return 0.6 + botState.profile.riskTolerance * 0.2;
+        return 20;
       case 'medium':
-        return 1;
+        return 50;
       case 'hard':
-        return 1.4 + (1 - botState.profile.riskTolerance) * 0.2;
+        return 60;
       default:
         return 1;
     }
@@ -268,8 +311,9 @@ export class BotManager {
   }
 
   private computeDirection(
+    session: GameSessionState,
     state: ReturnType<GameSessionState['getState']>,
-    self: { position: { x: number; y: number }; xp: number },
+    self: { id: string; position: { x: number; y: number }; xp: number; collisionRadius: number },
     targetRef: TargetRef | null,
     botState: VirtualOpponentState,
   ): Direction {
@@ -283,8 +327,21 @@ export class BotManager {
     const targetPos = this.getTargetPosition(state, targetRef);
     if (!targetPos) return this.randomDirection(botState);
 
-    const dx = targetPos.x - self.position.x;
-    const dy = targetPos.y - self.position.y;
+    const hazards = this.buildHazards(session, self);
+    const path = findPath(self.position, targetPos, hazards, {
+      width: GAME_BOUNDARY.width,
+      height: GAME_BOUNDARY.height,
+      buffer: GAME_BOUNDARY.buffer,
+      cellSize: 20,
+      maxIterations: 1200,
+      allowDiagonal: true,
+      hazardPenalty: 6,
+    });
+
+    const waypoint = path.length > 1 ? path[1] : path.length === 1 ? path[0] : targetPos;
+
+    const dx = waypoint.x - self.position.x;
+    const dy = waypoint.y - self.position.y;
 
     let xDir: Direction['x'] = dx === 0 ? 0 : dx > 0 ? 1 : -1;
     let yDir: Direction['y'] = dy === 0 ? 0 : dy > 0 ? 1 : -1;
@@ -312,6 +369,43 @@ export class BotManager {
     return { x: xDir, y: yDir };
   }
 
+  private buildHazards(
+    session: GameSessionState,
+    self: { id: string; xp: number; collisionRadius: number },
+  ): Hazard[] {
+    const state = session.getState();
+    const hazards: Hazard[] = [];
+
+    for (const player of state.players) {
+      if (player.id === self.id || player.status !== 'alive') continue;
+      if (player.xp <= self.xp) continue;
+      if (session.isPlayerInGrace(player.id)) continue;
+
+      const baseRadius = player.collisionRadius + self.collisionRadius;
+      hazards.push({
+        position: player.position,
+        hardRadius: baseRadius + 10,
+        influenceRadius: baseRadius + 140,
+        weight: 1.2,
+      });
+    }
+
+    for (const npc of state.npcs) {
+      if (npc.status !== 'alive') continue;
+      if (!canEat(npc.collisionRadius, self.collisionRadius)) continue;
+
+      const baseRadius = npc.collisionRadius + self.collisionRadius;
+      hazards.push({
+        position: npc.position,
+        hardRadius: baseRadius + 8,
+        influenceRadius: baseRadius + 110,
+        weight: 1,
+      });
+    }
+
+    return hazards;
+  }
+
   private boundaryAvoidance(x: number, y: number): Direction | null {
     const padding = 60;
     if (x <= GAME_BOUNDARY.buffer + padding) return { x: 1, y: 0 };
@@ -319,6 +413,10 @@ export class BotManager {
     if (y <= GAME_BOUNDARY.buffer + padding) return { x: 0, y: 1 };
     if (y >= GAME_BOUNDARY.height - GAME_BOUNDARY.buffer - padding) return { x: 0, y: -1 };
     return null;
+  }
+
+  private isSameDirection(a: Direction, b: Direction): boolean {
+    return a.x === b.x && a.y === b.y;
   }
 
   private randomDirection(botState: VirtualOpponentState): Direction {

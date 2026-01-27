@@ -296,6 +296,8 @@ export interface VirtualOpponentProfile {
   difficulty: 'easy' | 'medium' | 'hard';
   reactionIntervalMs: number;
   targetSwitchIntervalMs: number;
+  targetUpgradeCooldownMs: number;
+  directionChangeCooldownMs: number;
   playerTargetCooldownMs: number;
   riskTolerance: number;
   jitterStrength: number;
@@ -305,6 +307,10 @@ export interface VirtualOpponentState {
   playerId: string;
   profile: VirtualOpponentProfile;
   currentTargetId: string | null;
+  currentTargetValue: number;
+  nextTargetUpgradeAt: number;
+  lastInputDirection: { x: -1 | 0 | 1; y: -1 | 0 | 1 } | null;
+  lastInputChangeAt: number;
   lastDecisionAt: number;
   nextDecisionAt: number;
   lastDirectionChangeAt: number;
