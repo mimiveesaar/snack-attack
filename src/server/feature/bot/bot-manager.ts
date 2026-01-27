@@ -1,6 +1,7 @@
 import type { GameSessionState, VirtualOpponentState, BotRoster } from '../../game/state';
 import { BOT_PROFILES } from './bot-profiles';
 import { GAME_BOUNDARY } from '../../../shared/config';
+import { canEat } from '../collision/rules';
 
 type Direction = { x: -1 | 0 | 1; y: -1 | 0 | 1 };
 
@@ -79,7 +80,7 @@ export class BotManager {
       now - botState.lastDirectionChangeAt >= botState.profile.targetSwitchIntervalMs;
 
     const targetRef = shouldSwitchTarget
-      ? this.selectTarget(state, self.id, self.xp, botState)
+      ? this.selectTarget(session, self, botState)
       : currentTarget;
 
     if (shouldSwitchTarget) {
@@ -92,63 +93,128 @@ export class BotManager {
   }
 
   private selectTarget(
-    state: ReturnType<GameSessionState['getState']>,
-    botId: string,
-    botXp: number,
+    session: GameSessionState,
+    self: {
+      id: string;
+      xp: number;
+      position: { x: number; y: number };
+      collisionRadius: number;
+      powerups: string[];
+    },
     botState: VirtualOpponentState,
   ): TargetRef | null {
-    const players = state.players.filter(
-      (p) => p.id !== botId && p.status === 'alive',
-    );
+    const state = session.getState();
 
-    const threats = players.filter((p) => p.xp > botXp);
-    const preyPlayers = players.filter(
-      (p) => p.xp <= botXp || this.roll(botState, botState.profile.riskTolerance),
-    );
+    const playerTargets = state.players
+      .filter((p) => p.id !== self.id && p.status === 'alive')
+      .map((p) => ({ id: p.id, type: 'player' as const }));
 
-    const preyNpcs = state.npcs.filter((npc) => npc.status === 'alive');
+    const npcTargets = state.npcs
+      .filter((npc) => npc.status === 'alive')
+      .map((npc) => ({ id: npc.id, type: 'npc' as const }));
 
-    const preyTargets: TargetRef[] = [
-      ...preyPlayers.map((p) => ({ id: p.id, type: 'player' as const })),
-      ...preyNpcs.map((n) => ({ id: n.id, type: 'npc' as const })),
-    ];
+    const targets = [...playerTargets, ...npcTargets];
 
-    if (preyTargets.length > 0) {
-      return this.findNearestTarget(state, botId, preyTargets);
-    }
-
-    if (threats.length > 0) {
-      const threatTargets = threats.map((p) => ({ id: p.id, type: 'player' as const }));
-      return this.findNearestTarget(state, botId, threatTargets);
-    }
-
-    return null;
-  }
-
-  private findNearestTarget(
-    state: ReturnType<GameSessionState['getState']>,
-    botId: string,
-    targets: TargetRef[],
-  ): TargetRef | null {
-    const self = state.players.find((p) => p.id === botId);
-    if (!self) return null;
-
-    let closest: TargetRef | null = null;
-    let closestDist = Number.POSITIVE_INFINITY;
+    let bestTarget: TargetRef | null = null;
+    let bestScore = 0;
 
     for (const target of targets) {
-      const position = this.getTargetPosition(state, target);
-      if (!position) continue;
-      const dx = position.x - self.position.x;
-      const dy = position.y - self.position.y;
-      const dist = dx * dx + dy * dy;
-      if (dist < closestDist) {
-        closestDist = dist;
-        closest = target;
+      const score = this.getTargetScore(session, self, target, botState);
+      if (score > bestScore) {
+        bestScore = score;
+        bestTarget = target;
       }
     }
 
-    return closest;
+    return bestTarget;
+  }
+
+  private getTargetScore(
+    session: GameSessionState,
+    self: {
+      id: string;
+      xp: number;
+      position: { x: number; y: number };
+      collisionRadius: number;
+      powerups: string[];
+    },
+    target: TargetRef,
+    botState: VirtualOpponentState,
+  ): number {
+    const state = session.getState();
+    const targetPosition = this.getTargetPosition(state, target);
+    if (!targetPosition) return 0;
+
+    const canEatTarget = this.canEatTarget(session, self, target);
+    if (!canEatTarget) return 0;
+
+    const baseValue = this.getTargetBaseValue(state, target, botState);
+    if (baseValue <= 0) return 0;
+
+    const dx = targetPosition.x - self.position.x;
+    const dy = targetPosition.y - self.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distanceFactor = 1 / (1 + distance);
+
+    return baseValue * distanceFactor;
+  }
+
+  private getTargetBaseValue(
+    state: ReturnType<GameSessionState['getState']>,
+    target: TargetRef,
+    botState: VirtualOpponentState,
+  ): number {
+    if (target.type === 'npc') {
+      const npc = state.npcs.find((n) => n.id === target.id);
+      return npc ? npc.xp : 0;
+    }
+
+    const player = state.players.find((p) => p.id === target.id);
+    if (!player) return 0;
+
+    const playerMultiplier = this.getPlayerValueMultiplier(state.difficulty, botState);
+    const normalizedValue = Math.max(1, player.xp);
+    return normalizedValue * playerMultiplier;
+  }
+
+  private canEatTarget(
+    session: GameSessionState,
+    self: {
+      id: string;
+      xp: number;
+      collisionRadius: number;
+    },
+    target: TargetRef,
+  ): boolean {
+    const state = session.getState();
+    if (target.type === 'npc') {
+      const npc = state.npcs.find((n) => n.id === target.id);
+      if (!npc || npc.status !== 'alive') return false;
+      return canEat(self.collisionRadius, npc.collisionRadius);
+    }
+
+    const player = state.players.find((p) => p.id === target.id);
+    if (!player || player.status !== 'alive') return false;
+    if (player.xp >= self.xp) return false;
+    if (session.isPlayerInGrace(player.id)) return false;
+    if (player.powerups.includes('invincibility')) return false;
+    return true;
+  }
+
+  private getPlayerValueMultiplier(
+    difficulty: ReturnType<GameSessionState['getState']>['difficulty'],
+    botState: VirtualOpponentState,
+  ): number {
+    switch (difficulty) {
+      case 'easy':
+        return 0.6 + botState.profile.riskTolerance * 0.2;
+      case 'medium':
+        return 1;
+      case 'hard':
+        return 1.4 + (1 - botState.profile.riskTolerance) * 0.2;
+      default:
+        return 1;
+    }
   }
 
   private getTargetPosition(
